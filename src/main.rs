@@ -1,37 +1,11 @@
-use std::str::FromStr;
+use clap::Parser;
 
-use clap::{ArgGroup, Parser};
-
-#[derive(Parser)]
-#[clap(version, about)]
-#[clap(group(ArgGroup::new("pixel_ratio").args(&["ratio", "retina"])))]
-struct Cli {
-    /// A directory of SVGs to include in the spritesheet
-    input: String,
-    /// Name of the file in which to save the spritesheet
-    output: String,
-    /// Set the output pixel ratio
-    #[clap(short, long, default_value_t = 1, validator = is_positive)]
-    ratio: u8,
-    /// Set the pixel ratio to 2 (equivalent to --ratio=2)
-    #[clap(long)]
-    retina: bool,
-}
-
-/// Clap validator to ensure that an unsigned integer parsed from a string is greater than zero.
-fn is_positive(s: &str) -> Result<(), String> {
-    u8::from_str(s)
-        .map_err(|e| e.to_string())
-        .and_then(|result| match result {
-            i if i > 0 => Ok(()),
-            _ => Err(String::from("must be greater than one")),
-        })
-}
+mod cli;
 
 fn main() {
-    let cli = Cli::parse();
-    println!("Retina: {}", cli.retina);
-    println!("Ratio: {}", cli.ratio);
-    println!("Input: {}", cli.input);
-    println!("Output: {}", cli.output);
+    let args = cli::Cli::parse();
+    println!("Retina: {}", args.retina);
+    println!("Ratio: {}", args.ratio);
+    println!("Input: {}", args.input);
+    println!("Output: {}", args.output);
 }
