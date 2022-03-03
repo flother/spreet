@@ -3,6 +3,7 @@ name = "spreet"
 version = "0.1.0"
 edition = "2021"
 description = "Create a spritesheet from a set of SVG images"
+repository = "https://github.com/flother/spreet"
 license = "MIT"
 keywords = ["sprite", "svg", "cartography", "vector-tiles", "maplibre"]
 categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
