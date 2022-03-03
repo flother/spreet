@@ -2,7 +2,10 @@
 name = "spreet"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Create a spritesheet from a set of SVG images"
+license = "MIT"
+keywords = ["sprite", "svg", "cartography", "vector-tiles", "maplibre"]
+categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 
 [dependencies]
+clap = { version = "3.1", features = ["derive"] }
