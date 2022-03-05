@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::str::FromStr;
 
 use clap::{ArgGroup, Parser};
@@ -8,7 +9,8 @@ use clap::{ArgGroup, Parser};
 #[clap(group(ArgGroup::new("pixel_ratio").args(&["ratio", "retina"])))]
 pub struct Cli {
     /// A directory of SVGs to include in the spritesheet
-    pub input: String,
+    #[clap(validator = is_dir)]
+    pub input: PathBuf,
     /// Name of the file in which to save the spritesheet
     pub output: String,
     /// Set the output pixel ratio
@@ -17,6 +19,14 @@ pub struct Cli {
     /// Set the pixel ratio to 2 (equivalent to `--ratio=2`)
     #[clap(long)]
     pub retina: bool,
+}
+
+/// Clap validator to ensure that a string is an existing directory.
+fn is_dir(p: &str) -> Result<(), String> {
+    match PathBuf::from(p).is_dir() {
+        true => Ok(()),
+        false => Err(String::from("must be an existing directory")),
+    }
 }
 
 /// Clap validator to ensure that an unsigned integer parsed from a string is greater than zero.

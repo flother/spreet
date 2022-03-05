@@ -10,6 +10,7 @@ categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 
 [dependencies]
 clap = { version = "3.1", features = ["derive"] }
+walkdir = "2"
 
 [dev-dependencies]
 assert_cmd = "2.0"
