@@ -48,7 +48,7 @@ pub fn is_interesting_input(entry: &DirEntry) -> bool {
 ///
 /// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
 pub fn save_sprite_index_file(
-    file_name_prefix: &String,
+    file_name_prefix: &str,
     sprite_index: BTreeMap<&String, SpriteDescription>,
 ) -> std::io::Result<()> {
     let mut file = File::create(format!("{}.json", file_name_prefix))?;
@@ -64,10 +64,7 @@ pub fn save_sprite_index_file(
 /// The spritesheet will match an index file that can be saved with [`save_sprite_index_file`].
 ///
 /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
-pub fn save_spritesheet(
-    file_name_prefix: &String,
-    spritesheet: Pixmap,
-) -> Result<(), EncodingError> {
+pub fn save_spritesheet(file_name_prefix: &str, spritesheet: Pixmap) -> Result<(), EncodingError> {
     spritesheet.save_png(format!("{}.png", file_name_prefix))?;
     Ok(())
 }
