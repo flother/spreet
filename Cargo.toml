@@ -10,6 +10,14 @@ categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 
 [dependencies]
 clap = { version = "3.1", features = ["derive"] }
+exitcode = "1.1"
+png = "0.17"
+rectangle-pack = "0.4"
+resvg = "0.22"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tiny-skia = "0.6"
+usvg = "0.22"
 walkdir = "2"
 
 [dev-dependencies]
