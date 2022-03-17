@@ -22,10 +22,8 @@ fn main() {
     // Collect the file paths for all SVG images in the input directory.
     let mut file_paths = Vec::new();
     let walker = WalkDir::new(args.input).follow_links(true).into_iter();
-    for entry in walker.filter_entry(|e| is_interesting_input(e)) {
-        if let Ok(actual_entry) = entry {
-            file_paths.push(actual_entry.into_path());
-        }
+    for entry in walker.filter_entry(is_interesting_input).flatten() {
+        file_paths.push(entry.into_path());
     }
 
     // Read all SVG data from the input files and convert them to bitmap sprites.
