@@ -2,8 +2,6 @@ use std::collections::BTreeMap;
 use std::fs;
 
 use clap::Parser;
-use exitcode;
-use rectangle_pack;
 use resvg::render;
 use tiny_skia::{Pixmap, PixmapPaint, Transform};
 use usvg::{FitTo, Options, Tree};
