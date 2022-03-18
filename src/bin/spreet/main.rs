@@ -21,9 +21,13 @@ fn main() {
 
     // Collect the file paths for all SVG images in the input directory.
     let mut file_paths = Vec::new();
-    let walker = WalkDir::new(args.input).follow_links(true).into_iter();
+    let walker = WalkDir::new(&args.input).follow_links(true).into_iter();
     for entry in walker.filter_entry(is_interesting_input).flatten() {
         file_paths.push(entry.into_path());
+    }
+    if file_paths.is_empty() {
+        eprintln!("Error: no SVGs found in {:?}", &args.input);
+        std::process::exit(exitcode::NOINPUT);
     }
 
     // Read all SVG data from the input files and convert them to bitmap sprites.
