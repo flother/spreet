@@ -45,14 +45,12 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cd target/${{ matrix.target }}/release
-        strip spreet.exe
         7z a ../../../${{ matrix.package }} spreet.exe
         cd -
     - name: Prepare Unix package
       if: matrix.os != 'windows-latest'
       run: |
         cd target/${{ matrix.target }}/release
-        strip spreet || true
         tar czvf ../../../${{ matrix.package }} spreet
         cd -
     - name: Upload artifact
