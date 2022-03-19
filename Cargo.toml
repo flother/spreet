@@ -26,3 +26,4 @@ assert_cmd = "2.0"
 [profile.release]
 lto = "thin"
 strip = true
+codegen-units = 1
