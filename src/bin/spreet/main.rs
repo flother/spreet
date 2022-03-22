@@ -58,28 +58,43 @@ fn main() {
         }
     }
 
-    // Set up a single target bin (we only need one because we only want one spritesheet). Pack the
-    // sprite rectangles into the bin.
-    //
-    // TODO: The rectangle-pack library doesn't support automatically resizing the target bin if it
-    // runs out of space. But if you give it too large a space --- say, 4096×4096 pixels --- then
-    // it will do its best to use all that space. We want the most compact form possible, so a
-    // solution would be to start with a square exactly the size of the sprites' total pixels and
-    // expand in 0.1 increments each time it runs out of space. Here a 1.4 multiplier is hard-coded
-    // for now, but that must be replaced.
-    let bin_dimensions = (total_pixels as f32 * 1.4).sqrt().ceil() as u32;
-    let mut target_bins = BTreeMap::new();
-    target_bins.insert(
-        "target_bin",
-        rectangle_pack::TargetBin::new(bin_dimensions, bin_dimensions, 1),
-    );
-    let rectangle_placements = rectangle_pack::pack_rects(
-        &spritesheet_rects,
-        &mut target_bins,
-        &rectangle_pack::volume_heuristic,
-        &rectangle_pack::contains_smallest_box,
-    )
-    .unwrap();
+    // The rectangle-pack library doesn't support automatically resizing the target bin if it runs
+    // out of space. But if you give it too large a space --- say, 4096×4096 pixels --- then it will
+    // do its best to use all that space. We want the most compact form possible, so the solution is
+    // to start with a square exactly the size of the sprites' total pixels and expand in 0.1
+    // increments each time it runs out of space.
+    // TODO: Ensure target bin is at least as wide/tall as the widest/tallest sprite.
+    let rectangle_placements;
+    let mut bin_dimensions;
+    let mut i = 1.0;
+    loop {
+        // Set up a single square target bin. (We only need one because we only want one
+        // spritesheet). Attempt to pack the rectangular sprites into the bin.
+        bin_dimensions = (total_pixels as f32 * i).sqrt().ceil() as u32;
+        let mut target_bins = BTreeMap::new();
+        target_bins.insert(
+            "target_bin",
+            rectangle_pack::TargetBin::new(bin_dimensions, bin_dimensions, 1),
+        );
+        let result = rectangle_pack::pack_rects(
+            &spritesheet_rects,
+            &mut target_bins,
+            &rectangle_pack::volume_heuristic,
+            &rectangle_pack::contains_smallest_box,
+        );
+        if let Ok(placements) = result {
+            rectangle_placements = placements;
+            break;
+        } else if i >= 50.0 {
+            // This is to stop an infinite loop. If we've reached the point where the bin-packing
+            // algorithm can't fit the sprites into a square fifty times the size of the sprites
+            // combined, we're in trouble. (This would likely come about in a situation where there
+            // is an extraordinary long and tall sprite.)
+            eprintln!("Error: could not pack the sprites within an area fifty times their size.");
+            std::process::exit(exitcode::DATAERR);
+        }
+        i += 0.1;
+    }
     // There might be some unused space in the target bin --- not all the pixels on the right/bottom
     // edges may have been used. Count the pixels in use so we can strip off any empty edges in the
     // final spritesheet. The won't strip any transparent pixels within a sprite, just unused pixels
