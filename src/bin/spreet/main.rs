@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::collections::BTreeMap;
 use std::fs;
 
@@ -34,6 +35,8 @@ fn main() {
     let mut sprites = BTreeMap::new();
     let mut spritesheet_rects = rectangle_pack::GroupedRectsToPlace::new();
     let mut total_pixels = 0; // Pixels in the sprites. Used to decide the size of the spritesheet.
+    let mut max_sprite_width = 0;
+    let mut max_sprite_height = 0;
     for file_path in file_paths {
         if let Ok(svg_data) = fs::read(&file_path) {
             let sprite_name = format!("{}", file_path.file_stem().unwrap().to_string_lossy());
@@ -53,6 +56,8 @@ fn main() {
                     rectangle_pack::RectToInsert::new(sprite.width(), sprite.height(), 1),
                 );
                 total_pixels += sprite.height() * sprite.width();
+                max_sprite_width = max(sprite.width(), max_sprite_width);
+                max_sprite_height = max(sprite.height(), max_sprite_height);
                 sprites.insert(sprite_name, sprite);
             }
         }
@@ -63,18 +68,23 @@ fn main() {
     // do its best to use all that space. We want the most compact form possible, so the solution is
     // to start with a square exactly the size of the sprites' total pixels and expand in 0.1
     // increments each time it runs out of space.
-    // TODO: Ensure target bin is at least as wide/tall as the widest/tallest sprite.
     let rectangle_placements;
     let mut bin_dimensions;
     let mut i = 1.0;
     loop {
-        // Set up a single square target bin. (We only need one because we only want one
-        // spritesheet). Attempt to pack the rectangular sprites into the bin.
+        // Set up a single target bin. (We only need one because we only want one spritesheet.)
+        // It's usually a square but it's always at least the width of the widest sprite, and the
+        // height of the tallest sprite, so it may be rectangular. Attempt to pack all the sprites
+        // into the bin.
         bin_dimensions = (total_pixels as f32 * i).sqrt().ceil() as u32;
         let mut target_bins = BTreeMap::new();
         target_bins.insert(
             "target_bin",
-            rectangle_pack::TargetBin::new(bin_dimensions, bin_dimensions, 1),
+            rectangle_pack::TargetBin::new(
+                max(bin_dimensions, max_sprite_width),
+                max(bin_dimensions, max_sprite_height),
+                1,
+            ),
         );
         let result = rectangle_pack::pack_rects(
             &spritesheet_rects,
