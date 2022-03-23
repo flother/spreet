@@ -3,7 +3,6 @@ use std::fs::File;
 use std::io::Write;
 
 use png::EncodingError;
-use serde_json::json;
 use tiny_skia::Pixmap;
 use walkdir::DirEntry;
 
@@ -52,7 +51,8 @@ pub fn save_sprite_index_file(
     sprite_index: BTreeMap<&String, SpriteDescription>,
 ) -> std::io::Result<()> {
     let mut file = File::create(format!("{}.json", file_name_prefix))?;
-    write!(file, "{}", json!(sprite_index))?; // TODO: Save pretty-printed output.
+    let json_string = serde_json::to_string_pretty(&sprite_index)?;
+    write!(file, "{}", json_string)?;
     Ok(())
 }
 
