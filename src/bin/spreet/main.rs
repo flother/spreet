@@ -116,7 +116,7 @@ fn main() {
     // using the locations from the previous step, and store those locations in the vector that will
     // be output as the sprite index file.
     let mut sprite_index = BTreeMap::new();
-    let mut spritesheet = Pixmap::new(bin_dimensions, bin_dimensions).unwrap();
+    let mut spritesheet = Pixmap::new(bin_width, bin_height).unwrap();
     let pixmap_paint = PixmapPaint::default();
     let pixmap_transform = Transform::default();
     for (sprite_name, rectangle) in rectangle_placements.packed_locations().iter() {
