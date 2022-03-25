@@ -58,3 +58,33 @@ jobs:
       with:
         name: ${{ matrix.package }}
         path: ${{ matrix.package }}
+  publish:
+    name: Publish draft release
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+    - id: version
+      name: Get version number
+      run: |
+        VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
+        echo "::set-output name=version::$VERSION"
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./bin
+    - name: Create draft release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: v${{ steps.version.outputs.version }}
+        draft: true
+        generate_release_notes: true
+        files: |
+          ./bin/**/*.zip
+          ./bin/**/*.tar.gz
