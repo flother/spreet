@@ -1,10 +1,9 @@
 use std::collections::BTreeMap;
-use std::fs::File;
+use std::fs::{DirEntry, File};
 use std::io::Write;
 
 use png::EncodingError;
 use tiny_skia::Pixmap;
-use walkdir::DirEntry;
 
 use crate::sprite::SpriteDescription;
 
@@ -17,13 +16,8 @@ fn is_hidden(entry: &DirEntry) -> bool {
         .unwrap_or(false)
 }
 
-/// Returns `true` if `entry` is a directory in the filesystem, `false` otherwise.
-fn is_dir(entry: &DirEntry) -> bool {
-    entry.path().is_dir()
-}
-
 /// Returns `true` if `entry` is a file with the extension `.svg`, `false` otherwise.
-fn is_svg(entry: &DirEntry) -> bool {
+fn is_svg_file(entry: &DirEntry) -> bool {
     entry.path().is_file()
         && entry
             .path()
@@ -32,9 +26,9 @@ fn is_svg(entry: &DirEntry) -> bool {
             .unwrap_or(false)
 }
 
-/// Returns `true` if `entry` is either a directory or an SVG image, and isn't hidden.
+/// Returns `true` if `entry` is an SVG image and isn't hidden.
 pub fn is_interesting_input(entry: &DirEntry) -> bool {
-    !is_hidden(entry) && (is_dir(entry) || is_svg(entry))
+    !is_hidden(entry) && is_svg_file(entry)
 }
 
 /// Saves the `sprite_index` to a local file named `file_name_prefix` + ".json".

@@ -6,7 +6,6 @@ use clap::Parser;
 use resvg::render;
 use tiny_skia::{Pixmap, PixmapPaint, Transform};
 use usvg::{FitTo, Options, Tree};
-use walkdir::WalkDir;
 
 use spreet::fs::{is_interesting_input, save_sprite_index_file};
 use spreet::sprite::SpriteDescription;
@@ -22,9 +21,12 @@ fn main() {
 
     // Collect the file paths for all SVG images in the input directory.
     let mut file_paths = Vec::new();
-    let walker = WalkDir::new(&args.input).follow_links(true).into_iter();
-    for entry in walker.filter_entry(is_interesting_input).flatten() {
-        file_paths.push(entry.into_path());
+    for entry in fs::read_dir(&args.input)
+        .unwrap()
+        .flatten()
+        .filter(is_interesting_input)
+    {
+        file_paths.push(entry.path());
     }
     if file_paths.is_empty() {
         eprintln!("Error: no SVGs found in {:?}", &args.input);

@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+- Match the way [`spritezero-cli`](https://github.com/mapbox/spritezero-cli) traverses the input directory
+
 ## v0.2.0 (2022-03-22)
 
 - Resize the target bin as required, instead of hardcoding a square 1.4 times the size of the sprites
