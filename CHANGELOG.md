@@ -4,6 +4,7 @@
 
 - Resize the target bin as required, instead of hardcoding a square 1.4 times the size of the sprites
 - Trim unused transparent pixels from the spritesheet (excluding transparent pixels within sprites)
+- Ensure target bin is at least as wide/tall as the widest/tallest sprite
 - Pretty-print the JSON in the sprite index file
 - Strip symbols from binaries using Cargo
 - Add GitHub Actions workflow to draft a new release when a new tag is created
