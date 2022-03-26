@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::fs::{DirEntry, File};
 use std::io::Write;
 
-use png::EncodingError;
+use oxipng::optimize_from_memory;
 use tiny_skia::Pixmap;
 
 use crate::sprite::SpriteDescription;
@@ -50,15 +50,21 @@ pub fn save_sprite_index_file(
     Ok(())
 }
 
-/// Saves the spritesheet to a local file names `file_name_prefix` + ".png".
+/// Saves the spritesheet to a local file named `path`.
 ///
 /// A spritesheet, called an [image file] in the Mapbox Style Specification, is a PNG image
-/// containing all the individual sprite images.
+/// containing all the individual sprite images. The `spritesheet` `Pixmap` is converted to an
+/// in-memory PNG, optimised using the [`oxipng`] library, and saved to a local file.
 ///
 /// The spritesheet will match an index file that can be saved with [`save_sprite_index_file`].
 ///
 /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
-pub fn save_spritesheet(file_name_prefix: &str, spritesheet: Pixmap) -> Result<(), EncodingError> {
-    spritesheet.save_png(format!("{}.png", file_name_prefix))?;
+/// [`oxipng`]: https://github.com/shssoichiro/oxipng
+pub fn save_spritesheet(path: &str, spritesheet: Pixmap) -> Result<(), std::io::Error> {
+    let spritesheet_png = spritesheet.encode_png()?;
+    // TODO: Don't just unwrap the result returned by optimize_from_memory, handle it properly.
+    let spritesheet_png =
+        optimize_from_memory(spritesheet_png.as_slice(), &oxipng::Options::default()).unwrap();
+    std::fs::write(path, spritesheet_png)?;
     Ok(())
 }

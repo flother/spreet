@@ -11,6 +11,7 @@ categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 [dependencies]
 clap = { version = "3.1", features = ["derive"] }
 exitcode = "1.1"
+oxipng = "5"
 png = "0.17"
 rectangle-pack = "0.4"
 resvg = "0.22"

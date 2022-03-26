@@ -7,7 +7,7 @@ use resvg::render;
 use tiny_skia::{Pixmap, PixmapPaint, Transform};
 use usvg::{FitTo, Options, Tree};
 
-use spreet::fs::{is_interesting_input, save_sprite_index_file};
+use spreet::fs::{is_interesting_input, save_sprite_index_file, save_spritesheet};
 use spreet::sprite::SpriteDescription;
 
 mod cli;
@@ -154,17 +154,13 @@ fn main() {
         );
     }
 
-    // Save the spritesheet (what Mapbox call the image file) as a PNG image.
-    // https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
-    match spritesheet.save_png(format!("{}.png", args.output)) {
-        Ok(()) => {}
-        Err(e) => {
-            eprintln!(
-                "Error: could not save spritesheet to {} ({})",
-                args.output, e
-            );
-            std::process::exit(exitcode::IOERR);
-        }
+    let spritesheet_path = format!("{}.png", args.output);
+    if let Err(e) = save_spritesheet(&spritesheet_path, spritesheet) {
+        eprintln!(
+            "Error: could not save spritesheet to {} ({})",
+            spritesheet_path, e
+        );
+        std::process::exit(exitcode::IOERR);
     };
     // Save the index file (a JSON document containing a description of each image contained in the
     // sprite) to a local file with the same name as the spritesheet.
