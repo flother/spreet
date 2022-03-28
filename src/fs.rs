@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
-use std::fs::{DirEntry, File};
+use std::fs::{read_dir, DirEntry, File};
 use std::io::Write;
+use std::path::{Path, PathBuf};
 
 use oxipng::optimize_from_memory;
 use tiny_skia::Pixmap;
@@ -27,8 +28,21 @@ fn is_svg_file(entry: &DirEntry) -> bool {
 }
 
 /// Returns `true` if `entry` is an SVG image and isn't hidden.
-pub fn is_interesting_input(entry: &DirEntry) -> bool {
+pub fn is_useful_input(entry: &DirEntry) -> bool {
     !is_hidden(entry) && is_svg_file(entry)
+}
+
+/// Returns a vector of file paths matching all SVGs within the given directory.
+///
+/// This does not recurse into sub-directories; they are silently ignored. It ignores hidden files
+/// (files whose names begin with `.`) but it does follow symlinks.
+pub fn get_svg_input_paths(path: &Path) -> Vec<PathBuf> {
+    read_dir(&path)
+        .unwrap()
+        .flatten()
+        .filter(is_useful_input)
+        .map(|entry| entry.path())
+        .collect()
 }
 
 /// Saves the `sprite_index` to a local file named `file_name_prefix` + ".json".

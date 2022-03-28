@@ -7,7 +7,7 @@ use resvg::render;
 use tiny_skia::{Pixmap, PixmapPaint, Transform};
 use usvg::{FitTo, Options, Tree};
 
-use spreet::fs::{is_interesting_input, save_sprite_index_file, save_spritesheet};
+use spreet::fs::{get_svg_input_paths, save_sprite_index_file, save_spritesheet};
 use spreet::sprite::SpriteDescription;
 
 mod cli;
@@ -20,15 +20,8 @@ fn main() {
     let pixel_ratio = if args.retina { 2 } else { args.ratio };
 
     // Collect the file paths for all SVG images in the input directory.
-    let mut file_paths = Vec::new();
-    for entry in fs::read_dir(&args.input)
-        .unwrap()
-        .flatten()
-        .filter(is_interesting_input)
-    {
-        file_paths.push(entry.path());
-    }
-    if file_paths.is_empty() {
+    let svg_paths = get_svg_input_paths(&args.input);
+    if svg_paths.is_empty() {
         eprintln!("Error: no SVGs found in {:?}", &args.input);
         std::process::exit(exitcode::NOINPUT);
     }
@@ -39,9 +32,9 @@ fn main() {
     let mut total_pixels = 0; // Pixels in the sprites. Used to decide the size of the spritesheet.
     let mut max_sprite_width = 0;
     let mut max_sprite_height = 0;
-    for file_path in file_paths {
-        if let Ok(svg_data) = fs::read(&file_path) {
-            let sprite_name = format!("{}", file_path.file_stem().unwrap().to_string_lossy());
+    for svg_path in svg_paths {
+        if let Ok(svg_data) = fs::read(&svg_path) {
+            let sprite_name = format!("{}", svg_path.file_stem().unwrap().to_string_lossy());
             let fit_to = FitTo::Zoom(pixel_ratio as f32);
             let tree = Tree::from_data(&svg_data, &Options::default().to_ref());
             if let Ok(t) = tree {
