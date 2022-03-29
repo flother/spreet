@@ -4,6 +4,7 @@
 
 - Optimise spritesheet PNG using [`oxipng`](https://github.com/shssoichiro/oxipng)
 - Match the way [`spritezero-cli`](https://github.com/mapbox/spritezero-cli) traverses the input directory
+- Provide a Homebrew formula tap for easy MacOS/Linux installation
 
 ## v0.2.0 (2022-03-22)
 
