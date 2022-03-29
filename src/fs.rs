@@ -1,14 +1,9 @@
-use std::collections::BTreeMap;
-use std::fs::{read, read_dir, DirEntry, File};
-use std::io::Write;
+use std::fs::{read, read_dir, DirEntry};
 use std::path::{Path, PathBuf};
 
-use oxipng::optimize_from_memory;
-use tiny_skia::Pixmap;
 use usvg::{Options, Tree};
 
 use crate::error::Error;
-use crate::sprite::SpriteDescription;
 
 /// Returns `true` if `entry`'s file name starts with `.`, `false` otherwise.
 fn is_hidden(entry: &DirEntry) -> bool {
@@ -53,41 +48,4 @@ pub fn load_svg(path: &Path) -> Result<Tree, Error> {
         &read(&path)?,
         &Options::default().to_ref(),
     )?)
-}
-
-/// Saves the `sprite_index` to a local file named `file_name_prefix` + ".json".
-///
-/// An [index file] is defined in the Mapbox Style Specification as a JSON document containing a
-/// description of each sprite within a spritesheet. It contains the width, height, x and y
-/// positions, and pixel ratio of the sprite.
-///
-/// The index file will match a spritesheet that can be saved with [`save_spritesheet`].
-///
-/// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
-pub fn save_sprite_index_file(
-    file_name_prefix: &str,
-    sprite_index: BTreeMap<&String, SpriteDescription>,
-) -> std::io::Result<()> {
-    let mut file = File::create(format!("{}.json", file_name_prefix))?;
-    let json_string = serde_json::to_string_pretty(&sprite_index)?;
-    write!(file, "{}", json_string)?;
-    Ok(())
-}
-
-/// Saves the spritesheet to a local file named `path`.
-///
-/// A spritesheet, called an [image file] in the Mapbox Style Specification, is a PNG image
-/// containing all the individual sprite images. The `spritesheet` `Pixmap` is converted to an
-/// in-memory PNG, optimised using the [`oxipng`] library, and saved to a local file.
-///
-/// The spritesheet will match an index file that can be saved with [`save_sprite_index_file`].
-///
-/// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
-/// [`oxipng`]: https://github.com/shssoichiro/oxipng
-pub fn save_spritesheet(path: &str, spritesheet: Pixmap) -> Result<(), Error> {
-    let spritesheet_png = spritesheet.encode_png()?;
-    let spritesheet_png =
-        optimize_from_memory(spritesheet_png.as_slice(), &oxipng::Options::default())?;
-    std::fs::write(path, spritesheet_png)?;
-    Ok(())
 }
