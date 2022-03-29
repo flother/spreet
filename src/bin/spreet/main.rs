@@ -1,14 +1,11 @@
 use std::cmp::max;
 use std::collections::BTreeMap;
-use std::fs;
 
 use clap::Parser;
-use resvg::render;
 use tiny_skia::{Pixmap, PixmapPaint, Transform};
-use usvg::{FitTo, Options, Tree};
 
-use spreet::fs::{get_svg_input_paths, save_sprite_index_file, save_spritesheet};
-use spreet::sprite::SpriteDescription;
+use spreet::fs::{get_svg_input_paths, load_svg, save_sprite_index_file, save_spritesheet};
+use spreet::sprite;
 
 mod cli;
 
@@ -26,37 +23,49 @@ fn main() {
         std::process::exit(exitcode::NOINPUT);
     }
 
-    // Read all SVG data from the input files and convert them to bitmap sprites.
+    // Read from all the input SVG files, convert them into bitmaps at the correct pixel ratio, and
+    // store them in a map. The keys are the SVG filenames without the `.svg` extension. The
+    // bitmapped SVGs will be added to the spritesheet, and the keys will be used as the unique
+    // sprite ids in the JSON index file.
     let mut sprites = BTreeMap::new();
-    let mut spritesheet_rects = rectangle_pack::GroupedRectsToPlace::new();
-    let mut total_pixels = 0; // Pixels in the sprites. Used to decide the size of the spritesheet.
-    let mut max_sprite_width = 0;
-    let mut max_sprite_height = 0;
     for svg_path in svg_paths {
-        if let Ok(svg_data) = fs::read(&svg_path) {
-            let sprite_name = format!("{}", svg_path.file_stem().unwrap().to_string_lossy());
-            let fit_to = FitTo::Zoom(pixel_ratio as f32);
-            let tree = Tree::from_data(&svg_data, &Options::default().to_ref());
-            if let Ok(t) = tree {
-                // A valid SVG document has been parsed from the file contents, now convert
-                // it to a bitmap.
-                let size = fit_to.fit_to(t.svg_node().size.to_screen_size()).unwrap();
-                let mut sprite = Pixmap::new(size.width(), size.height()).unwrap();
-                render(&t, fit_to, Transform::default(), sprite.as_mut());
-                // Set aside a rectangular space for the bitmap sprite. This will be packed
-                // into the spritesheet later.
-                spritesheet_rects.push_rect(
-                    sprite_name.clone(),
-                    Some(vec![1]),
-                    rectangle_pack::RectToInsert::new(sprite.width(), sprite.height(), 1),
+        match load_svg(&svg_path) {
+            Ok(svg) => {
+                sprites.insert(
+                    sprite::sprite_name(&svg_path),
+                    sprite::generate_pixmap_from_svg(svg, pixel_ratio).unwrap(),
                 );
-                total_pixels += sprite.height() * sprite.width();
-                max_sprite_width = max(sprite.width(), max_sprite_width);
-                max_sprite_height = max(sprite.height(), max_sprite_height);
-                sprites.insert(sprite_name, sprite);
+            }
+            Err(_) => {
+                eprintln!("{:?}: not a valid SVG image", &svg_path);
+                std::process::exit(exitcode::DATAERR);
             }
         }
     }
+    if sprites.is_empty() {
+        eprintln!("Error: no valid SVGs found in {:?}", &args.input);
+        std::process::exit(exitcode::NOINPUT);
+    }
+
+    // Set aside a rectangular space for the bitmap sprite. This will be packed into the spritesheet
+    // later.
+    let spritesheet_rects = sprite::generate_spritesheet_rects(&sprites);
+    // Get the width the widest sprite. Used to enforce a minimum width for the spritesheet.
+    let max_sprite_width = sprites
+        .values()
+        .max_by(|x, y| x.width().cmp(&y.width()))
+        .unwrap()
+        .width();
+    // Get the height the tallest sprite. Used to enforce a minimum height for the spritesheet.
+    let max_sprite_height = sprites
+        .values()
+        .max_by(|x, y| x.height().cmp(&y.height()))
+        .unwrap()
+        .height();
+    // Calculate total number of pixels in the sprites. Used to decide the size of the spritesheet.
+    let total_pixels = sprites
+        .values()
+        .fold(0u32, |sum, p| sum + (p.width() * p.height()));
 
     // The rectangle-pack library doesn't support automatically resizing the target bin if it runs
     // out of space. But if you give it too large a space --- say, 4096×4096 pixels --- then it will
@@ -137,7 +146,7 @@ fn main() {
         );
         sprite_index.insert(
             sprite_name,
-            SpriteDescription {
+            sprite::SpriteDescription {
                 height: location.height(),
                 width: location.width(),
                 pixel_ratio,

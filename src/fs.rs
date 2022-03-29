@@ -1,11 +1,13 @@
 use std::collections::BTreeMap;
-use std::fs::{read_dir, DirEntry, File};
+use std::fs::{read, read_dir, DirEntry, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use oxipng::optimize_from_memory;
 use tiny_skia::Pixmap;
+use usvg::{Options, Tree};
 
+use crate::error::Error;
 use crate::sprite::SpriteDescription;
 
 /// Returns `true` if `entry`'s file name starts with `.`, `false` otherwise.
@@ -45,6 +47,14 @@ pub fn get_svg_input_paths(path: &Path) -> Vec<PathBuf> {
         .collect()
 }
 
+// Load an SVG image from a file path.
+pub fn load_svg(path: &Path) -> Result<Tree, Error> {
+    Ok(Tree::from_data(
+        &read(&path)?,
+        &Options::default().to_ref(),
+    )?)
+}
+
 /// Saves the `sprite_index` to a local file named `file_name_prefix` + ".json".
 ///
 /// An [index file] is defined in the Mapbox Style Specification as a JSON document containing a
@@ -74,11 +84,10 @@ pub fn save_sprite_index_file(
 ///
 /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
 /// [`oxipng`]: https://github.com/shssoichiro/oxipng
-pub fn save_spritesheet(path: &str, spritesheet: Pixmap) -> Result<(), std::io::Error> {
+pub fn save_spritesheet(path: &str, spritesheet: Pixmap) -> Result<(), Error> {
     let spritesheet_png = spritesheet.encode_png()?;
-    // TODO: Don't just unwrap the result returned by optimize_from_memory, handle it properly.
     let spritesheet_png =
-        optimize_from_memory(spritesheet_png.as_slice(), &oxipng::Options::default()).unwrap();
+        optimize_from_memory(spritesheet_png.as_slice(), &oxipng::Options::default())?;
     std::fs::write(path, spritesheet_png)?;
     Ok(())
 }
