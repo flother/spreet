@@ -47,7 +47,7 @@ fn main() {
 
     // Save the spritesheet and index file if the sprites could be packed successfully, or exit with
     // an error code if not.
-    if let Some(spritesheet) = sprite::Spritesheet::new(sprites, pixel_ratio) {
+    if let Some(spritesheet) = sprite::Spritesheet::new(sprites, pixel_ratio, 50.0) {
         let spritesheet_path = format!("{}.png", args.output);
         // Save the bitmapped spritesheet to a local PNG.
         if let Err(e) = spritesheet.save_spritesheet(&spritesheet_path) {

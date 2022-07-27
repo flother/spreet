@@ -34,7 +34,7 @@ pub struct Spritesheet {
 }
 
 impl Spritesheet {
-    pub fn new(sprites: BTreeMap<String, Pixmap>, pixel_ratio: u8) -> Option<Self> {
+    pub fn new(sprites: BTreeMap<String, Pixmap>, pixel_ratio: u8, max_size: f32) -> Option<Self> {
         // Get the width the widest sprite. Used to enforce a minimum width for the spritesheet.
         let max_sprite_width = sprites
             .values()
@@ -85,11 +85,11 @@ impl Spritesheet {
             if let Ok(placements) = result {
                 rectangle_placements = placements;
                 break;
-            } else if i >= 50.0 {
+            } else if i >= max_size {
                 // This is to stop an infinite loop. If we've reached the point where the bin-packing
-                // algorithm can't fit the sprites into a square fifty times the size of the sprites
-                // combined, we're in trouble. (This would likely come about in a situation where there
-                // is an extraordinary long and tall sprite.)
+                // algorithm can't fit the sprites into a square `max_size` times the size of the
+                // sprites combined, we're in trouble. (This would likely come about in a situation
+                // where there is an extraordinary long and tall sprite.)
                 return None;
             }
             i += 0.1;
