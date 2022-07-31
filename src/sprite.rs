@@ -28,16 +28,16 @@ pub struct SpriteDescription {
     pub y: u32,
 }
 
-/// A bitmapped spritesheet and its matching index.
-pub struct Spritesheet {
-    sheet: Pixmap,
-    index: BTreeMap<String, SpriteDescription>,
-}
-
 // A set of unique sprites mapped to multiple names as required.
 struct UniqueSprites {
     sprites: BTreeMap<String, Pixmap>,
     references: MultiMap<String, String>,
+}
+
+// A bitmapped spritesheet and its matching index.
+pub struct Spritesheet {
+    sheet: Pixmap,
+    index: BTreeMap<String, SpriteDescription>,
 }
 
 impl Spritesheet {
