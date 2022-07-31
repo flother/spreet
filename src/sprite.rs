@@ -266,7 +266,6 @@ fn generate_unique_sprites(sprites: &BTreeMap<String, Pixmap>) -> UniqueSprites 
     for (name, sprite) in sprites {
         let sprite_data = sprite.data();
         if let Some(existing_sprite_name) = names_for_sprites.get(sprite_data) {
-            println!("Found an existing sprite for {}", name);
             references.insert(existing_sprite_name.clone(), name.clone());
         } else {
             names_for_sprites.insert(sprite_data, name.clone());
