@@ -28,10 +28,81 @@ pub struct SpriteDescription {
     pub y: u32,
 }
 
-// A set of unique sprites mapped to multiple names as required.
-struct UniqueSprites {
-    sprites: BTreeMap<String, Pixmap>,
-    references: MultiMap<String, String>,
+/// Builder pattern for `Spritesheet`: construct a `Spritesheet` object using calls to a builder
+/// helper.
+pub struct SpritesheetBuilder {
+    sprites: Option<BTreeMap<String, Pixmap>>,
+    references: Option<MultiMap<String, String>>,
+    pixel_ratio: u8,
+    max_size: f32,
+}
+
+impl Default for SpritesheetBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SpritesheetBuilder {
+    pub fn new() -> Self {
+        Self {
+            sprites: None,
+            references: None,
+            pixel_ratio: 1,
+            max_size: 10.0,
+        }
+    }
+
+    pub fn sprites(mut self, sprites: BTreeMap<String, Pixmap>) -> Self {
+        self.sprites = Some(sprites);
+        self
+    }
+
+    pub fn pixel_ratio(mut self, pixel_ratio: u8) -> Self {
+        self.pixel_ratio = pixel_ratio;
+        self
+    }
+
+    pub fn max_size(mut self, max_size: f32) -> Self {
+        self.max_size = max_size;
+        self
+    }
+
+    // Remove any duplicate sprites from the spritesheet's sprites. This is used to let spritesheets
+    // include only unique sprites, with multiple references to the same sprite in the index file.
+    pub fn make_unique(mut self) -> Self {
+        match self.sprites {
+            Some(sprites) => {
+                let mut unique_sprites = BTreeMap::new();
+                let mut references = MultiMap::new();
+                let mut names_for_sprites: BTreeMap<Vec<u8>, String> = BTreeMap::new();
+                for (name, sprite) in sprites {
+                    let sprite_data = sprite.encode_png().unwrap();
+                    if let Some(existing_sprite_name) = names_for_sprites.get(&sprite_data) {
+                        references.insert(existing_sprite_name.clone(), name.clone());
+                    } else {
+                        names_for_sprites.insert(sprite_data, name.clone());
+                        unique_sprites.insert(name.clone(), sprite.clone());
+                    }
+                }
+                self.sprites = Some(unique_sprites);
+                self.references = Some(references);
+            }
+            None => {
+                self.references = None;
+            }
+        }
+        self
+    }
+
+    pub fn generate(self) -> Option<Spritesheet> {
+        Spritesheet::new(
+            self.sprites.unwrap_or_default(),
+            self.references.unwrap_or_default(),
+            self.pixel_ratio,
+            self.max_size,
+        )
+    }
 }
 
 // A bitmapped spritesheet and its matching index.
@@ -43,37 +114,24 @@ pub struct Spritesheet {
 impl Spritesheet {
     pub fn new(
         sprites: BTreeMap<String, Pixmap>,
+        references: MultiMap<String, String>,
         pixel_ratio: u8,
         max_size: f32,
-        uniqueify: bool,
     ) -> Option<Self> {
-        // Only include unique sprites (i.e. no duplicate images) if `uniqueify` is true. Map
-        // multiple names to the same sprite as required.
-        let unique_sprites = if uniqueify {
-            generate_unique_sprites(&sprites)
-        } else {
-            UniqueSprites {
-                sprites,
-                references: MultiMap::new(),
-            }
-        };
         // Get the width the widest sprite. Used to enforce a minimum width for the spritesheet.
-        let max_sprite_width = unique_sprites
-            .sprites
+        let max_sprite_width = sprites
             .values()
             .max_by(|x, y| x.width().cmp(&y.width()))
             .unwrap()
             .width();
         // Get the height the tallest sprite. Used to enforce a minimum height for the spritesheet.
-        let max_sprite_height = unique_sprites
-            .sprites
+        let max_sprite_height = sprites
             .values()
             .max_by(|x, y| x.height().cmp(&y.height()))
             .unwrap()
             .height();
         // Calculate total number of pixels in the sprites. Used to decide the size of the spritesheet.
-        let total_pixels = unique_sprites
-            .sprites
+        let total_pixels = sprites
             .values()
             .fold(0u32, |sum, p| sum + (p.width() * p.height()));
 
@@ -82,7 +140,7 @@ impl Spritesheet {
         // do its best to use all that space. We want the most compact form possible, so the solution is
         // to start with a square exactly the size of the sprites' total pixels and expand in 0.1
         // increments each time it runs out of space.
-        let spritesheet_rects = generate_spritesheet_rects(&unique_sprites.sprites);
+        let spritesheet_rects = generate_spritesheet_rects(&sprites);
         let rectangle_placements;
         let mut bin_dimensions;
         let mut i = 1.0;
@@ -144,7 +202,7 @@ impl Spritesheet {
         let pixmap_paint = PixmapPaint::default();
         let pixmap_transform = Transform::default();
         for (sprite_name, rectangle) in rectangle_placements.packed_locations().iter() {
-            let sprite = unique_sprites.sprites.get(sprite_name).unwrap();
+            let sprite = sprites.get(sprite_name).unwrap();
             let location = rectangle.1;
             spritesheet.draw_pixmap(
                 location.x() as i32,
@@ -168,7 +226,7 @@ impl Spritesheet {
             // of the other names. This is to allow for multiple names to reference the same SVG
             // image without having to include it in the spritesheet multiple times. The `--unique`
             // command-flag can be used to control this behaviour.
-            if let Some(other_sprite_names) = unique_sprites.references.get_vec(sprite_name) {
+            if let Some(other_sprite_names) = references.get_vec(sprite_name) {
                 for other_sprite_name in other_sprite_names {
                     sprite_index.insert(
                         other_sprite_name.clone(),
@@ -188,6 +246,10 @@ impl Spritesheet {
             sheet: spritesheet,
             index: sprite_index,
         })
+    }
+
+    pub fn build() -> SpritesheetBuilder {
+        SpritesheetBuilder::new()
     }
 
     /// Saves the spritesheet to a local file named `path`.
@@ -255,25 +317,4 @@ pub fn generate_spritesheet_rects(
         );
     }
     spritesheet_rects
-}
-
-// Remove any duplicate sprites from `sprites`. This is used to let spritesheets include only unique
-// sprites, with multiple references to the same sprite in the index file.
-fn generate_unique_sprites(sprites: &BTreeMap<String, Pixmap>) -> UniqueSprites {
-    let mut unique_sprites = BTreeMap::new();
-    let mut references = MultiMap::new();
-    let mut names_for_sprites: BTreeMap<&[u8], String> = BTreeMap::new();
-    for (name, sprite) in sprites {
-        let sprite_data = sprite.data();
-        if let Some(existing_sprite_name) = names_for_sprites.get(sprite_data) {
-            references.insert(existing_sprite_name.clone(), name.clone());
-        } else {
-            names_for_sprites.insert(sprite_data, name.clone());
-            unique_sprites.insert(name.clone(), sprite.clone());
-        }
-    }
-    UniqueSprites {
-        sprites: unique_sprites,
-        references,
-    }
 }
