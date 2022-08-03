@@ -42,7 +42,7 @@ pub fn get_svg_input_paths(path: &Path) -> Vec<PathBuf> {
         .collect()
 }
 
-// Load an SVG image from a file path.
+/// Load an SVG image from a file path.
 pub fn load_svg(path: &Path) -> Result<Tree, Error> {
     Ok(Tree::from_data(
         &read(&path)?,

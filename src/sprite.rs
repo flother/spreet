@@ -27,7 +27,7 @@ pub struct SpriteDescription {
     pub y: u32,
 }
 
-// A bitmapped spritesheet and its matching index.
+/// A bitmapped spritesheet and its matching index.
 pub struct Spritesheet {
     sheet: Pixmap,
     index: BTreeMap<String, SpriteDescription>,
@@ -182,15 +182,15 @@ impl Spritesheet {
     }
 }
 
-// Returns the name (unique id within a spritesheet) taken from a file.
+/// Returns the name (unique id within a spritesheet) taken from a file.
 pub fn sprite_name(path: &Path) -> String {
     format!("{}", path.file_stem().unwrap().to_string_lossy())
 }
 
-// Generate a bitmap image from an SVG image.
-//
-// The bitmap is generated at the given pixel ratio. A ratio of 2 means the bitmap image will be
-// scaled to be double the size of the SVG image.
+/// Generate a bitmap image from an SVG image.
+///
+/// The bitmap is generated at the given pixel ratio. A ratio of 2 means the bitmap image will be
+/// scaled to be double the size of the SVG image.
 pub fn generate_pixmap_from_svg(svg: Tree, pixel_ratio: u8) -> Option<Pixmap> {
     let fit_to = FitTo::Zoom(pixel_ratio as f32);
     let size = fit_to.fit_to(svg.svg_node().size.to_screen_size())?;
@@ -199,7 +199,7 @@ pub fn generate_pixmap_from_svg(svg: Tree, pixel_ratio: u8) -> Option<Pixmap> {
     Some(sprite)
 }
 
-// Set aside a rectangular space for each bitmapped sprite.
+/// Set aside a rectangular space for each bitmapped sprite.
 pub fn generate_spritesheet_rects(
     sprites: &BTreeMap<String, Pixmap>,
 ) -> GroupedRectsToPlace<String, i32> {

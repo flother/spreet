@@ -1,6 +1,6 @@
 use std::fmt;
 
-// Possible errors encountered during execution.
+/// Possible errors encountered during execution.
 #[derive(Debug)]
 pub enum Error {
     IoError,
