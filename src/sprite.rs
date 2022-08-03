@@ -30,17 +30,12 @@ pub struct SpriteDescription {
 
 /// Builder pattern for `Spritesheet`: construct a `Spritesheet` object using calls to a builder
 /// helper.
+#[derive(Default)]
 pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Pixmap>>,
     references: Option<MultiMap<String, String>>,
     pixel_ratio: u8,
     max_size: f32,
-}
-
-impl Default for SpritesheetBuilder {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl SpritesheetBuilder {
