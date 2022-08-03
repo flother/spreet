@@ -45,12 +45,13 @@ fn main() {
         std::process::exit(exitcode::NOINPUT);
     }
 
-    let mut spritesheet_builder = sprite::Spritesheet::build()
+    let mut spritesheet_builder = sprite::Spritesheet::build();
+    spritesheet_builder
         .sprites(sprites)
         .pixel_ratio(pixel_ratio)
         .max_size(50.0);
     if args.unique {
-        spritesheet_builder = spritesheet_builder.make_unique();
+        spritesheet_builder.make_unique();
     };
     // Save the spritesheet and index file if the sprites could be packed successfully, or exit with
     // an error code if not.

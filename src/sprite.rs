@@ -48,25 +48,25 @@ impl SpritesheetBuilder {
         }
     }
 
-    pub fn sprites(mut self, sprites: BTreeMap<String, Pixmap>) -> Self {
+    pub fn sprites(&mut self, sprites: BTreeMap<String, Pixmap>) -> &mut Self {
         self.sprites = Some(sprites);
         self
     }
 
-    pub fn pixel_ratio(mut self, pixel_ratio: u8) -> Self {
+    pub fn pixel_ratio(&mut self, pixel_ratio: u8) -> &mut Self {
         self.pixel_ratio = pixel_ratio;
         self
     }
 
-    pub fn max_size(mut self, max_size: f32) -> Self {
+    pub fn max_size(&mut self, max_size: f32) -> &mut Self {
         self.max_size = max_size;
         self
     }
 
     // Remove any duplicate sprites from the spritesheet's sprites. This is used to let spritesheets
     // include only unique sprites, with multiple references to the same sprite in the index file.
-    pub fn make_unique(mut self) -> Self {
-        match self.sprites {
+    pub fn make_unique(&mut self) -> &mut Self {
+        match &self.sprites {
             Some(sprites) => {
                 let mut unique_sprites = BTreeMap::new();
                 let mut references = MultiMap::new();
@@ -90,10 +90,10 @@ impl SpritesheetBuilder {
         self
     }
 
-    pub fn generate(self) -> Option<Spritesheet> {
+    pub fn generate(&self) -> Option<Spritesheet> {
         Spritesheet::new(
-            self.sprites.unwrap_or_default(),
-            self.references.unwrap_or_default(),
+            self.sprites.clone().unwrap_or_default(),
+            self.references.clone().unwrap_or_default(),
             self.pixel_ratio,
             self.max_size,
         )
