@@ -2,6 +2,7 @@
 
 ## Development version
 
+- Add `--unique` argument (see [#14](https://github.com/flother/spreet/pull/14))
 - Optimise spritesheet PNG using [`oxipng`](https://github.com/shssoichiro/oxipng)
 - Match the way [`spritezero-cli`](https://github.com/mapbox/spritezero-cli) traverses the input directory
 - Provide a Homebrew formula tap for easy MacOS/Linux installation
