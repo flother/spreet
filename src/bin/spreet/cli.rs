@@ -19,6 +19,9 @@ pub struct Cli {
     /// Set the pixel ratio to 2 (equivalent to `--ratio=2`)
     #[clap(long)]
     pub retina: bool,
+    /// Store only unique images in the spritesheet, and map them to multiple names
+    #[clap(long)]
+    pub unique: bool,
 }
 
 /// Clap validator to ensure that a string is an existing directory.
