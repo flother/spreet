@@ -30,5 +30,7 @@ OPTIONS:
     -h, --help             Print help information
     -r, --ratio <RATIO>    Set the output pixel ratio [default: 1]
         --retina           Set the pixel ratio to 2 (equivalent to `--ratio=2`)
+        --unique           Store only unique images in the spritesheet, and map them to multiple
+                           names
     -V, --version          Print version information
 ```
