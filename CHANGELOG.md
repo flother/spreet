@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## v0.3.0 (2022-08-08)
 
 - Add `--unique` argument (see [#14](https://github.com/flother/spreet/pull/14))
 - Optimise spritesheet PNG using [`oxipng`](https://github.com/shssoichiro/oxipng)
