@@ -22,6 +22,9 @@ pub struct Cli {
     /// Store only unique images in the spritesheet, and map them to multiple names
     #[clap(long)]
     pub unique: bool,
+    /// Remove whitespace from the JSON index file
+    #[clap(short, long)]
+    pub minify_index_file: bool,
 }
 
 /// Clap validator to ensure that a string is an existing directory.

@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+- Add `--minify-index-file` CLI flag (see [#15](https://github.com/flother/spreet/issues/15))
+
 ## v0.3.0 (2022-08-08)
 
 - Add `--unique` argument (see [#14](https://github.com/flother/spreet/pull/14))

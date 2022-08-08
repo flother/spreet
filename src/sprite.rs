@@ -274,9 +274,13 @@ impl Spritesheet {
     /// The index file will match a spritesheet that can be saved with [`save_spritesheet`].
     ///
     /// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
-    pub fn save_index(&self, file_name_prefix: &str) -> std::io::Result<()> {
+    pub fn save_index(&self, file_name_prefix: &str, minify: bool) -> std::io::Result<()> {
         let mut file = File::create(format!("{}.json", file_name_prefix))?;
-        let json_string = serde_json::to_string_pretty(&self.index)?;
+        let json_string = if minify {
+            serde_json::to_string(&self.index)?
+        } else {
+            serde_json::to_string_pretty(&self.index)?
+        };
         write!(file, "{}", json_string)?;
         Ok(())
     }

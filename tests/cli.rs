@@ -106,3 +106,49 @@ fn spreet_can_output_unique_retina_spritesheet() -> Result<(), Box<dyn std::erro
 
     Ok(())
 }
+
+#[test]
+fn spreet_can_output_minified_index_file() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("minify"))
+        .arg("--minify-index-file")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/minify@1x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("minify.png"));
+    let expected_index = Path::new("tests/fixtures/output/minify@1x.json");
+    let actual_index = predicate::path::eq_file(temp.join("minify.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}
+
+#[test]
+fn spreet_can_output_minified_index_file_and_unique_spritesheet(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("minify_unique"))
+        .arg("--minify-index-file")
+        .arg("--unique")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/minify_unique@1x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("minify_unique.png"));
+    let expected_index = Path::new("tests/fixtures/output/minify_unique@1x.json");
+    let actual_index = predicate::path::eq_file(temp.join("minify_unique.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}
