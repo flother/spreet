@@ -48,8 +48,7 @@ fn main() {
     let mut spritesheet_builder = sprite::Spritesheet::build();
     spritesheet_builder
         .sprites(sprites)
-        .pixel_ratio(pixel_ratio)
-        .max_size(50.0);
+        .pixel_ratio(pixel_ratio);
     if args.unique {
         spritesheet_builder.make_unique();
     };

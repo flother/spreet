@@ -1,12 +1,11 @@
-use std::cmp::max;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+use crunch::{Item, Rotation};
 use multimap::MultiMap;
 use oxipng::optimize_from_memory;
-use rectangle_pack::GroupedRectsToPlace;
 use resvg::render;
 use serde::Serialize;
 use tiny_skia::{Pixmap, PixmapPaint, Transform};
@@ -35,7 +34,6 @@ pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Pixmap>>,
     references: Option<MultiMap<String, String>>,
     pixel_ratio: u8,
-    max_size: f32,
 }
 
 impl SpritesheetBuilder {
@@ -44,7 +42,6 @@ impl SpritesheetBuilder {
             sprites: None,
             references: None,
             pixel_ratio: 1,
-            max_size: 10.0,
         }
     }
 
@@ -55,11 +52,6 @@ impl SpritesheetBuilder {
 
     pub fn pixel_ratio(&mut self, pixel_ratio: u8) -> &mut Self {
         self.pixel_ratio = pixel_ratio;
-        self
-    }
-
-    pub fn max_size(&mut self, max_size: f32) -> &mut Self {
-        self.max_size = max_size;
         self
     }
 
@@ -95,7 +87,6 @@ impl SpritesheetBuilder {
             self.sprites.clone().unwrap_or_default(),
             self.references.clone().unwrap_or_default(),
             self.pixel_ratio,
-            self.max_size,
         )
     }
 }
@@ -111,136 +102,86 @@ impl Spritesheet {
         sprites: BTreeMap<String, Pixmap>,
         references: MultiMap<String, String>,
         pixel_ratio: u8,
-        max_size: f32,
     ) -> Option<Self> {
-        // Get the width the widest sprite. Used to enforce a minimum width for the spritesheet.
-        let max_sprite_width = sprites
+        // The items are the rectangles that we want to pack into the smallest space possible. We
+        // don't need to pass the pixels themselves, just the unique name for each sprite.
+        let items: Vec<Item<String>> = sprites
+            .iter()
+            .map(|(name, image)| {
+                Item::new(
+                    name.to_owned(),
+                    image.width() as usize,
+                    image.height() as usize,
+                    Rotation::None,
+                )
+            })
+            .collect();
+        // Minimum area required for the spreadsheet (i.e. 100% coverage).
+        let min_area: usize = sprites
             .values()
-            .max_by(|x, y| x.width().cmp(&y.width()))
-            .unwrap()
-            .width();
-        // Get the height the tallest sprite. Used to enforce a minimum height for the spritesheet.
-        let max_sprite_height = sprites
-            .values()
-            .max_by(|x, y| x.height().cmp(&y.height()))
-            .unwrap()
-            .height();
-        // Calculate total number of pixels in the sprites. Used to decide the size of the spritesheet.
-        let total_pixels = sprites
-            .values()
-            .fold(0u32, |sum, p| sum + (p.width() * p.height()));
-
-        // The rectangle-pack library doesn't support automatically resizing the target bin if it runs
-        // out of space. But if you give it too large a space --- say, 4096×4096 pixels --- then it will
-        // do its best to use all that space. We want the most compact form possible, so the solution is
-        // to start with a square exactly the size of the sprites' total pixels and expand in 0.1
-        // increments each time it runs out of space.
-        let spritesheet_rects = generate_spritesheet_rects(&sprites);
-        let rectangle_placements;
-        let mut bin_dimensions;
-        let mut i = 1.0;
-        loop {
-            // Set up a single target bin. (We only need one because we only want one spritesheet.)
-            // It's usually a square but it's always at least the width of the widest sprite, and the
-            // height of the tallest sprite, so it may be rectangular. Attempt to pack all the sprites
-            // into the bin.
-            bin_dimensions = (total_pixels as f32 * i).sqrt().ceil() as u32;
-            let mut target_bins = BTreeMap::new();
-            target_bins.insert(
-                "target_bin",
-                rectangle_pack::TargetBin::new(
-                    max(bin_dimensions, max_sprite_width),
-                    max(bin_dimensions, max_sprite_height),
-                    1,
-                ),
-            );
-            let result = rectangle_pack::pack_rects(
-                &spritesheet_rects,
-                &mut target_bins,
-                &rectangle_pack::volume_heuristic,
-                &rectangle_pack::contains_smallest_box,
-            );
-            if let Ok(placements) = result {
-                rectangle_placements = placements;
-                break;
-            } else if i >= max_size {
-                // This is to stop an infinite loop. If we've reached the point where the bin-packing
-                // algorithm can't fit the sprites into a square `max_size` times the size of the
-                // sprites combined, we're in trouble. (This would likely come about in a situation
-                // where there is an extraordinary long and tall sprite.)
-                return None;
-            }
-            i += 0.1;
-        }
-        // There might be some unused space in the target bin --- not all the pixels on the right/bottom
-        // edges may have been used. Count the pixels in use so we can strip off any empty edges in the
-        // final spritesheet. The won't strip any transparent pixels within a sprite, just unused pixels
-        // around the sprites.
-        let mut bin_height = 0;
-        let mut bin_width = 0;
-        for (_, location) in rectangle_placements.packed_locations().values() {
-            let location_height = location.y() + location.height();
-            if location_height > bin_height {
-                bin_height = location_height;
-            }
-            let location_width = location.x() + location.width();
-            if location_width > bin_width {
-                bin_width = location_width;
-            }
-        }
-
-        // This is the real meat of Spreet. Here we pack the sprite bitmaps into the spritesheet,
-        // using the locations from the previous step, and store those locations in the vector that will
-        // be output as the sprite index file.
-        let mut sprite_index = BTreeMap::new();
-        let mut spritesheet = Pixmap::new(bin_width, bin_height).unwrap();
-        let pixmap_paint = PixmapPaint::default();
-        let pixmap_transform = Transform::default();
-        for (sprite_name, rectangle) in rectangle_placements.packed_locations().iter() {
-            let sprite = sprites.get(sprite_name).unwrap();
-            let location = rectangle.1;
-            spritesheet.draw_pixmap(
-                location.x() as i32,
-                location.y() as i32,
-                sprite.as_ref(),
-                &pixmap_paint,
-                pixmap_transform,
-                None,
-            );
-            sprite_index.insert(
-                sprite_name.clone(),
-                SpriteDescription {
-                    height: location.height(),
-                    width: location.width(),
-                    pixel_ratio,
-                    x: location.x(),
-                    y: location.y(),
-                },
-            );
-            // If multiple names are used for a unique sprite, insert an entry in the index for each
-            // of the other names. This is to allow for multiple names to reference the same SVG
-            // image without having to include it in the spritesheet multiple times. The `--unique`
-            // command-flag can be used to control this behaviour.
-            if let Some(other_sprite_names) = references.get_vec(sprite_name) {
-                for other_sprite_name in other_sprite_names {
+            .map(|i| i.width() as usize * i.height() as usize)
+            .sum();
+        match crunch::pack_into_po2(min_area * 10, items) {
+            Ok((_, _, packed)) => {
+                // There might be some unused space in the packed items --- not all the pixels on
+                // the right/bottom edges may have been used. Count the pixels in use so we can
+                // strip off any empty edges in the final spritesheet. The won't strip any
+                // transparent pixels within a sprite, just unused pixels around the sprites.
+                let bin_width = (&packed).into_iter().map(|(r, _)| r.right()).max()? as u32;
+                let bin_height = (&packed).into_iter().map(|(r, _)| r.bottom()).max()? as u32;
+                // This is the meat of Spreet. Here we pack the sprite bitmaps into the spritesheet,
+                // using the rectangle locations from the previous step, and store those locations
+                // in the vector that will be output as the sprite index file.
+                let mut sprite_index = BTreeMap::new();
+                let mut spritesheet = Pixmap::new(bin_width, bin_height)?;
+                let pixmap_paint = PixmapPaint::default();
+                let pixmap_transform = Transform::default();
+                for (rectangle, sprite_name) in &packed {
+                    let sprite = sprites.get(sprite_name)?;
+                    spritesheet.draw_pixmap(
+                        rectangle.x as i32,
+                        rectangle.y as i32,
+                        sprite.as_ref(),
+                        &pixmap_paint,
+                        pixmap_transform,
+                        None,
+                    );
                     sprite_index.insert(
-                        other_sprite_name.clone(),
+                        sprite_name.to_owned(),
                         SpriteDescription {
-                            height: location.height(),
-                            width: location.width(),
+                            height: rectangle.h as u32,
+                            width: rectangle.w as u32,
                             pixel_ratio,
-                            x: location.x(),
-                            y: location.y(),
+                            x: rectangle.x as u32,
+                            y: rectangle.y as u32,
                         },
                     );
+                    // If multiple names are used for a unique sprite, insert an entry in the index
+                    // for each of the other names. This is to allow for multiple names to reference
+                    // the same SVG image without having to include it in the spritesheet multiple
+                    // times. The `--unique` // command-flag can be used to control this behaviour.
+                    if let Some(other_sprite_names) = references.get_vec(sprite_name) {
+                        for other_sprite_name in other_sprite_names {
+                            sprite_index.insert(
+                                other_sprite_name.to_owned(),
+                                SpriteDescription {
+                                    height: rectangle.h as u32,
+                                    width: rectangle.w as u32,
+                                    pixel_ratio,
+                                    x: rectangle.x as u32,
+                                    y: rectangle.y as u32,
+                                },
+                            );
+                        }
+                    }
                 }
+                Some(Spritesheet {
+                    sheet: spritesheet,
+                    index: sprite_index,
+                })
             }
+            Err(_) => None,
         }
-
-        Some(Spritesheet {
-            sheet: spritesheet,
-            index: sprite_index,
-        })
     }
 
     pub fn build() -> SpritesheetBuilder {
@@ -301,19 +242,4 @@ pub fn generate_pixmap_from_svg(svg: Tree, pixel_ratio: u8) -> Option<Pixmap> {
     let mut sprite = Pixmap::new(size.width(), size.height())?;
     render(&svg, fit_to, Transform::default(), sprite.as_mut());
     Some(sprite)
-}
-
-/// Set aside a rectangular space for each bitmapped sprite.
-pub fn generate_spritesheet_rects(
-    sprites: &BTreeMap<String, Pixmap>,
-) -> GroupedRectsToPlace<String, i32> {
-    let mut spritesheet_rects = rectangle_pack::GroupedRectsToPlace::new();
-    for (sprite_name, sprite) in sprites {
-        spritesheet_rects.push_rect(
-            sprite_name.clone(),
-            Some(vec![1]),
-            rectangle_pack::RectToInsert::new(sprite.width(), sprite.height(), 1),
-        );
-    }
-    spritesheet_rects
 }
