@@ -14,7 +14,7 @@ clap = { version = "3.2", features = ["derive"] }
 crunch = "0.3.3"
 exitcode = "1.1"
 multimap = "0.8.3"
-oxipng = "5"
+oxipng = { git = "https://github.com/shssoichiro/oxipng", rev = "e5d1c7dbaaf8b3796b37ca47b8cdbd2f5b79023d" }
 png = "0.17"
 predicates = "2.1.1"
 resvg = "0.23"
