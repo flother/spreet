@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet._
+
 ## v0.4.0 (2022-08-16)
 
 - Switch to [crunch-rs](https://github.com/ChevyRay/crunch-rs) rectangle-packing library
