@@ -2,6 +2,7 @@
 
 ## Development version
 
+- Switch to [crunch-rs](https://github.com/ChevyRay/crunch-rs) rectangle-packing library
 - Add `--minify-index-file` CLI flag (see [#15](https://github.com/flother/spreet/issues/15))
 
 ## v0.3.0 (2022-08-08)
