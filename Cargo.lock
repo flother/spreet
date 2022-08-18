@@ -1124,6 +1124,7 @@ dependencies = [
  "oxipng",
  "png 0.17.5",
  "predicates",
+ "rayon",
  "resvg",
  "serde",
  "serde_json",

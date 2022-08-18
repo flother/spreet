@@ -2,7 +2,7 @@
 
 ## Development version
 
-_No changes yet._
+- Rasterize SVGs in parallel
 
 ## v0.4.0 (2022-08-16)
 

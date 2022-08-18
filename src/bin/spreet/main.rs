@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 
 use clap::Parser;
+use rayon::prelude::*;
+use tiny_skia::Pixmap;
 
 use spreet::fs::{get_svg_input_paths, load_svg};
 use spreet::sprite;
@@ -25,21 +27,21 @@ fn main() {
     // store them in a map. The keys are the SVG filenames without the `.svg` extension. The
     // bitmapped SVGs will be added to the spritesheet, and the keys will be used as the unique
     // sprite ids in the JSON index file.
-    let mut sprites = BTreeMap::new();
-    for svg_path in svg_paths {
-        match load_svg(&svg_path) {
-            Ok(svg) => {
-                sprites.insert(
-                    sprite::sprite_name(&svg_path),
+    let sprites = BTreeMap::from_iter(
+        svg_paths
+            .par_iter()
+            .map(|svg_path| match load_svg(svg_path) {
+                Ok(svg) => (
+                    sprite::sprite_name(svg_path),
                     sprite::generate_pixmap_from_svg(svg, pixel_ratio).unwrap(),
-                );
-            }
-            Err(_) => {
-                eprintln!("{:?}: not a valid SVG image", &svg_path);
-                std::process::exit(exitcode::DATAERR);
-            }
-        }
-    }
+                ),
+                Err(_) => {
+                    eprintln!("{:?}: not a valid SVG image", svg_path);
+                    std::process::exit(exitcode::DATAERR);
+                }
+            })
+            .collect::<Vec<(String, Pixmap)>>(),
+    );
     if sprites.is_empty() {
         eprintln!("Error: no valid SVGs found in {:?}", &args.input);
         std::process::exit(exitcode::NOINPUT);
