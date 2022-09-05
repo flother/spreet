@@ -881,7 +881,7 @@ dependencies = [
  "rgb",
  "svgfilters",
  "svgtypes",
- "tiny-skia",
+ "tiny-skia 0.6.6",
  "usvg",
 ]
 
@@ -1033,7 +1033,7 @@ dependencies = [
  "resvg",
  "serde",
  "serde_json",
- "tiny-skia",
+ "tiny-skia 0.8.1",
  "usvg",
 ]
 
@@ -1048,6 +1048,12 @@ dependencies = [
  "termcolor",
  "thread_local",
 ]
+
+[[package]]
+name = "strict-num"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9df65f20698aeed245efdde3628a6b559ea1239bbb871af1b6e3b58c413b2bd1"
 
 [[package]]
 name = "strsim"
@@ -1141,6 +1147,31 @@ dependencies = [
  "cfg-if",
  "png",
  "safe_arch",
+]
+
+[[package]]
+name = "tiny-skia"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b45377d0852ab3ac6e974c034c9be94a564634efea23b2c1a6c9233e54977190"
+dependencies = [
+ "arrayref",
+ "arrayvec 0.7.2",
+ "bytemuck",
+ "cfg-if",
+ "png",
+ "tiny-skia-path",
+]
+
+[[package]]
+name = "tiny-skia-path"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bd45bc1f409853359bba18c76c4ff06fc40bc3ad853ad07ee8bee8ba839179c"
+dependencies = [
+ "arrayref",
+ "bytemuck",
+ "strict-num",
 ]
 
 [[package]]
