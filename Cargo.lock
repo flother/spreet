@@ -870,8 +870,7 @@ dependencies = [
 [[package]]
 name = "resvg"
 version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34489194784b86c03c3d688258e2ba73f3c82700ba4673ee2ecad5ae540b9438"
+source = "git+https://github.com/RazrFalcon/resvg?rev=a739aef5d01360ec238c886bc50674f31458df00#a739aef5d01360ec238c886bc50674f31458df00"
 dependencies = [
  "gif",
  "jpeg-decoder",
@@ -1033,8 +1032,6 @@ dependencies = [
  "resvg",
  "serde",
  "serde_json",
- "tiny-skia",
- "usvg",
 ]
 
 [[package]]
@@ -1050,6 +1047,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "strict-num"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9df65f20698aeed245efdde3628a6b559ea1239bbb871af1b6e3b58c413b2bd1"
+dependencies = [
+ "float-cmp",
+]
+
+[[package]]
 name = "strsim"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1058,8 +1064,7 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 [[package]]
 name = "svgfilters"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "639abcebc15fdc2df179f37d6f5463d660c1c79cd552c12343a4600827a04bce"
+source = "git+https://github.com/RazrFalcon/resvg?rev=a739aef5d01360ec238c886bc50674f31458df00#a739aef5d01360ec238c886bc50674f31458df00"
 dependencies = [
  "float-cmp",
  "rgb",
@@ -1200,13 +1205,11 @@ checksum = "b1d386ff53b415b7fe27b50bb44679e2cc4660272694b7b6f3326d8480823a94"
 [[package]]
 name = "usvg"
 version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28a82565b5c96dcbb58c9bdbb6aa3642abd395a6a6b480658532c6f74c3c4b7a"
+source = "git+https://github.com/RazrFalcon/resvg?rev=a739aef5d01360ec238c886bc50674f31458df00#a739aef5d01360ec238c886bc50674f31458df00"
 dependencies = [
  "base64",
  "data-url",
  "flate2",
- "float-cmp",
  "fontdb",
  "kurbo",
  "log",
@@ -1216,12 +1219,12 @@ dependencies = [
  "rustybuzz",
  "simplecss",
  "siphasher",
+ "strict-num",
  "svgtypes",
  "ttf-parser",
  "unicode-bidi",
  "unicode-script",
  "unicode-vo",
- "xmlwriter",
 ]
 
 [[package]]
@@ -1344,12 +1347,6 @@ name = "xmlparser"
 version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "114ba2b24d2167ef6d67d7d04c8cc86522b87f490025f39f0303b7db5bf5e3d8"
-
-[[package]]
-name = "xmlwriter"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec7a2a501ed189703dba8b08142f057e887dfc4b2cc4db2d343ac6376ba3e0b9"
 
 [[package]]
 name = "zopfli"

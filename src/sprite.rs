@@ -7,9 +7,9 @@ use crunch::{Item, Rotation};
 use multimap::MultiMap;
 use oxipng::optimize_from_memory;
 use resvg::render;
+use resvg::tiny_skia::{Pixmap, PixmapPaint, Transform};
+use resvg::usvg::{FitTo, Tree};
 use serde::Serialize;
-use tiny_skia::{Pixmap, PixmapPaint, Transform};
-use usvg::{FitTo, Tree};
 
 use crate::error::Error;
 

@@ -26,8 +26,8 @@ impl From<std::io::Error> for Error {
     }
 }
 
-impl From<usvg::Error> for Error {
-    fn from(_: usvg::Error) -> Self {
+impl From<resvg::usvg::Error> for Error {
+    fn from(_: resvg::usvg::Error) -> Self {
         Error::SvgError
     }
 }

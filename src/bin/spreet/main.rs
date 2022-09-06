@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use clap::Parser;
 use rayon::prelude::*;
-use tiny_skia::Pixmap;
+use resvg::tiny_skia::Pixmap;
 
 use spreet::fs::{get_svg_input_paths, load_svg};
 use spreet::sprite;

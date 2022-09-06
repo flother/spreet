@@ -1,7 +1,7 @@
 use std::fs::{read, read_dir, DirEntry};
 use std::path::{Path, PathBuf};
 
-use usvg::{Options, Tree};
+use resvg::usvg::{Options, Tree};
 
 use crate::error::Error;
 
