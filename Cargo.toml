@@ -14,7 +14,7 @@ clap = { version = "3.2", features = ["derive"] }
 crunch = "0.3.3"
 exitcode = "1.1"
 multimap = "0.8.3"
-oxipng = "6.0.0"
+oxipng = "6.0.1"
 png = "0.17"
 rayon = "1.5.3"
 resvg = { git = "https://github.com/RazrFalcon/resvg", rev = "a739aef5d01360ec238c886bc50674f31458df00" }

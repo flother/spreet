@@ -682,9 +682,9 @@ checksum = "9ff7415e9ae3fff1225851df9e0d9e4e5479f947619774677a63572e55e80eff"
 
 [[package]]
 name = "oxipng"
-version = "6.0.0"
+version = "6.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a49c57bdca18538e031477275532690956ec4b18755b2dcd188df4809340d1ac"
+checksum = "a40d437cd5308cba163907008d4c91a0280fc3b1ec1265dd20820e739002f4d9"
 dependencies = [
  "bit-vec",
  "clap",
@@ -1350,9 +1350,9 @@ checksum = "114ba2b24d2167ef6d67d7d04c8cc86522b87f490025f39f0303b7db5bf5e3d8"
 
 [[package]]
 name = "zopfli"
-version = "0.7.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4f3cae89ab7952cf7f091fffda70f373ba3ee110ac6221b3b6c3c285b04f82e"
+checksum = "f1e0d16c30236860686a8f03d36b384dc2fc0675a8916367d2f9a1ecd795eab6"
 dependencies = [
  "adler32",
  "byteorder",
