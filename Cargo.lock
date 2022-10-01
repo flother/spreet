@@ -141,26 +141,39 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clap"
-version = "3.2.20"
+version = "3.2.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23b71c3ce99b7611011217b366d923f1d0a7e07a92bb2dbf1e84508c673ca3bd"
+checksum = "86447ad904c7fb335a790c9d7fe3d0d971dc523b8ccd1561a520de9a85302750"
 dependencies = [
  "atty",
  "bitflags",
- "clap_derive",
- "clap_lex",
+ "clap_lex 0.2.4",
  "indexmap",
- "once_cell",
  "strsim",
  "termcolor",
  "textwrap",
 ]
 
 [[package]]
-name = "clap_derive"
-version = "3.2.18"
+name = "clap"
+version = "4.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea0c8bce528c4be4da13ea6fead8965e95b6073585a2f05204bd8f4119f82a65"
+checksum = "0a1af219c3e254a8b4649d6ddaef886b2015089f35f2ac5e1db31410c0566ab8"
+dependencies = [
+ "atty",
+ "bitflags",
+ "clap_derive",
+ "clap_lex 0.3.0",
+ "once_cell",
+ "strsim",
+ "termcolor",
+]
+
+[[package]]
+name = "clap_derive"
+version = "4.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd114ae53ce5a0670f43d2f169c1cd26c69b4896b0c121900cf1e4d06d67316c"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -174,6 +187,15 @@ name = "clap_lex"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
+dependencies = [
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d4198f73e42b4936b35b5bb248d81d2b595ecb170da0bac7655c54eedfa8da8"
 dependencies = [
  "os_str_bytes",
 ]
@@ -687,7 +709,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a49c57bdca18538e031477275532690956ec4b18755b2dcd188df4809340d1ac"
 dependencies = [
  "bit-vec",
- "clap",
+ "clap 3.2.22",
  "cloudflare-zlib",
  "crc",
  "crossbeam-channel",
@@ -1021,7 +1043,7 @@ version = "0.5.0-dev"
 dependencies = [
  "assert_cmd",
  "assert_fs",
- "clap",
+ "clap 4.0.7",
  "crunch",
  "exitcode",
  "multimap",
@@ -1121,9 +1143,9 @@ checksum = "507e9898683b6c43a9aa55b64259b721b52ba226e0f3779137e50ad114a4c90b"
 
 [[package]]
 name = "textwrap"
-version = "0.15.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1141d4d61095b28419e22cb0bbf02755f5e54e0526f97f1e3d1d160e60885fb"
+checksum = "949517c0cf1bf4ee812e2e07e08ab448e3ae0d23472aee8a06c985f0c8815b16"
 
 [[package]]
 name = "thread_local"

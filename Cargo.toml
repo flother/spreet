@@ -10,7 +10,7 @@ categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 
 [dependencies]
 assert_fs = "1.0.7"
-clap = { version = "3.2", features = ["derive"] }
+clap = { version = "4.0", features = ["derive"] }
 crunch = "0.3.3"
 exitcode = "1.1"
 multimap = "0.8.3"
