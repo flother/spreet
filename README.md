@@ -77,21 +77,21 @@ When you create a spritesheet for your production environment, use `--unique --m
 
 ```
 $ spreet --help
-USAGE:
-    spreet [OPTIONS] <INPUT> <OUTPUT>
+Create a spritesheet from a set of SVG images
 
-ARGS:
-    <INPUT>     A directory of SVGs to include in the spritesheet
-    <OUTPUT>    Name of the file in which to save the spritesheet
+Usage: spreet [OPTIONS] <INPUT> <OUTPUT>
 
-OPTIONS:
-    -h, --help                 Print help information
-    -m, --minify-index-file    Remove whitespace from the JSON index file
-    -r, --ratio <RATIO>        Set the output pixel ratio [default: 1]
-        --retina               Set the pixel ratio to 2 (equivalent to `--ratio=2`)
-        --unique               Store only unique images in the spritesheet, and map them to multiple
-                               names
-    -V, --version              Print version information
+Arguments:
+  <INPUT>   A directory of SVGs to include in the spritesheet
+  <OUTPUT>  Name of the file in which to save the spritesheet
+
+Options:
+  -r, --ratio <RATIO>      Set the output pixel ratio [default: 1]
+      --retina             Set the pixel ratio to 2 (equivalent to `--ratio=2`)
+      --unique             Store only unique images in the spritesheet, and map them to multiple names
+  -m, --minify-index-file  Remove whitespace from the JSON index file
+  -h, --help               Print help information
+  -V, --version            Print version information
 ```
 
 ## Benchmarks

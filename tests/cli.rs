@@ -161,7 +161,7 @@ fn spreet_rejects_non_existent_input_directory() {
         .assert()
         .failure()
         .code(2)
-        .stderr("error: Invalid value \"does_not_exist\" for \'<INPUT>\': must be an existing directory\n\nFor more information try --help\n");
+        .stderr("error: Invalid value 'does_not_exist' for '<INPUT>': must be an existing directory\n\nFor more information try '--help'\n");
 }
 
 #[test]
@@ -176,7 +176,7 @@ fn spreet_rejects_zero_ratio() {
         .assert()
         .failure()
         .code(2)
-        .stderr("error: Invalid value \"0\" for '--ratio <RATIO>': must be greater than one\n\nFor more information try --help\n");
+        .stderr("error: Invalid value '0' for '--ratio <RATIO>': must be greater than one\n\nFor more information try '--help'\n");
 }
 
 #[test]
@@ -191,5 +191,5 @@ fn spreet_rejects_negative_ratio() {
         .assert()
         .failure()
         .code(2)
-        .stderr("error: Invalid value \" -3\" for '--ratio <RATIO>': invalid digit found in string\n\nFor more information try --help\n");
+        .stderr("error: Invalid value ' -3' for '--ratio <RATIO>': invalid digit found in string\n\nFor more information try '--help'\n");
 }

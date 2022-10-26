@@ -5,25 +5,25 @@ use clap::{ArgGroup, Parser};
 
 /// Container for Spreet's command-line arguments.
 #[derive(Parser)]
-#[clap(version, about)]
-#[clap(group(ArgGroup::new("pixel_ratio").args(&["ratio", "retina"])))]
+#[command(version, about)]
+#[command(group(ArgGroup::new("pixel_ratio").args(&["ratio", "retina"])))]
 pub struct Cli {
     /// A directory of SVGs to include in the spritesheet
-    #[clap(value_parser = is_dir)]
+    #[arg(value_parser = is_dir)]
     pub input: PathBuf,
     /// Name of the file in which to save the spritesheet
     pub output: String,
     /// Set the output pixel ratio
-    #[clap(short, long, default_value_t = 1, value_parser = is_positive)]
+    #[arg(short, long, default_value_t = 1, value_parser = is_positive)]
     pub ratio: u8,
     /// Set the pixel ratio to 2 (equivalent to `--ratio=2`)
-    #[clap(long)]
+    #[arg(long)]
     pub retina: bool,
     /// Store only unique images in the spritesheet, and map them to multiple names
-    #[clap(long)]
+    #[arg(long)]
     pub unique: bool,
     /// Remove whitespace from the JSON index file
-    #[clap(short, long)]
+    #[arg(short, long)]
     pub minify_index_file: bool,
 }
 
