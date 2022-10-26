@@ -163,3 +163,33 @@ fn spreet_rejects_non_existent_input_directory() {
         .code(2)
         .stderr("error: Invalid value \"does_not_exist\" for \'<INPUT>\': must be an existing directory\n\nFor more information try --help\n");
 }
+
+#[test]
+fn spreet_rejects_zero_ratio() {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("default"))
+        .arg("--ratio")
+        .arg("0")
+        .assert()
+        .failure()
+        .code(2)
+        .stderr("error: Invalid value \"0\" for '--ratio <RATIO>': must be greater than one\n\nFor more information try --help\n");
+}
+
+#[test]
+fn spreet_rejects_negative_ratio() {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("default"))
+        .arg("--ratio")
+        .arg(" -3")
+        .assert()
+        .failure()
+        .code(2)
+        .stderr("error: Invalid value \" -3\" for '--ratio <RATIO>': invalid digit found in string\n\nFor more information try --help\n");
+}
