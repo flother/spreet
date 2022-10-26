@@ -152,3 +152,14 @@ fn spreet_can_output_minified_index_file_and_unique_spritesheet(
 
     Ok(())
 }
+
+#[test]
+fn spreet_rejects_non_existent_input_directory() {
+    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    cmd.arg("does_not_exist")
+        .arg("default")
+        .assert()
+        .failure()
+        .code(2)
+        .stderr("error: Invalid value \"does_not_exist\" for \'<INPUT>\': must be an existing directory\n\nFor more information try --help\n");
+}
