@@ -3,6 +3,12 @@
 ## Development version
 
 - Rasterize SVGs in parallel
+- Add tutorial and benchmarks to README
+- Update clap dependency to v4
+- Update oxipng dependency to v6
+- Use tiny-skia and usvg as re-exported from resvg
+- Move predicates to dev-dependencies
+- Add CLI tests
 
 ## v0.4.0 (2022-08-16)
 
