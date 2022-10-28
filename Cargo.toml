@@ -17,7 +17,7 @@ multimap = "0.8.3"
 oxipng = "6.0.0"
 png = "0.17"
 rayon = "1.5.3"
-resvg = { git = "https://github.com/RazrFalcon/resvg", rev = "a739aef5d01360ec238c886bc50674f31458df00" }
+resvg = { git = "https://github.com/RazrFalcon/resvg", rev = "10fe6636ffd2bcbd91babea2b9213bb2dd54b7a7" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
