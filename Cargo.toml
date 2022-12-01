@@ -16,7 +16,7 @@ exitcode = "1.1"
 multimap = "0.8.3"
 oxipng = "6.0.0"
 png = "0.17"
-rayon = "1.5.3"
+rayon = "1.6.0"
 resvg = { git = "https://github.com/RazrFalcon/resvg", rev = "10fe6636ffd2bcbd91babea2b9213bb2dd54b7a7" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
