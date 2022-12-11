@@ -22,6 +22,8 @@ _Spreet_ (also _spreit_, _spret_, _sprit_) is the [Scots](https://en.wikipedia.o
 
 ## Installation
 
+You can install Spreet using Homebrew, `cargo install`, by downloading pre-built binaries, or by building from source.
+
 ### Homebrew
 
 If you use [Homebrew](https://brew.sh/) on MacOS or Linux you can install Spreet from the command-line:
@@ -31,6 +33,14 @@ brew install flother/taps/spreet
 ```
 
 (You can review [the code run by the formula](https://github.com/flother/homebrew-taps/blob/master/spreet.rb) before you install.)
+
+### Installing from crates.io (`cargo install`)
+
+Rust's `cargo install` command lets you install a binary crate locally. You can install the latest published version of Spreet with:
+
+```
+cargo install spreet
+```
 
 ### Download pre-built binaries
 
