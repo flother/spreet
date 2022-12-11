@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## v0.5.0 (2022-12-11)
 
 - Rasterize SVGs in parallel
 - Add tutorial and benchmarks to README
