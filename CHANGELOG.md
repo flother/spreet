@@ -2,7 +2,7 @@
 
 ## Development version
 
-_No changes yet._
+- **Breaking change**: update [Oxipng](https://github.com/shssoichiro/oxipng) dependency to v7. Spritesheet PNGs output by Spreet are now compressed using [libdeflate](https://github.com/ebiggers/libdeflate). This produces smaller files but the PNGs won't be byte-to-byte compatible with spritesheets output by earlier versions of Spreet. This also causes Spreet's minimum Rust version to be 1.61.0
 
 ## v0.5.0 (2022-12-11)
 

@@ -121,10 +121,10 @@ To compare the output from [spritezero](https://github.com/mapbox/spritezero-cli
 
 | Map style                | Spritezero file size | Spreet file size | Change |
 | :----------------------- | -------------------: | ---------------: | -----: |
-| osm-bright-gl-style      |               43,860 |           25,962 |   -41% |
-| openstreetmap-americana  |              140,401 |           80,899 |   -42% |
-| mapbox-gl-styles (basic) |               76,383 |           41,546 |   -46% |
-| mapbox-gl-whaam-style    |               17,342 |            5,341 |   -69% |
+| osm-bright-gl-style      |               43,860 |           24,588 |   -44% |
+| openstreetmap-americana  |              140,401 |           78,617 |   -44% |
+| mapbox-gl-styles (basic) |               76,383 |           30,771 |   -60% |
+| mapbox-gl-whaam-style    |               17,342 |            5,037 |   -71% |
 
 ### Index file size (bytes)
 
