@@ -194,7 +194,7 @@ impl Spritesheet {
     /// containing all the individual sprite images. The `spritesheet` `Pixmap` is converted to an
     /// in-memory PNG, optimised using the [`oxipng`] library, and saved to a local file.
     ///
-    /// The spritesheet will match an index file that can be saved with [`save_sprite_index_file`].
+    /// The spritesheet will match an index file that can be saved with [`Self::save_index`].
     ///
     /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
@@ -212,7 +212,7 @@ impl Spritesheet {
     /// description of each sprite within a spritesheet. It contains the width, height, x and y
     /// positions, and pixel ratio of the sprite.
     ///
-    /// The index file will match a spritesheet that can be saved with [`save_spritesheet`].
+    /// The index file will match a spritesheet that can be saved with [`Self::save_spritesheet`].
     ///
     /// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
     pub fn save_index(&self, file_name_prefix: &str, minify: bool) -> std::io::Result<()> {
