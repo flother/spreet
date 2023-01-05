@@ -6,6 +6,9 @@ updates:
     interval: monthly
     time: "06:00"
     timezone: UTC
+  ignore:
+    - dependency-name: "*"
+      update-types: ["version-update:semver-patch"]
 - package-ecosystem: github-actions
   directory: /
   schedule:
