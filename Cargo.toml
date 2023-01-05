@@ -16,7 +16,7 @@ clap = { version = "4.0", features = ["derive"] }
 crunch = "0.3.3"
 exitcode = "1.1"
 multimap = "0.8.3"
-oxipng = "7.0"
+oxipng = "8"
 png = "0.17"
 rayon = "1.6"
 resvg = "0.28"
