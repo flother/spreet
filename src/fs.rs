@@ -34,7 +34,7 @@ pub fn is_useful_input(entry: &DirEntry) -> bool {
 /// This does not recurse into sub-directories; they are silently ignored. It ignores hidden files
 /// (files whose names begin with `.`) but it does follow symlinks.
 pub fn get_svg_input_paths(path: &Path) -> Vec<PathBuf> {
-    read_dir(&path)
+    read_dir(path)
         .unwrap()
         .flatten()
         .filter(is_useful_input)
@@ -44,5 +44,5 @@ pub fn get_svg_input_paths(path: &Path) -> Vec<PathBuf> {
 
 /// Load an SVG image from a file path.
 pub fn load_svg(path: &Path) -> Result<Tree, Error> {
-    Ok(Tree::from_data(&read(&path)?, &Options::default())?)
+    Ok(Tree::from_data(&read(path)?, &Options::default())?)
 }
