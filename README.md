@@ -99,6 +99,7 @@ Options:
   -r, --ratio <RATIO>      Set the output pixel ratio [default: 1]
       --retina             Set the pixel ratio to 2 (equivalent to `--ratio=2`)
       --unique             Store only unique images in the spritesheet, and map them to multiple names
+      --recursive          Include images from subdirectories
   -m, --minify-index-file  Remove whitespace from the JSON index file
   -h, --help               Print help information
   -V, --version            Print version information

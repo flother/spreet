@@ -85,6 +85,28 @@ fn spreet_can_output_retina_spritesheet() -> Result<(), Box<dyn std::error::Erro
 }
 
 #[test]
+fn spreet_can_output_recursive_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("recursive"))
+        .arg("--recursive")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/recursive@1x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("recursive.png"));
+    let expected_index = Path::new("tests/fixtures/output/recursive@1x.json");
+    let actual_index = predicate::path::eq_file(temp.join("recursive.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}
+
+#[test]
 fn spreet_can_output_unique_retina_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 

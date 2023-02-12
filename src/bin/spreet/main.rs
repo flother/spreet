@@ -17,7 +17,7 @@ fn main() {
     let pixel_ratio = if args.retina { 2 } else { args.ratio };
 
     // Collect the file paths for all SVG images in the input directory.
-    let svg_paths = get_svg_input_paths(&args.input);
+    let svg_paths = get_svg_input_paths(&args.input, args.recursive);
     if svg_paths.is_empty() {
         eprintln!("Error: no SVGs found in {:?}", &args.input);
         std::process::exit(exitcode::NOINPUT);
@@ -32,7 +32,7 @@ fn main() {
             .par_iter()
             .map(|svg_path| match load_svg(svg_path) {
                 Ok(svg) => (
-                    sprite::sprite_name(svg_path),
+                    sprite::sprite_name(svg_path, args.input.as_path()),
                     sprite::generate_pixmap_from_svg(svg, pixel_ratio).unwrap(),
                 ),
                 Err(_) => {
