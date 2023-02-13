@@ -228,6 +228,9 @@ impl Spritesheet {
 }
 
 /// Returns the name (unique id within a spritesheet) taken from a file.
+///
+/// The unique sprite name is the relative path from `path` to `base_path`
+/// without the file extension.
 pub fn sprite_name(path: &Path, base_path: &Path) -> String {
     let abs_path = path.canonicalize().unwrap();
     let abs_base_path = base_path.canonicalize().unwrap();

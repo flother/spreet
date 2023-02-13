@@ -32,21 +32,19 @@ pub fn is_useful_input(entry: &DirEntry) -> bool {
 /// Returns a vector of file paths matching all SVGs within the given directory.
 ///
 /// It ignores hidden files (files whose names begin with `.`) but it does follow symlinks.
-pub fn get_svg_input_paths(path: &Path, recurse: bool) -> Vec<PathBuf> {
+pub fn get_svg_input_paths(path: &Path, recursive: bool) -> Vec<PathBuf> {
     read_dir(path)
         .unwrap()
         .flatten()
         .filter_map(|entry| {
             let path_buf = entry.path();
 
-            if recurse && path_buf.is_dir() {
-                return Some(get_svg_input_paths(&path_buf.as_path(), recurse));
+            if recursive && path_buf.is_dir() {
+                return Some(get_svg_input_paths(path_buf.as_path(), recursive));
             }
-
             if is_useful_input(&entry) {
                 return Some(vec![path_buf]);
             }
-
             return None;
         })
         .flatten()

@@ -22,7 +22,7 @@ pub struct Cli {
     /// Store only unique images in the spritesheet, and map them to multiple names
     #[arg(long)]
     pub unique: bool,
-    /// Include images from subdirectories
+    /// Include images in sub-directories
     #[arg(long)]
     pub recursive: bool,
     /// Remove whitespace from the JSON index file
