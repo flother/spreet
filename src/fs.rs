@@ -40,12 +40,12 @@ pub fn get_svg_input_paths(path: &Path, recursive: bool) -> Vec<PathBuf> {
             let path_buf = entry.path();
 
             if recursive && path_buf.is_dir() {
-                return Some(get_svg_input_paths(path_buf.as_path(), recursive));
+                Some(get_svg_input_paths(path_buf.as_path(), recursive))
+            } else if is_useful_input(&entry) {
+                Some(vec![path_buf])
+            } else {
+                None
             }
-            if is_useful_input(&entry) {
-                return Some(vec![path_buf]);
-            }
-            return None;
         })
         .flatten()
         .collect()
