@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet._
+
 ## v0.6.0 (2023-02-13)
 
 - Add `--recursive` argument, to include images in sub-directories (see [#43](https://github.com/flother/spreet/pull/43))
