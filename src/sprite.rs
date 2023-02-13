@@ -228,8 +228,21 @@ impl Spritesheet {
 }
 
 /// Returns the name (unique id within a spritesheet) taken from a file.
-pub fn sprite_name(path: &Path) -> String {
-    format!("{}", path.file_stem().unwrap().to_string_lossy())
+///
+/// The unique sprite name is the relative path from `path` to `base_path`
+/// without the file extension.
+pub fn sprite_name(path: &Path, base_path: &Path) -> String {
+    let abs_path = path.canonicalize().unwrap();
+    let abs_base_path = base_path.canonicalize().unwrap();
+
+    let rel_path = abs_path.strip_prefix(abs_base_path).unwrap();
+
+    let file_stem = path.file_stem().unwrap();
+
+    match rel_path.parent() {
+        Some(parent) => format!("{}", parent.join(file_stem).to_string_lossy()),
+        None => format!("{}", file_stem.to_string_lossy()),
+    }
 }
 
 /// Generate a bitmap image from an SVG image.
