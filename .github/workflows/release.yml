@@ -31,7 +31,7 @@ jobs:
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
       with:
-        targets: ${{ matrix.target }}
+        target: ${{ matrix.target }}
     - name: Install Cross
       run: cargo install cross
     - name: Build Spreet
