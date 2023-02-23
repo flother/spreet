@@ -248,7 +248,7 @@ pub fn sprite_name(path: &Path, base_path: &Path) -> String {
 ///
 /// The bitmap is generated at the given pixel ratio. A ratio of 2 means the bitmap image will be
 /// scaled to be double the size of the SVG image.
-pub fn generate_pixmap_from_svg(svg: Tree, pixel_ratio: u8) -> Option<Pixmap> {
+pub fn generate_pixmap_from_svg(svg: &Tree, pixel_ratio: u8) -> Option<Pixmap> {
     let fit_to = FitTo::Zoom(pixel_ratio as f32);
     let size = fit_to.fit_to(svg.size.to_screen_size())?;
     let mut sprite = Pixmap::new(size.width(), size.height())?;

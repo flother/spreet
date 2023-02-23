@@ -34,7 +34,7 @@ fn main() {
                 if let Ok(svg) = load_svg(svg_path) {
                     (
                         sprite::sprite_name(svg_path, args.input.as_path()),
-                        sprite::generate_pixmap_from_svg(svg, pixel_ratio).unwrap(),
+                        sprite::generate_pixmap_from_svg(&svg, pixel_ratio).unwrap(),
                     )
                 } else {
                     eprintln!("{svg_path:?}: not a valid SVG image");
