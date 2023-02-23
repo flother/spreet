@@ -2,6 +2,7 @@
 name = "spreet"
 version = "0.7.0-dev"
 edition = "2021"
+rust-version = "1.61"
 description = "Create a spritesheet from a set of SVG images"
 readme = "README.md"
 repository = "https://github.com/flother/spreet"
