@@ -252,6 +252,6 @@ pub fn generate_pixmap_from_svg(svg: &Tree, pixel_ratio: u8) -> Option<Pixmap> {
     let fit_to = FitTo::Zoom(pixel_ratio as f32);
     let size = fit_to.fit_to(svg.size.to_screen_size())?;
     let mut sprite = Pixmap::new(size.width(), size.height())?;
-    render(&svg, fit_to, Transform::default(), sprite.as_mut());
+    render(svg, fit_to, Transform::default(), sprite.as_mut());
     Some(sprite)
 }
