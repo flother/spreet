@@ -36,7 +36,7 @@ fn main() {
                     sprite::generate_pixmap_from_svg(svg, pixel_ratio).unwrap(),
                 ),
                 Err(_) => {
-                    eprintln!("{:?}: not a valid SVG image", svg_path);
+                    eprintln!("{svg_path:?}: not a valid SVG image");
                     std::process::exit(exitcode::DATAERR);
                 }
             })
@@ -60,10 +60,7 @@ fn main() {
         let spritesheet_path = format!("{}.png", args.output);
         // Save the bitmapped spritesheet to a local PNG.
         if let Err(e) = spritesheet.save_spritesheet(&spritesheet_path) {
-            eprintln!(
-                "Error: could not save spritesheet to {} ({})",
-                spritesheet_path, e
-            );
+            eprintln!("Error: could not save spritesheet to {spritesheet_path} ({e})");
             std::process::exit(exitcode::IOERR);
         };
         // Save the index file to a local JSON file with the same name as the spritesheet.
