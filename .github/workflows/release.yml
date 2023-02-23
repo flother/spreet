@@ -29,9 +29,10 @@ jobs:
       uses: dtolnay/rust-toolchain@stable
       with:
         targets: ${{ matrix.target }}
-    - name: Run cargo build
-      run: cargo build --release --locked --target ${{ matrix.target }}
-      # use-cross: ${{ matrix.os == 'ubuntu-latest' }}
+    - name: Install Cross
+      run: cargo install cross
+    - name: Build Spreet
+      run: cross build --release --locked --target ${{ matrix.target }}
     - name: Prepare Windows package
       if: matrix.os == 'windows-latest'
       run: |
