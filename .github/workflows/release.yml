@@ -29,18 +29,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: stable
-        profile: minimal
         target: ${{ matrix.target }}
-        override: true
-    - name: Run cargo build
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --release --locked --target ${{ matrix.target }}
-        use-cross: ${{ matrix.os == 'ubuntu-latest' }}
+    - name: Install Cross
+      run: cargo install cross
+    - name: Build Spreet
+      run: cross build --release --locked --target ${{ matrix.target }}
     - name: Prepare Windows package
       if: matrix.os == 'windows-latest'
       run: |
@@ -65,11 +60,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
-        override: true
+      uses: dtolnay/rust-toolchain@stable
     - id: version
       name: Get version number
       run: |
