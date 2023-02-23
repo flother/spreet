@@ -234,14 +234,13 @@ impl Spritesheet {
 pub fn sprite_name(path: &Path, base_path: &Path) -> String {
     let abs_path = path.canonicalize().unwrap();
     let abs_base_path = base_path.canonicalize().unwrap();
-
     let rel_path = abs_path.strip_prefix(abs_base_path).unwrap();
-
     let file_stem = path.file_stem().unwrap();
 
-    match rel_path.parent() {
-        Some(parent) => format!("{}", parent.join(file_stem).to_string_lossy()),
-        None => format!("{}", file_stem.to_string_lossy()),
+    if let Some(parent) = rel_path.parent() {
+        format!("{}", parent.join(file_stem).to_string_lossy())
+    } else {
+        format!("{}", file_stem.to_string_lossy())
     }
 }
 

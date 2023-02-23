@@ -32,9 +32,10 @@ pub struct Cli {
 
 /// Clap validator to ensure that a string is an existing directory.
 fn is_dir(p: &str) -> Result<PathBuf, String> {
-    match PathBuf::from(p).is_dir() {
-        true => Ok(p.into()),
-        false => Err(String::from("must be an existing directory")),
+    if PathBuf::from(p).is_dir() {
+        Ok(p.into())
+    } else {
+        Err(String::from("must be an existing directory"))
     }
 }
 

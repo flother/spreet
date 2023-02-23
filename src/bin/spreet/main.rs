@@ -30,12 +30,13 @@ fn main() {
     let sprites = BTreeMap::from_iter(
         svg_paths
             .par_iter()
-            .map(|svg_path| match load_svg(svg_path) {
-                Ok(svg) => (
-                    sprite::sprite_name(svg_path, args.input.as_path()),
-                    sprite::generate_pixmap_from_svg(svg, pixel_ratio).unwrap(),
-                ),
-                Err(_) => {
+            .map(|svg_path| {
+                if let Ok(svg) = load_svg(svg_path) {
+                    (
+                        sprite::sprite_name(svg_path, args.input.as_path()),
+                        sprite::generate_pixmap_from_svg(svg, pixel_ratio).unwrap(),
+                    )
+                } else {
                     eprintln!("{svg_path:?}: not a valid SVG image");
                     std::process::exit(exitcode::DATAERR);
                 }
