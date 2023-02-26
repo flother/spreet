@@ -1,7 +1,6 @@
 name: Publish new release to crates.io
 on:
-  release:
-    types: [released]
+  push:
 jobs:
   publish:
     name: cargo publish
