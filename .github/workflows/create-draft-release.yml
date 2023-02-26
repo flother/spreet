@@ -1,4 +1,4 @@
-name: Build new version
+name: Create new draft release
 on:
   push:
     tags:
