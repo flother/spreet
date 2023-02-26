@@ -101,8 +101,8 @@ Options:
       --unique             Store only unique images in the spritesheet, and map them to multiple names
       --recursive          Include images in sub-directories
   -m, --minify-index-file  Remove whitespace from the JSON index file
-  -h, --help               Print help information
-  -V, --version            Print version information
+  -h, --help               Print help
+  -V, --version            Print version
 ```
 
 ## Benchmarks
