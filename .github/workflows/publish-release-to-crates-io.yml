@@ -1,6 +1,7 @@
 name: Publish new release to crates.io
 on:
-  push:
+  release:
+    types: [released]
 jobs:
   publish:
     name: cargo publish
@@ -8,6 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo publish --dry-run
+      - run: cargo publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
