@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet.
+
 ## v0.7.0 (2023-03-26)
 
 - Replace unmaintained [actions-rs/toolchain](https://github.com/actions-rs/toolchain) with [dtolnay/rust-toolchain](https://github.com/dtolnay/rust-toolchain) ([#44](https://github.com/flother/spreet/pull/44) and [#45](https://github.com/flother/spreet/pull/45))
