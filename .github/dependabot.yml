@@ -1,17 +1,17 @@
 version: 2
 updates:
-- package-ecosystem: cargo
-  directory: /
-  schedule:
-    interval: monthly
-    time: "06:00"
-    timezone: UTC
-  ignore:
-    - dependency-name: "*"
-      update-types: ["version-update:semver-patch"]
-- package-ecosystem: github-actions
-  directory: /
-  schedule:
-    interval: monthly
-    time: "05:45"
-    timezone: UTC
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: UTC
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      time: "05:45"
+      timezone: UTC

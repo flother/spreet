@@ -2,7 +2,7 @@ name: Create new draft release
 on:
   push:
     tags:
-    - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 jobs:
   build:
     name: Build release binaries
@@ -10,72 +10,72 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - target: x86_64-unknown-linux-musl
-          os: ubuntu-latest
-          package: spreet-x86_64-unknown-linux-musl.tar.gz
-        - target: arm-unknown-linux-gnueabihf
-          os: ubuntu-latest
-          package: spreet-arm-unknown-linux-gnueabihf.tar.gz
-        - target: x86_64-apple-darwin
-          os: macos-latest
-          package: spreet-x86_64-apple-darwin.tar.gz
-        - target: aarch64-apple-darwin
-          os: macos-latest
-          package: spreet-aarch64-apple-darwin.tar.gz
-        - target: x86_64-pc-windows-msvc
-          os: windows-latest
-          package: spreet-x86_64-pc-windows-msvc.zip
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            package: spreet-x86_64-unknown-linux-musl.tar.gz
+          - target: arm-unknown-linux-gnueabihf
+            os: ubuntu-latest
+            package: spreet-arm-unknown-linux-gnueabihf.tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            package: spreet-x86_64-apple-darwin.tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            package: spreet-aarch64-apple-darwin.tar.gz
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            package: spreet-x86_64-pc-windows-msvc.zip
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        target: ${{ matrix.target }}
-    - name: Install Cross
-      run: cargo install cross
-    - name: Build Spreet
-      run: cross build --release --locked --target ${{ matrix.target }}
-    - name: Prepare Windows package
-      if: matrix.os == 'windows-latest'
-      run: |
-        cd target/${{ matrix.target }}/release
-        7z a ../../../${{ matrix.package }} spreet.exe
-        cd -
-    - name: Prepare Unix package
-      if: matrix.os != 'windows-latest'
-      run: |
-        cd target/${{ matrix.target }}/release
-        tar czvf ../../../${{ matrix.package }} spreet
-        cd -
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.package }}
-        path: ${{ matrix.package }}
+      - uses: actions/checkout@v3
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+      - name: Install Cross
+        run: cargo install cross
+      - name: Build Spreet
+        run: cross build --release --locked --target ${{ matrix.target }}
+      - name: Prepare Windows package
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a ../../../${{ matrix.package }} spreet.exe
+          cd -
+      - name: Prepare Unix package
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar czvf ../../../${{ matrix.package }} spreet
+          cd -
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.package }}
+          path: ${{ matrix.package }}
   publish:
     name: Publish draft release
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
-    - id: version
-      name: Get version number
-      run: |
-        VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
-        echo "::set-output name=version::$VERSION"
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        path: ./bin
-    - name: Create draft release
-      uses: softprops/action-gh-release@v1
-      with:
-        name: v${{ steps.version.outputs.version }}
-        draft: true
-        generate_release_notes: true
-        files: |
-          ./bin/**/*.zip
-          ./bin/**/*.tar.gz
+      - uses: actions/checkout@v3
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - id: version
+        name: Get version number
+        run: |
+          VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
+          echo "::set-output name=version::$VERSION"
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./bin
+      - name: Create draft release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ steps.version.outputs.version }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            ./bin/**/*.zip
+            ./bin/**/*.tar.gz
