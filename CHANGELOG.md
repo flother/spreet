@@ -1,8 +1,10 @@
 # Changelog
 
-## Development version
+## v0.7.0 (2023-03-26)
 
-_No changes yet._
+- Replace unmaintained [actions-rs/toolchain](https://github.com/actions-rs/toolchain) with [dtolnay/rust-toolchain](https://github.com/dtolnay/rust-toolchain) ([#44](https://github.com/flother/spreet/pull/44) and [#45](https://github.com/flother/spreet/pull/45))
+- Publish to crates.io when new version is released ([#46](https://github.com/flother/spreet/pull/46))
+- Update clap dependency to v4.1
 
 ## v0.6.0 (2023-02-13)
 
