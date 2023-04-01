@@ -14,7 +14,7 @@ categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 [dependencies]
 assert_fs = "1.0.7"
 clap = { version = "4.1", features = ["derive"] }
-crunch = "0.3.3"
+crunch = "0.5.2"
 exitcode = "1.1"
 multimap = "0.8.3"
 oxipng = "8"

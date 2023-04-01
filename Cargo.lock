@@ -255,9 +255,9 @@ dependencies = [
 
 [[package]]
 name = "crunch"
-version = "0.3.3"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ec1ceeb2c7de0839185c61e990ea3416be50cb55930d421402ef891db0eef76"
+checksum = "705d9ad571a8dea8554af540e93ae58d02ee759d8255695e9644f60725e181d1"
 
 [[package]]
 name = "data-url"
@@ -1084,7 +1084,7 @@ checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
 
 [[package]]
 name = "spreet"
-version = "0.7.0-dev"
+version = "0.8.0-dev"
 dependencies = [
  "assert_cmd",
  "assert_fs",
