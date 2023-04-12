@@ -16,7 +16,7 @@ assert_fs = "1.0.7"
 clap = { version = "4.1", features = ["derive"] }
 crunch = "0.3.3"
 exitcode = "1.1"
-multimap = "0.8.3"
+multimap = "0.9"
 oxipng = "8"
 png = "0.17"
 rayon = "1.7"
