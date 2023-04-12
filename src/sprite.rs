@@ -109,7 +109,7 @@ impl Spritesheet {
             .iter()
             .map(|(name, image)| {
                 Item::new(
-                    name.to_owned(),
+                    name.clone(),
                     image.width() as usize,
                     image.height() as usize,
                     Rotation::None,
@@ -157,7 +157,7 @@ impl Spritesheet {
                         None,
                     );
                     sprite_index.insert(
-                        sprite_name.to_owned(),
+                        sprite_name.clone(),
                         SpriteDescription {
                             height: rect.h as u32,
                             width: rect.w as u32,
@@ -173,7 +173,7 @@ impl Spritesheet {
                     if let Some(other_sprite_names) = references.get_vec(sprite_name) {
                         for other_sprite_name in other_sprite_names {
                             sprite_index.insert(
-                                other_sprite_name.to_owned(),
+                                other_sprite_name.clone(),
                                 SpriteDescription {
                                     height: rect.h as u32,
                                     width: rect.w as u32,
