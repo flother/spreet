@@ -6,9 +6,9 @@ use std::path::Path;
 use crunch::{Item, Rotation};
 use multimap::MultiMap;
 use oxipng::optimize_from_memory;
-use resvg::render;
 use resvg::tiny_skia::{Pixmap, PixmapPaint, Transform};
-use resvg::usvg::{FitTo, Tree};
+use resvg::usvg::Tree;
+use resvg::{render, FitTo};
 use serde::Serialize;
 
 use crate::error::Error;
