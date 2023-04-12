@@ -3,14 +3,14 @@
     "height": 15,
     "pixelRatio": 1,
     "width": 15,
-    "x": 35,
+    "x": 20,
     "y": 16
   },
   "bicycle": {
     "height": 15,
     "pixelRatio": 1,
     "width": 15,
-    "x": 20,
+    "x": 35,
     "y": 16
   },
   "circle": {

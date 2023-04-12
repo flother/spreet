@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use crunch::{Item, Rotation};
+use crunch::{Item, PackedItem, PackedItems, Rotation};
 use multimap::MultiMap;
 use oxipng::optimize_from_memory;
 use resvg::tiny_skia::{Pixmap, PixmapPaint, Transform};
@@ -122,13 +122,19 @@ impl Spritesheet {
             .map(|i| i.width() as usize * i.height() as usize)
             .sum();
         match crunch::pack_into_po2(min_area * 10, items) {
-            Ok((_, _, packed)) => {
+            Ok(PackedItems { items: packed, .. }) => {
                 // There might be some unused space in the packed items --- not all the pixels on
                 // the right/bottom edges may have been used. Count the pixels in use so we can
                 // strip off any empty edges in the final spritesheet. The won't strip any
                 // transparent pixels within a sprite, just unused pixels around the sprites.
-                let bin_width = (&packed).into_iter().map(|(r, _)| r.right()).max()? as u32;
-                let bin_height = (&packed).into_iter().map(|(r, _)| r.bottom()).max()? as u32;
+                let bin_width = packed
+                    .iter()
+                    .map(|PackedItem { rect, .. }| rect.right())
+                    .max()? as u32;
+                let bin_height = packed
+                    .iter()
+                    .map(|PackedItem { rect, .. }| rect.bottom())
+                    .max()? as u32;
                 // This is the meat of Spreet. Here we pack the sprite bitmaps into the spritesheet,
                 // using the rectangle locations from the previous step, and store those locations
                 // in the vector that will be output as the sprite index file.
@@ -136,11 +142,15 @@ impl Spritesheet {
                 let mut spritesheet = Pixmap::new(bin_width, bin_height)?;
                 let pixmap_paint = PixmapPaint::default();
                 let pixmap_transform = Transform::default();
-                for (rectangle, sprite_name) in &packed {
+                for PackedItem {
+                    rect,
+                    data: sprite_name,
+                } in &packed
+                {
                     let sprite = sprites.get(sprite_name)?;
                     spritesheet.draw_pixmap(
-                        rectangle.x as i32,
-                        rectangle.y as i32,
+                        rect.x as i32,
+                        rect.y as i32,
                         sprite.as_ref(),
                         &pixmap_paint,
                         pixmap_transform,
@@ -149,11 +159,11 @@ impl Spritesheet {
                     sprite_index.insert(
                         sprite_name.to_owned(),
                         SpriteDescription {
-                            height: rectangle.h as u32,
-                            width: rectangle.w as u32,
+                            height: rect.h as u32,
+                            width: rect.w as u32,
                             pixel_ratio,
-                            x: rectangle.x as u32,
-                            y: rectangle.y as u32,
+                            x: rect.x as u32,
+                            y: rect.y as u32,
                         },
                     );
                     // If multiple names are used for a unique sprite, insert an entry in the index
@@ -165,11 +175,11 @@ impl Spritesheet {
                             sprite_index.insert(
                                 other_sprite_name.to_owned(),
                                 SpriteDescription {
-                                    height: rectangle.h as u32,
-                                    width: rectangle.w as u32,
+                                    height: rect.h as u32,
+                                    width: rect.w as u32,
                                     pixel_ratio,
-                                    x: rectangle.x as u32,
-                                    y: rectangle.y as u32,
+                                    x: rect.x as u32,
+                                    y: rect.y as u32,
                                 },
                             );
                         }

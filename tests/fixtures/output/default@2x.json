@@ -4,14 +4,14 @@
     "pixelRatio": 2,
     "width": 30,
     "x": 40,
-    "y": 30
+    "y": 0
   },
   "bicycle": {
     "height": 30,
     "pixelRatio": 2,
     "width": 30,
     "x": 40,
-    "y": 0
+    "y": 30
   },
   "circle": {
     "height": 40,
