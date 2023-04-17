@@ -3,12 +3,10 @@ updates:
   - package-ecosystem: cargo
     directory: /
     schedule:
-      interval: monthly
+      interval: weekly
       time: "06:00"
       timezone: UTC
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
+    open-pull-requests-limit: 0
   - package-ecosystem: github-actions
     directory: /
     schedule:
