@@ -208,7 +208,7 @@ impl Spritesheet {
     ///
     /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
-    pub fn save_spritesheet(&self, path: &str) -> Result<(), Error> {
+    pub fn save_spritesheet<P: AsRef<Path>>(&self, path: P) -> Result<(), Error> {
         let spritesheet_png = self.sheet.encode_png()?;
         let spritesheet_png =
             optimize_from_memory(spritesheet_png.as_slice(), &oxipng::Options::default())?;
@@ -241,11 +241,11 @@ impl Spritesheet {
 ///
 /// The unique sprite name is the relative path from `path` to `base_path`
 /// without the file extension.
-pub fn sprite_name(path: &Path, base_path: &Path) -> String {
-    let abs_path = path.canonicalize().unwrap();
-    let abs_base_path = base_path.canonicalize().unwrap();
+pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(path: P1, base_path: P2) -> String {
+    let abs_path = path.as_ref().canonicalize().unwrap();
+    let abs_base_path = base_path.as_ref().canonicalize().unwrap();
     let rel_path = abs_path.strip_prefix(abs_base_path).unwrap();
-    let file_stem = path.file_stem().unwrap();
+    let file_stem = path.as_ref().file_stem().unwrap();
 
     if let Some(parent) = rel_path.parent() {
         format!("{}", parent.join(file_stem).to_string_lossy())
