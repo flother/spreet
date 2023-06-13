@@ -198,6 +198,22 @@ impl Spritesheet {
         SpritesheetBuilder::new()
     }
 
+    /// Encode the spritesheet to the in-memory PNG image.
+    ///
+    /// The `spritesheet` `Pixmap` is converted to an in-memory PNG,
+    /// optimised using the [`oxipng`] library.
+    ///
+    /// The spritesheet will match an index that can be retrieved with [`Self::get_index`].
+    ///
+    /// [`oxipng`]: https://github.com/shssoichiro/oxipng
+    pub fn encode_png(&self) -> Result<Vec<u8>, Error> {
+        let spritesheet_png = self.sheet.encode_png()?;
+        Ok(optimize_from_memory(
+            spritesheet_png.as_slice(),
+            &oxipng::Options::default(),
+        )?)
+    }
+
     /// Saves the spritesheet to a local file named `path`.
     ///
     /// A spritesheet, called an [image file] in the Mapbox Style Specification, is a PNG image
@@ -209,11 +225,20 @@ impl Spritesheet {
     /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
     pub fn save_spritesheet(&self, path: &str) -> Result<(), Error> {
-        let spritesheet_png = self.sheet.encode_png()?;
-        let spritesheet_png =
-            optimize_from_memory(spritesheet_png.as_slice(), &oxipng::Options::default())?;
-        std::fs::write(path, spritesheet_png)?;
-        Ok(())
+        Ok(std::fs::write(path, self.encode_png()?)?)
+    }
+
+    /// Get the `sprite_index` that can be serialized to JSON.
+    ///
+    /// An [index file] is defined in the Mapbox Style Specification as a JSON document containing a
+    /// description of each sprite within a spritesheet. It contains the width, height, x and y
+    /// positions, and pixel ratio of the sprite.
+    ///
+    /// The index file will match a spritesheet that can be saved with [`Self::save_spritesheet`].
+    ///
+    /// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
+    pub fn get_index(&self) -> &BTreeMap<String, SpriteDescription> {
+        &self.index
     }
 
     /// Saves the `sprite_index` to a local file named `file_name_prefix` + ".json".
@@ -228,9 +253,9 @@ impl Spritesheet {
     pub fn save_index(&self, file_name_prefix: &str, minify: bool) -> std::io::Result<()> {
         let mut file = File::create(format!("{file_name_prefix}.json"))?;
         let json_string = if minify {
-            serde_json::to_string(&self.index)?
+            serde_json::to_string(&self.get_index())?
         } else {
-            serde_json::to_string_pretty(&self.index)?
+            serde_json::to_string_pretty(&self.get_index())?
         };
         write!(file, "{json_string}")?;
         Ok(())
