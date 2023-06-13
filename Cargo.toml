@@ -12,7 +12,7 @@ keywords = ["sprite", "svg", "cartography", "vector-tiles", "maplibre"]
 categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 
 [dependencies]
-assert_fs = "1.0.7"
+assert_fs = "1.0.13"
 clap = { version = "4.1", features = ["derive"] }
 crunch = "0.5.3"
 exitcode = "1.1"
