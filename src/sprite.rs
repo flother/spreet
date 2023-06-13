@@ -8,7 +8,6 @@ use multimap::MultiMap;
 use oxipng::optimize_from_memory;
 use resvg::tiny_skia::{Pixmap, PixmapPaint, Transform};
 use resvg::usvg::Tree;
-use resvg::{render, FitTo};
 use serde::Serialize;
 
 use crate::error::Error;
@@ -259,9 +258,14 @@ pub fn sprite_name(path: &Path, base_path: &Path) -> String {
 /// The bitmap is generated at the given pixel ratio. A ratio of 2 means the bitmap image will be
 /// scaled to be double the size of the SVG image.
 pub fn generate_pixmap_from_svg(svg: &Tree, pixel_ratio: u8) -> Option<Pixmap> {
-    let fit_to = FitTo::Zoom(pixel_ratio as f32);
-    let size = fit_to.fit_to(svg.size.to_screen_size())?;
-    let mut sprite = Pixmap::new(size.width(), size.height())?;
-    render(svg, fit_to, Transform::default(), sprite.as_mut());
-    Some(sprite)
+    let rtree = resvg::Tree::from_usvg(svg);
+    let pixmap_size = rtree
+        .size
+        .to_int_size()
+        .scale_by(pixel_ratio as f32)
+        .unwrap();
+    let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+    let render_ts = Transform::from_scale(pixel_ratio as f32, pixel_ratio as f32);
+    rtree.render(render_ts, &mut pixmap.as_mut());
+    Some(pixmap)
 }
