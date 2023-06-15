@@ -3,9 +3,11 @@
 ## Development version
 
 - Update [crunch](https://crates.io/crates/crunch) dependency to v0.5.3
-- Update [resvg](https://crates.io/crates/resvg) dependency to v0.31
+- Update [resvg](https://crates.io/crates/resvg) dependency to v0.34
+- Update [clap](https://crates.io/crates/clap) dependency to v4.3
 - Update [multimap](https://crates.io/crates/multimap) dependency to v0.9.0
 - Update [Rayon](https://crates.io/crates/rayon) dependency to v1.7
+- Update [Rayon](https://crates.io/crates/assert_fs) dependency to v1.0.13
 
 ## v0.7.0 (2023-03-26)
 
