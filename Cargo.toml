@@ -17,7 +17,7 @@ clap = { version = "4.3", features = ["derive"] }
 crunch = "0.5.3"
 exitcode = "1.1"
 multimap = "0.9"
-oxipng = "8"
+oxipng = { version = "8.0", features = ["parallel", "zopfli", "filetime"], default-features = false }
 png = "0.17"
 rayon = "1.7"
 resvg = "0.34"
