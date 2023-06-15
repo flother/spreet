@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet._
+
 ## v0.8.0 (2023-06-15)
 
 - Improvements to using Spreet as a Rust library (#57 and #59)

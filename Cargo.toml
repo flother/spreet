@@ -1,6 +1,6 @@
 [package]
 name = "spreet"
-version = "0.8.0"
+version = "0.9.0-dev"
 edition = "2021"
 rust-version = "1.61"
 description = "Create a spritesheet from a set of SVG images"
