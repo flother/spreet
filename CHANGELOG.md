@@ -1,8 +1,10 @@
 # Changelog
 
-## Development version
+## v0.8.0 (2023-06-15)
 
 - Improvements to using Spreet as a Rust library (#57 and #59)
+- Optimise Oxipng usage to reduce dev dependencies (#61)
+- Optimise the `main` function (#56)
 - Update [crunch](https://crates.io/crates/crunch) dependency to v0.5.3
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.34
 - Update [clap](https://crates.io/crates/clap) dependency to v4.3
