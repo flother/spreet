@@ -2,12 +2,15 @@
 
 ## Development version
 
+- Improvements to using Spreet as a Rust library (#57 and #59)
 - Update [crunch](https://crates.io/crates/crunch) dependency to v0.5.3
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.34
 - Update [clap](https://crates.io/crates/clap) dependency to v4.3
 - Update [multimap](https://crates.io/crates/multimap) dependency to v0.9.0
 - Update [Rayon](https://crates.io/crates/rayon) dependency to v1.7
-- Update [Rayon](https://crates.io/crates/assert_fs) dependency to v1.0.13
+- Update [assert_fs](https://crates.io/crates/assert_fs) dependency to v1.0.13
+
+Note: the update to [resvg](https://crates.io/crates/resvg) brings a new image rendering algorithm. This produces smaller images and improves performance, but the PNGs won't be byte-to-byte compatible with spritesheets output by earlier versions of Spreet. There should be no visual change though.
 
 ## v0.7.0 (2023-03-26)
 
