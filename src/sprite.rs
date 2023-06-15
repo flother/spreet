@@ -200,8 +200,8 @@ impl Spritesheet {
 
     /// Encode the spritesheet to the in-memory PNG image.
     ///
-    /// The `spritesheet` `Pixmap` is converted to an in-memory PNG,
-    /// optimised using the [`oxipng`] library.
+    /// The `spritesheet` `Pixmap` is converted to an in-memory PNG, optimised using the [`oxipng`]
+    /// library.
     ///
     /// The spritesheet will match an index that can be retrieved with [`Self::get_index`].
     ///
