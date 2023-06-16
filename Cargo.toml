@@ -13,7 +13,7 @@ categories = ["command-line-utilities", "encoding", "filesystem", "graphics"]
 
 [features]
 default = ["cli"]
-cli = ["clap", "exitcode", "rayon"]
+cli = ["dep:clap", "dep:exitcode", "dep:rayon"]
 
 [dependencies]
 clap = { version = "4.3", features = ["derive"], optional = true }
