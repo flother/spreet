@@ -45,3 +45,5 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
         run: cargo test
+      - name: Run cargo test in lib mode
+        run: cargo test --no-default-features
