@@ -36,3 +36,7 @@ predicates = "3"
 lto = "thin"
 strip = true
 codegen-units = 1
+
+[[bin]]
+name = "spreet"
+required-features = ["cli"]
