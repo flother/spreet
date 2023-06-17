@@ -17,7 +17,8 @@ _Spreet_ (also _spreit_, _spret_, _sprit_) is the [Scots](https://en.wikipedia.o
 
 - [Installation](#installation)
 - [Tutorial](#tutorial)
-- [Usage](#usage)
+- [Command-line usage](#command-line-usage)
+- [Using Spreet as a Rust library](#using-spreet-as-a-rust-library)
 - [Benchmarks](#benchmarks)
 
 ## Installation
@@ -83,7 +84,7 @@ By default the JSON index file is pretty-printed, but you can minify it with the
 
 When you create a spritesheet for your production environment, use `--unique --minify-index-file` for best results.
 
-## Usage
+## Command-line usage
 
 ```
 $ spreet --help
@@ -104,6 +105,16 @@ Options:
   -h, --help               Print help
   -V, --version            Print version
 ```
+
+## Using Spreet as a Rust library
+
+The main purpose of Spreet is to be command-line tool, but you can also use it as a library in your own Rust code. To add Spreet as a dependency, include this in your `Cargo.toml`:
+
+```toml
+spreet = { version = "0.8.0", default-features = false }
+```
+
+To learn how to build your spritesheets programatically, see the [Spreet crate docs on docs.rs](https://docs.rs/spreet) and have a [look at the spritesheet tests](https://github.com/flother/spreet/blob/master/tests/sprite.rs).
 
 ## Benchmarks
 

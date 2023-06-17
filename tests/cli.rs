@@ -1,3 +1,5 @@
+#![cfg(feature = "cli")]
+
 use std::path::Path;
 use std::process::Command;
 
