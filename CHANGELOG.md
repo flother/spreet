@@ -3,6 +3,7 @@
 ## Development version
 
 - Make the CLI an optional (but default) feature ([#62](https://github.com/flother/spreet/pull/62)). This speeds up the build when using Spreet as a Rust library (see [README](README.md#using-spreet-as-a-rust-library))
+- Update [resvg](https://crates.io/crates/resvg) dependency to v0.35
 
 ## v0.8.0 (2023-06-15)
 
