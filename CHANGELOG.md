@@ -4,6 +4,10 @@
 
 - Make the CLI an optional (but default) feature ([#62](https://github.com/flother/spreet/pull/62)). This speeds up the build when using Spreet as a Rust library (see [README](README.md#using-spreet-as-a-rust-library))
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.35
+- Update [clap](https://crates.io/crates/clap) dependency to v4.4
+- Update [Rayon](https://crates.io/crates/rayon) dependency to v1.8
+
+Because of the change to Rayon, Spreet's minimum Rust version is now 1.63.0 (released August 2022).
 
 ## v0.8.0 (2023-06-15)
 
