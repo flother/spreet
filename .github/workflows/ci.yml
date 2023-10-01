@@ -9,7 +9,7 @@ jobs:
     name: cargo check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo check
@@ -18,7 +18,7 @@ jobs:
     name: cargo clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -29,7 +29,7 @@ jobs:
     name: cargo fmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -40,7 +40,7 @@ jobs:
     name: cargo test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
