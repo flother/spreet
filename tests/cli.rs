@@ -217,3 +217,23 @@ fn spreet_rejects_negative_ratio() {
         .code(2)
         .stderr("error: invalid value ' -3' for '--ratio <RATIO>': invalid digit found in string\n\nFor more information, try '--help'.\n");
 }
+
+#[test]
+fn spreet_accepts_pngs_wrapped_in_svgs() {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    cmd.arg("tests/fixtures/pngs")
+        .arg(temp.join("pngs@2x"))
+        .arg("--retina")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/pngs@2x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("pngs@2x.png"));
+    let expected_index = Path::new("tests/fixtures/output/pngs@2x.json");
+    let actual_index = predicate::path::eq_file(temp.join("pngs@2x.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+}

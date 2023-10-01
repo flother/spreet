@@ -1,0 +1,16 @@
+{
+  "iceland_flag": {
+    "height": 460,
+    "pixelRatio": 2,
+    "width": 640,
+    "x": 0,
+    "y": 0
+  },
+  "sweden_flag": {
+    "height": 200,
+    "pixelRatio": 2,
+    "width": 320,
+    "x": 640,
+    "y": 0
+  }
+}

@@ -47,5 +47,16 @@ pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> Vec<Path
 
 /// Load an SVG image from a file path.
 pub fn load_svg<P: AsRef<Path>>(path: P) -> Result<Tree, Error> {
-    Ok(Tree::from_data(&read(path)?, &Options::default())?)
+    // The resources directory needs to be the same location as the SVG file itself, so that any
+    // embedded resources (like PNGs in <image> elements) that use relative URLs can be resolved
+    // correctly.
+    let resources_dir = std::fs::canonicalize(&path)
+        .ok()
+        .and_then(|p| p.parent().map(|p| p.to_path_buf()));
+    let options = Options {
+        resources_dir,
+        ..Options::default()
+    };
+
+    Ok(Tree::from_data(&read(path)?, &options)?)
 }
