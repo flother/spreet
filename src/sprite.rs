@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -7,10 +7,163 @@ use crunch::{Item, PackedItem, PackedItems, Rotation};
 use multimap::MultiMap;
 use oxipng::optimize_from_memory;
 use resvg::tiny_skia::{Pixmap, PixmapPaint, Transform};
-use resvg::usvg::Tree;
+use resvg::usvg::{NodeExt, Rect, Tree};
 use serde::Serialize;
 
 use crate::error::Error;
+
+/// A single icon within a spritesheet.
+///
+/// A sprite is a rectangular icon stored as an SVG image and converted to a bitmap. The bitmap is
+/// saved to a spritesheet.
+#[derive(Clone)]
+pub struct Sprite {
+    /// Parsed source SVG image.
+    pub tree: Tree,
+    /// Ratio determining the size the destination pixels compared to the source pixels. A ratio of
+    /// 2 means the bitmap will be scaled to be twice the size of the SVG image.
+    pub pixel_ratio: u8,
+}
+
+impl Sprite {
+    /// Generate a bitmap image from the sprite's SVG tree.
+    ///
+    /// The bitmap is generated at the sprite's [pixel ratio](Self::pixel_ratio).
+    pub fn pixmap(&self) -> Option<Pixmap> {
+        let rtree = resvg::Tree::from_usvg(&self.tree);
+        let pixmap_size = rtree
+            .size
+            .to_int_size()
+            .scale_by(self.pixel_ratio as f32)
+            .unwrap();
+        let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+        let render_ts = Transform::from_scale(self.pixel_ratio as f32, self.pixel_ratio as f32);
+        rtree.render(render_ts, &mut pixmap.as_mut());
+        Some(pixmap)
+    }
+
+    /// Metadata for a [stretchable icon].
+    ///
+    /// Describes the content area of an icon as an array of four numbers. The first two specify the
+    /// left, top corner. The last two specify the right, bottom corner. The metadata comes from an
+    /// element in the SVG image that has the id `mapbox-content`. The bounding box of that element
+    /// is used as the content area.
+    ///
+    /// Most icons do not specify a content area. But if it is present and the MapLibre/Mapbox map
+    /// symbol uses [`icon-text-fit`], the symbol's text will be fitted inside this content box.
+    ///
+    /// [stretchable icon]: https://github.com/mapbox/mapbox-gl-js/issues/8917
+    /// [`icon-text-fit`]: https://maplibre.org/maplibre-style-spec/layers/#layout-symbol-icon-text-fit
+    pub fn content_area(&self) -> Option<[f32; 4]> {
+        self.get_node_bbox("mapbox-content").map(|rect| {
+            [
+                round3(rect.left()),
+                round3(rect.top()),
+                round3(rect.right()),
+                round3(rect.bottom()),
+            ]
+        })
+    }
+
+    /// Metadata for a [stretchable icon].
+    ///
+    /// Describes the horizontal position of areas that can be stretched. Each area is an array of
+    /// "from" and "to" positions. There may be multiple areas. The metadata comes from
+    /// elements in the SVG image that have ids like `mapbox-stretch-x-1`. The left and right
+    /// coordinates of the element's bounding box are used to define the stretchable area.
+    ///
+    /// Most icons do not specify stretchable areas. See also [`Sprite::content_area`].
+    ///
+    /// [stretchable icon]: https://github.com/mapbox/mapbox-gl-js/issues/8917
+    pub fn stretch_x_areas(&self) -> Option<Vec<[f32; 2]>> {
+        let mut values = vec![];
+        // First look for an SVG element with the id `mapbox-stretch-x`.
+        if let Some(rect) = self.get_node_bbox("mapbox-stretch-x") {
+            values.push([round3(rect.left()), round3(rect.right())]);
+        }
+        // Next look for SVG elements with ids like `mapbox-stretch-x-1`. As soon as one is missing,
+        // stop looking.
+        for i in 1.. {
+            if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-x-{}", i).as_str()) {
+                values.push([round3(rect.left()), round3(rect.right())]);
+            } else {
+                break;
+            }
+        }
+        if values.is_empty() {
+            // If there are no SVG elements with `mapbox-stretch-x` ids, check for an element with
+            // the id `mapbox-stretch`. That's a shorthand for stretch-x and stretch-y. If that
+            // exists, use its horizontal coordinates.
+            self.get_node_bbox("mapbox-stretch")
+                .map(|rect| vec![[round3(rect.left()), round3(rect.right())]])
+        } else {
+            Some(values)
+        }
+    }
+
+    /// Metadata for a [stretchable icon].
+    ///
+    /// Describes the vertical position of areas that can be stretched. Each area is an array of
+    /// "from" and "to" positions. There may be multiple areas. The metadata comes from
+    /// elements in the SVG image that have ids like `mapbox-stretch-y-1`. The top and bottom
+    /// coordinates of the element's bounding box are used to define the stretchable area.
+    ///
+    /// Most icons do not specify stretchable areas. See also [`Sprite::content_area`].
+    ///
+    /// [stretchable icon]: https://github.com/mapbox/mapbox-gl-js/issues/8917
+    pub fn stretch_y_areas(&self) -> Option<Vec<[f32; 2]>> {
+        let mut values = vec![];
+        // First look for an SVG element with the id `mapbox-stretch-y`.
+        if let Some(rect) = self.get_node_bbox("mapbox-stretch-y") {
+            values.push([round3(rect.top()), round3(rect.bottom())]);
+        }
+        // Next look for SVG elements with ids like `mapbox-stretch-y-1`. As soon as one is missing,
+        // stop looking.
+        for i in 1.. {
+            if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-y-{}", i).as_str()) {
+                values.push([round3(rect.top()), round3(rect.bottom())]);
+            } else {
+                break;
+            }
+        }
+        if values.is_empty() {
+            // If there are no SVG elements with `mapbox-stretch-x` ids, check for an element with
+            // the id `mapbox-stretch`. That's a shorthand for stretch-x and stretch-y. If that
+            // exists, use its vertical coordinates.
+            self.get_node_bbox("mapbox-stretch")
+                .map(|rect| vec![[round3(rect.top()), round3(rect.bottom())]])
+        } else {
+            Some(values)
+        }
+    }
+
+    /// Find a node in the SVG tree with a given id, and return its bounding box with coordinates
+    /// multiplied by the sprite's pixel ratio.
+    fn get_node_bbox(&self, id: &str) -> Option<Rect> {
+        match self.tree.node_by_id(id) {
+            Some(node) => node.calculate_bbox().map(|bbox| {
+                let ratio = self.pixel_ratio as f32;
+                Rect::from_ltrb(
+                    bbox.left() * ratio,
+                    bbox.top() * ratio,
+                    bbox.right() * ratio,
+                    bbox.bottom() * ratio,
+                )
+                .unwrap()
+            }),
+            None => None,
+        }
+    }
+}
+
+/// Round an [`f32`] to a maximum of three decimal places. This is used to round coordinates used in
+/// [stretchable icons], and matches the original implementation in Mapbox's [spritezero] library.
+///
+/// [stretchable icons]: https://github.com/mapbox/mapbox-gl-js/issues/8917
+/// [spritezero]: https://github.com/mapbox/spritezero
+fn round3(n: f32) -> f32 {
+    (n * 1e3).round() / 1e3
+}
 
 /// A description of a sprite image within a spritesheet. Used for the JSON output required by a
 /// Mapbox Style Specification [index file].
@@ -24,13 +177,19 @@ pub struct SpriteDescription {
     pub width: u32,
     pub x: u32,
     pub y: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content: Option<[f32; 4]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stretch_x: Option<Vec<[f32; 2]>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stretch_y: Option<Vec<[f32; 2]>>,
 }
 
 /// Builder pattern for `Spritesheet`: construct a `Spritesheet` object using calls to a builder
 /// helper.
 #[derive(Default)]
 pub struct SpritesheetBuilder {
-    sprites: Option<BTreeMap<String, Pixmap>>,
+    sprites: Option<BTreeMap<String, Sprite>>,
     references: Option<MultiMap<String, String>>,
     pixel_ratio: u8,
 }
@@ -44,7 +203,7 @@ impl SpritesheetBuilder {
         }
     }
 
-    pub fn sprites(&mut self, sprites: BTreeMap<String, Pixmap>) -> &mut Self {
+    pub fn sprites(&mut self, sprites: BTreeMap<String, Sprite>) -> &mut Self {
         self.sprites = Some(sprites);
         self
     }
@@ -63,7 +222,7 @@ impl SpritesheetBuilder {
                 let mut references = MultiMap::new();
                 let mut names_for_sprites: BTreeMap<Vec<u8>, String> = BTreeMap::new();
                 for (name, sprite) in sprites {
-                    let sprite_data = sprite.encode_png().unwrap();
+                    let sprite_data = sprite.pixmap().unwrap().encode_png().unwrap();
                     if let Some(existing_sprite_name) = names_for_sprites.get(&sprite_data) {
                         references.insert(existing_sprite_name.clone(), name.clone());
                     } else {
@@ -98,15 +257,20 @@ pub struct Spritesheet {
 
 impl Spritesheet {
     pub fn new(
-        sprites: BTreeMap<String, Pixmap>,
+        sprites: BTreeMap<String, Sprite>,
         references: MultiMap<String, String>,
         pixel_ratio: u8,
     ) -> Option<Self> {
+        let pixmaps: HashMap<&String, Pixmap> = sprites
+            .iter()
+            .map(|(name, sprite)| (name, sprite.pixmap().unwrap()))
+            .collect();
         // The items are the rectangles that we want to pack into the smallest space possible. We
         // don't need to pass the pixels themselves, just the unique name for each sprite.
         let items: Vec<Item<String>> = sprites
-            .iter()
-            .map(|(name, image)| {
+            .keys()
+            .map(|name| {
+                let image = pixmaps.get(name).unwrap();
                 Item::new(
                     name.clone(),
                     image.width() as usize,
@@ -115,10 +279,13 @@ impl Spritesheet {
                 )
             })
             .collect();
-        // Minimum area required for the spreadsheet (i.e. 100% coverage).
+        // Minimum area required for the spritesheet (i.e. 100% coverage).
         let min_area: usize = sprites
-            .values()
-            .map(|i| i.width() as usize * i.height() as usize)
+            .keys()
+            .map(|name| {
+                let image = pixmaps.get(name).unwrap();
+                image.width() as usize * image.height() as usize
+            })
             .sum();
         match crunch::pack_into_po2(min_area * 10, items) {
             Ok(PackedItems { items: packed, .. }) => {
@@ -150,7 +317,7 @@ impl Spritesheet {
                     spritesheet.draw_pixmap(
                         rect.x as i32,
                         rect.y as i32,
-                        sprite.as_ref(),
+                        pixmaps.get(sprite_name).unwrap().as_ref(),
                         &pixmap_paint,
                         pixmap_transform,
                         None,
@@ -163,6 +330,9 @@ impl Spritesheet {
                             pixel_ratio,
                             x: rect.x as u32,
                             y: rect.y as u32,
+                            content: sprite.content_area(),
+                            stretch_x: sprite.stretch_x_areas(),
+                            stretch_y: sprite.stretch_y_areas(),
                         },
                     );
                     // If multiple names are used for a unique sprite, insert an entry in the index
@@ -179,6 +349,9 @@ impl Spritesheet {
                                     pixel_ratio,
                                     x: rect.x as u32,
                                     y: rect.y as u32,
+                                    content: sprite.content_area(),
+                                    stretch_x: sprite.stretch_x_areas(),
+                                    stretch_y: sprite.stretch_y_areas(),
                                 },
                             );
                         }
@@ -282,15 +455,11 @@ pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(path: P1, base_path: P2) ->
 ///
 /// The bitmap is generated at the given pixel ratio. A ratio of 2 means the bitmap image will be
 /// scaled to be double the size of the SVG image.
+#[deprecated(since = "0.9.0", note = "use `Sprite::pixmap()`instead")]
 pub fn generate_pixmap_from_svg(svg: &Tree, pixel_ratio: u8) -> Option<Pixmap> {
-    let rtree = resvg::Tree::from_usvg(svg);
-    let pixmap_size = rtree
-        .size
-        .to_int_size()
-        .scale_by(pixel_ratio as f32)
-        .unwrap();
-    let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
-    let render_ts = Transform::from_scale(pixel_ratio as f32, pixel_ratio as f32);
-    rtree.render(render_ts, &mut pixmap.as_mut());
-    Some(pixmap)
+    Sprite {
+        tree: svg.clone(),
+        pixel_ratio,
+    }
+    .pixmap()
 }

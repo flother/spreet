@@ -1,8 +1,7 @@
 use std::collections::BTreeMap;
 
 use clap::Parser;
-use rayon::prelude::*;
-use resvg::tiny_skia::Pixmap;
+// use rayon::prelude::*;
 
 use spreet::fs::{get_svg_input_paths, load_svg};
 use spreet::sprite;
@@ -22,19 +21,21 @@ fn main() {
     // bitmapped SVGs will be added to the spritesheet, and the keys will be used as the unique
     // sprite ids in the JSON index file.
     let sprites = get_svg_input_paths(&args.input, args.recursive)
-        .par_iter()
+        // .par_iter()
+        .iter()
         .map(|svg_path| {
             if let Ok(svg) = load_svg(svg_path) {
-                (
-                    sprite::sprite_name(svg_path, args.input.as_path()),
-                    sprite::generate_pixmap_from_svg(&svg, pixel_ratio).unwrap(),
-                )
+                let sprite = sprite::Sprite {
+                    tree: svg,
+                    pixel_ratio,
+                };
+                (sprite::sprite_name(svg_path, args.input.as_path()), sprite)
             } else {
                 eprintln!("{svg_path:?}: not a valid SVG image");
                 std::process::exit(exitcode::DATAERR);
             }
         })
-        .collect::<BTreeMap<String, Pixmap>>();
+        .collect::<BTreeMap<String, sprite::Sprite>>();
 
     if sprites.is_empty() {
         eprintln!("Error: no valid SVGs found in {:?}", args.input);
