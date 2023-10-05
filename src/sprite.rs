@@ -31,12 +31,8 @@ impl Sprite {
     /// The bitmap is generated at the sprite's [pixel ratio](Self::pixel_ratio).
     pub fn pixmap(&self) -> Option<Pixmap> {
         let rtree = resvg::Tree::from_usvg(&self.tree);
-        let pixmap_size = rtree
-            .size
-            .to_int_size()
-            .scale_by(self.pixel_ratio as f32)
-            .unwrap();
-        let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+        let pixmap_size = rtree.size.to_int_size().scale_by(self.pixel_ratio as f32)?;
+        let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
         let render_ts = Transform::from_scale(self.pixel_ratio as f32, self.pixel_ratio as f32);
         rtree.render(render_ts, &mut pixmap.as_mut());
         Some(pixmap)
@@ -140,19 +136,16 @@ impl Sprite {
     /// Find a node in the SVG tree with a given id, and return its bounding box with coordinates
     /// multiplied by the sprite's pixel ratio.
     fn get_node_bbox(&self, id: &str) -> Option<Rect> {
-        match self.tree.node_by_id(id) {
-            Some(node) => node.calculate_bbox().map(|bbox| {
-                let ratio = self.pixel_ratio as f32;
-                Rect::from_ltrb(
-                    bbox.left() * ratio,
-                    bbox.top() * ratio,
-                    bbox.right() * ratio,
-                    bbox.bottom() * ratio,
-                )
-                .unwrap()
-            }),
-            None => None,
-        }
+        self.tree.node_by_id(id)?.calculate_bbox().map(|bbox| {
+            let ratio = self.pixel_ratio as f32;
+            Rect::from_ltrb(
+                bbox.left() * ratio,
+                bbox.top() * ratio,
+                bbox.right() * ratio,
+                bbox.bottom() * ratio,
+            )
+            .unwrap()
+        })
     }
 }
 
