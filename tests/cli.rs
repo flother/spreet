@@ -178,6 +178,28 @@ fn spreet_can_output_minified_index_file_and_unique_spritesheet(
 }
 
 #[test]
+fn spreet_can_output_stretchable_icons() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/stretchable")
+        .arg(temp.join("stretchable@2x"))
+        .arg("--retina")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/stretchable@2x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("stretchable@2x.png"));
+    let expected_index = Path::new("tests/fixtures/output/stretchable@2x.json");
+    let actual_index = predicate::path::eq_file(temp.join("stretchable@2x.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}
+
+#[test]
 fn spreet_rejects_non_existent_input_directory() {
     let mut cmd = Command::cargo_bin("spreet").unwrap();
     cmd.arg("does_not_exist")

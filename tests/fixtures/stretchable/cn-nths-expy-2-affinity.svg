@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 20 23" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g>
+        <g>
+            <path d="M3,0.5l14,0c1.371,0 2.5,1.129 2.5,2.5l0,14c0,1.371 -1.129,2.5 -2.5,2.5l-14,0c-1.371,0 -2.5,-1.129 -2.5,-2.5l0,-14c0,-1.371 1.129,-2.5 2.5,-2.5" style="fill:#0e8c38;fill-rule:nonzero;"/>
+            <g id="metadata">
+                <path id="mapbox-stretch-x" d="M4,0l12,0" style="fill:none;"/>
+                <path id="mapbox-stretch-y" d="M0,5l0,11" style="fill:none;"/>
+                <rect id="mapbox-content" x="2" y="5" width="16" height="13" style="fill:none;"/>
+            </g>
+            <path d="M17,1c1.097,0 2,0.903 2,2l0,14c0,1.097 -0.903,2 -2,2l-14,0c-1.097,0 -2,-0.903 -2,-2l0,-14c0,-1.097 0.903,-2 2,-2l14,0m0,-1l-14,0c-1.646,0 -3,1.354 -3,3l0,14c0,1.646 1.354,3 3,3l14,0c1.646,0 3,-1.354 3,-3l0,-14c0,-1.646 -1.354,-3 -3,-3Z" style="fill:#fff;fill-rule:nonzero;"/>
+        </g>
+    </g>
+    <path d="M17,1l-14,0c-1.097,0 -2,0.903 -2,2l0,1l18,0l0,-1c0,-1.097 -0.903,-2 -2,-2Z" style="fill:#cc2929;fill-rule:nonzero;"/>
+</svg>
