@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 
 use clap::Parser;
-// use rayon::prelude::*;
 
 use spreet::fs::{get_svg_input_paths, load_svg};
 use spreet::sprite;
@@ -21,7 +20,6 @@ fn main() {
     // bitmapped SVGs will be added to the spritesheet, and the keys will be used as the unique
     // sprite ids in the JSON index file.
     let sprites = get_svg_input_paths(&args.input, args.recursive)
-        // .par_iter()
         .iter()
         .map(|svg_path| {
             if let Ok(svg) = load_svg(svg_path) {

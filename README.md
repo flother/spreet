@@ -6,7 +6,7 @@ Compared to other tools for creating spritesheets from SVGs, Spreet:
 
 - outputs smaller spritesheets (both fewer pixels and fewer bytes)
 - is a self-contained ~2.2 MB binary
-- is faster (multi-threaded)
+- is faster
 
 _Spreet_ (also _spreit_, _spret_, _sprit_) is the [Scots](https://en.wikipedia.org/wiki/Scots_language) word for a sprite, the fairy-like creature from Western folklore.
 

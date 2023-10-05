@@ -6,7 +6,7 @@
 - Fix bug that meant URLs in SVG `<image>` elements were resolved relative to the current working directory, not to the SVG itself (see [#60](https://github.com/flother/spreet/issues/60))
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.35
 - Update [clap](https://crates.io/crates/clap) dependency to v4.4
-- Update [Rayon](https://crates.io/crates/rayon) dependency to v1.8
+- Remove [Rayon](https://crates.io/crates/rayon) dependency. This means the Spreet CLI no longer parses SVGs in parallel, but that was a fun-but-unnecessary optimisation in the first place that generally saved only a handful of milliseconds
 
 Because of the change to Rayon, Spreet's minimum Rust version is now 1.63.0 (released August 2022).
 
