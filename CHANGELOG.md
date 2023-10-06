@@ -8,8 +8,6 @@
 - Update [clap](https://crates.io/crates/clap) dependency to v4.4
 - Remove [Rayon](https://crates.io/crates/rayon) dependency. This means the Spreet CLI no longer parses SVGs in parallel, but that was a fun-but-unnecessary optimisation in the first place that generally saved only a handful of milliseconds
 
-Because of the change to Rayon, Spreet's minimum Rust version is now 1.63.0 (released August 2022).
-
 ## v0.8.0 (2023-06-15)
 
 - Improvements to using Spreet as a Rust library (#57 and #59)
