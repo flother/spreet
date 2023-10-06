@@ -33,7 +33,7 @@ impl Sprite {
         let rtree = resvg::Tree::from_usvg(&self.tree);
         let pixmap_size = rtree.size.to_int_size().scale_by(self.pixel_ratio as f32)?;
         let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
-        let render_ts = Transform::from_scale(self.pixel_ratio as f32, self.pixel_ratio as f32);
+        let render_ts = Transform::from_scale(self.pixel_ratio.into(), self.pixel_ratio.into());
         rtree.render(render_ts, &mut pixmap.as_mut());
         Some(pixmap)
     }
