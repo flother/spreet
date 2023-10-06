@@ -2,6 +2,7 @@
 
 ## Development version
 
+- Support stretchable icons (see [#53](https://github.com/flother/spreet/issues/53))
 - Make the CLI an optional (but default) feature ([#62](https://github.com/flother/spreet/pull/62)). This speeds up the build when using Spreet as a Rust library (see [README](README.md#using-spreet-as-a-rust-library))
 - Fix bug that meant URLs in SVG `<image>` elements were resolved relative to the current working directory, not to the SVG itself (see [#60](https://github.com/flother/spreet/issues/60))
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.35
