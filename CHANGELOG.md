@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet._
+
 ## v0.9.0 (2023-10-08)
 
 - Support stretchable icons (see [#53](https://github.com/flother/spreet/issues/53))
