@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use resvg::usvg::{Options, Tree, TreeParsing};
+use resvg::usvg::{Options, Rect, Tree, TreeParsing};
 
 use spreet::fs::load_svg;
 use spreet::sprite::{sprite_name, Sprite};
@@ -61,9 +61,18 @@ fn stretchable_icon_has_metadata() {
         pixel_ratio: 1,
     };
 
-    assert_eq!(sprite.content_area().unwrap(), [2.0, 5.0, 18.0, 18.0]);
-    assert_eq!(sprite.stretch_x_areas().unwrap(), [[4.0, 16.0]]);
-    assert_eq!(sprite.stretch_y_areas().unwrap(), [[5.0, 16.0]]);
+    assert_eq!(
+        sprite.content_area().unwrap(),
+        Rect::from_ltrb(2.0, 5.0, 18.0, 18.0).unwrap()
+    );
+    assert_eq!(
+        sprite.stretch_x_areas().unwrap(),
+        [Rect::from_ltrb(4.0, 0.0, 16.0, 0.0).unwrap()]
+    );
+    assert_eq!(
+        sprite.stretch_y_areas().unwrap(),
+        [Rect::from_ltrb(0.0, 5.0, 0.0, 16.0).unwrap()]
+    );
 }
 
 #[test]
@@ -76,8 +85,14 @@ fn stretchable_icons_can_use_stretch_shorthand() {
     };
 
     assert!(sprite.content_area().is_none());
-    assert_eq!(sprite.stretch_x_areas().unwrap(), [[3.0, 17.0]]);
-    assert_eq!(sprite.stretch_y_areas().unwrap(), [[5.0, 17.0]]);
+    assert_eq!(
+        sprite.stretch_x_areas().unwrap(),
+        [Rect::from_ltrb(3.0, 5.0, 17.0, 17.0).unwrap()],
+    );
+    assert_eq!(
+        sprite.stretch_y_areas().unwrap(),
+        [Rect::from_ltrb(3.0, 5.0, 17.0, 17.0).unwrap()],
+    );
 }
 
 #[test]
@@ -91,7 +106,10 @@ fn stretchable_icon_can_have_multiple_horizontal_stretch_zones() {
 
     assert_eq!(
         sprite.stretch_x_areas().unwrap(),
-        [[5.0, 7.0], [20.0, 22.0]]
+        [
+            Rect::from_ltrb(5.0, 5.0, 7.0, 5.0).unwrap(),
+            Rect::from_ltrb(20.0, 5.0, 22.0, 5.0).unwrap(),
+        ]
     );
 }
 
@@ -104,9 +122,18 @@ fn stretchable_icon_metadata_matches_pixel_ratio() {
         pixel_ratio: 2,
     };
 
-    assert_eq!(sprite.content_area().unwrap(), [4.0, 10.0, 36.0, 36.0]);
-    assert_eq!(sprite.stretch_x_areas().unwrap(), [[8.0, 32.0]]);
-    assert_eq!(sprite.stretch_y_areas().unwrap(), [[10.0, 32.0]]);
+    assert_eq!(
+        sprite.content_area().unwrap(),
+        Rect::from_ltrb(4.0, 10.0, 36.0, 36.0).unwrap()
+    );
+    assert_eq!(
+        sprite.stretch_x_areas().unwrap(),
+        [Rect::from_ltrb(8.0, 0.0, 32.0, 0.0).unwrap()]
+    );
+    assert_eq!(
+        sprite.stretch_y_areas().unwrap(),
+        [Rect::from_ltrb(0.0, 10.0, 0.0, 32.0).unwrap()]
+    );
 }
 
 #[test]

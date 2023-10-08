@@ -10,7 +10,10 @@ use resvg::tiny_skia::{Pixmap, PixmapPaint, Transform};
 use resvg::usvg::{NodeExt, Rect, Tree};
 use serde::Serialize;
 
+use self::serialize::{serialize_rect, serialize_stretch_x_area, serialize_stretch_y_area};
 use crate::error::Error;
+
+mod serialize;
 
 /// A single icon within a spritesheet.
 ///
@@ -40,48 +43,40 @@ impl Sprite {
 
     /// Metadata for a [stretchable icon].
     ///
-    /// Describes the content area of an icon as an array of four numbers. The first two specify the
-    /// left, top corner. The last two specify the right, bottom corner. The metadata comes from an
-    /// element in the SVG image that has the id `mapbox-content`. The bounding box of that element
-    /// is used as the content area.
+    /// Describes the content area of an icon as a [`Rect`]. The metadata comes from the bounding
+    /// box of an element in the SVG image that has the id `mapbox-content`.
     ///
     /// Most icons do not specify a content area. But if it is present and the MapLibre/Mapbox map
     /// symbol uses [`icon-text-fit`], the symbol's text will be fitted inside this content box.
     ///
     /// [stretchable icon]: https://github.com/mapbox/mapbox-gl-js/issues/8917
     /// [`icon-text-fit`]: https://maplibre.org/maplibre-style-spec/layers/#layout-symbol-icon-text-fit
-    pub fn content_area(&self) -> Option<[f32; 4]> {
-        self.get_node_bbox("mapbox-content").map(|rect| {
-            [
-                round3(rect.left()),
-                round3(rect.top()),
-                round3(rect.right()),
-                round3(rect.bottom()),
-            ]
-        })
+    pub fn content_area(&self) -> Option<Rect> {
+        self.get_node_bbox("mapbox-content")
     }
 
     /// Metadata for a [stretchable icon].
     ///
-    /// Describes the horizontal position of areas that can be stretched. Each area is an array of
-    /// "from" and "to" positions. There may be multiple areas. The metadata comes from
-    /// elements in the SVG image that have ids like `mapbox-stretch-x-1`. The left and right
-    /// coordinates of the element's bounding box are used to define the stretchable area.
+    /// Describes the horizontal position of areas that can be stretched. There may be multiple
+    /// areas. The metadata comes from the bounding boxes of elements in the SVG image that have
+    /// ids like `mapbox-stretch-x-1`. Although the entire bounding box is provided, only the left
+    /// and right edges are stored in the index file and used by MapLibre/Mapbox to define the
+    /// stretchable area.
     ///
     /// Most icons do not specify stretchable areas. See also [`Sprite::content_area`].
     ///
     /// [stretchable icon]: https://github.com/mapbox/mapbox-gl-js/issues/8917
-    pub fn stretch_x_areas(&self) -> Option<Vec<[f32; 2]>> {
+    pub fn stretch_x_areas(&self) -> Option<Vec<Rect>> {
         let mut values = vec![];
         // First look for an SVG element with the id `mapbox-stretch-x`.
         if let Some(rect) = self.get_node_bbox("mapbox-stretch-x") {
-            values.push([round3(rect.left()), round3(rect.right())]);
+            values.push(rect);
         }
         // Next look for SVG elements with ids like `mapbox-stretch-x-1`. As soon as one is missing,
         // stop looking.
         for i in 1.. {
             if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-x-{}", i).as_str()) {
-                values.push([round3(rect.left()), round3(rect.right())]);
+                values.push(rect);
             } else {
                 break;
             }
@@ -90,8 +85,7 @@ impl Sprite {
             // If there are no SVG elements with `mapbox-stretch-x` ids, check for an element with
             // the id `mapbox-stretch`. That's a shorthand for stretch-x and stretch-y. If that
             // exists, use its horizontal coordinates.
-            self.get_node_bbox("mapbox-stretch")
-                .map(|rect| vec![[round3(rect.left()), round3(rect.right())]])
+            self.get_node_bbox("mapbox-stretch").map(|rect| vec![rect])
         } else {
             Some(values)
         }
@@ -99,25 +93,26 @@ impl Sprite {
 
     /// Metadata for a [stretchable icon].
     ///
-    /// Describes the vertical position of areas that can be stretched. Each area is an array of
-    /// "from" and "to" positions. There may be multiple areas. The metadata comes from
-    /// elements in the SVG image that have ids like `mapbox-stretch-y-1`. The top and bottom
-    /// coordinates of the element's bounding box are used to define the stretchable area.
+    /// Describes the vertical position of areas that can be stretched. There may be multiple areas.
+    /// The metadata comes from the bounding boxes of elements in the SVG image that have ids like
+    /// `mapbox-stretch-y-1`. Although the entire bounding box is provided, only the top and bottom
+    /// edges are stored in the index file and used by MapLibre/Mapbox to define the stretchable
+    /// area.
     ///
     /// Most icons do not specify stretchable areas. See also [`Sprite::content_area`].
     ///
     /// [stretchable icon]: https://github.com/mapbox/mapbox-gl-js/issues/8917
-    pub fn stretch_y_areas(&self) -> Option<Vec<[f32; 2]>> {
+    pub fn stretch_y_areas(&self) -> Option<Vec<Rect>> {
         let mut values = vec![];
         // First look for an SVG element with the id `mapbox-stretch-y`.
         if let Some(rect) = self.get_node_bbox("mapbox-stretch-y") {
-            values.push([round3(rect.top()), round3(rect.bottom())]);
+            values.push(rect);
         }
         // Next look for SVG elements with ids like `mapbox-stretch-y-1`. As soon as one is missing,
         // stop looking.
         for i in 1.. {
             if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-y-{}", i).as_str()) {
-                values.push([round3(rect.top()), round3(rect.bottom())]);
+                values.push(rect);
             } else {
                 break;
             }
@@ -126,8 +121,7 @@ impl Sprite {
             // If there are no SVG elements with `mapbox-stretch-x` ids, check for an element with
             // the id `mapbox-stretch`. That's a shorthand for stretch-x and stretch-y. If that
             // exists, use its vertical coordinates.
-            self.get_node_bbox("mapbox-stretch")
-                .map(|rect| vec![[round3(rect.top()), round3(rect.bottom())]])
+            self.get_node_bbox("mapbox-stretch").map(|rect| vec![rect])
         } else {
             Some(values)
         }
@@ -149,15 +143,6 @@ impl Sprite {
     }
 }
 
-/// Round an [`f32`] to a maximum of three decimal places. This is used to round coordinates used in
-/// [stretchable icons], and matches the original implementation in Mapbox's [spritezero] library.
-///
-/// [stretchable icons]: https://github.com/mapbox/mapbox-gl-js/issues/8917
-/// [spritezero]: https://github.com/mapbox/spritezero
-fn round3(n: f32) -> f32 {
-    (n * 1e3).round() / 1e3
-}
-
 /// A description of a sprite image within a spritesheet. Used for the JSON output required by a
 /// Mapbox Style Specification [index file].
 ///
@@ -170,12 +155,21 @@ pub struct SpriteDescription {
     pub width: u32,
     pub x: u32,
     pub y: u32,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<[f32; 4]>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stretch_x: Option<Vec<[f32; 2]>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stretch_y: Option<Vec<[f32; 2]>>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_rect"
+    )]
+    pub content: Option<Rect>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_stretch_x_area"
+    )]
+    pub stretch_x: Option<Vec<Rect>>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_stretch_y_area"
+    )]
+    pub stretch_y: Option<Vec<Rect>>,
 }
 
 /// Builder pattern for `Spritesheet`: construct a `Spritesheet` object using calls to a builder
