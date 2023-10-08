@@ -10,6 +10,8 @@
 - Remove [Rayon](https://crates.io/crates/rayon) dependency. This means the Spreet CLI no longer parses SVGs in parallel, but that was a fun-but-unnecessary optimisation in the first place that generally saved only a handful of milliseconds
 - **Deprecated**: `spreet::sprite::generate_pixmap_from_svg()` has been deprecated and will be removed in a future version. Use `spreet::sprite::Spreet::pixmap()` instead
 
+The minimum supported version of Rust is now 1.70.0 (released June 2023).
+
 ## v0.8.0 (2023-06-15)
 
 - Improvements to using Spreet as a Rust library (#57 and #59)
