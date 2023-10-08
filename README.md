@@ -111,7 +111,7 @@ Options:
 The main purpose of Spreet is to be command-line tool, but you can also use it as a library in your own Rust code. To add Spreet as a dependency, include this in your `Cargo.toml`:
 
 ```toml
-spreet = { version = "0.8.0", default-features = false }
+spreet = { version = "0.9.0", default-features = false }
 ```
 
 To learn how to build your spritesheets programatically, see the [Spreet crate docs on docs.rs](https://docs.rs/spreet) and have a [look at the spritesheet tests](https://github.com/flother/spreet/blob/master/tests/sprite.rs).

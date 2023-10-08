@@ -1017,7 +1017,7 @@ checksum = "942b4a808e05215192e39f4ab80813e599068285906cc91aa64f923db842bd5a"
 
 [[package]]
 name = "spreet"
-version = "0.9.0-dev"
+version = "0.9.0"
 dependencies = [
  "assert_cmd",
  "assert_fs",

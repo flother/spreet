@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## v0.9.0 (2023-10-08)
 
 - Support stretchable icons (see [#53](https://github.com/flother/spreet/issues/53))
 - Make the CLI an optional (but default) feature ([#62](https://github.com/flother/spreet/pull/62)). This speeds up the build when using Spreet as a Rust library (see [README](README.md#using-spreet-as-a-rust-library))
