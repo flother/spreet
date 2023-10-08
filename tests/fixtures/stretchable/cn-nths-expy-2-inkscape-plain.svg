@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg52"
+   version="1.1"
+   viewBox="0 0 20 23"
+   height="23"
+   width="20">
+  <metadata
+     id="metadata58">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>
+    cn-nths-expy-2
+  </dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs56" />
+  <title
+     id="title40">
+    cn-nths-expy-2
+  </title>
+  <g
+     id="g46">
+    <path
+       id="path42"
+       d="M3,0.5L17,0.5A2.5,2.5,0,0,1,19.5,3L19.5,17A2.5,2.5,0,0,1,17,19.5L3,19.5A2.5,2.5,0,0,1,0.5,17L0.5,3A2.5,2.5,0,0,1,3,0.5"
+       fill="#0e8c38" />
+    <path
+       id="path44"
+       d="M17,1a2,2,0,0,1,2,2V17a2,2,0,0,1-2,2H3a2,2,0,0,1-2-2V3A2,2,0,0,1,3,1H17m0-1H3A3,3,0,0,0,0,3V17a3,3,0,0,0,3,3H17a3,3,0,0,0,3-3V3a3,3,0,0,0-3-3Z"
+       fill="#fff" />
+  </g>
+  <path
+     id="path48"
+     d="M17,1H3A2,2,0,0,0,1,3V4H19V3A2,2,0,0,0,17,1Z"
+     fill="#cc2929" />
+  <path
+     id="path50"
+     d="M0,0L20,0,20,23,0,23z"
+     fill="none" />
+  <rect
+     y="5"
+     x="3"
+     height="12"
+     width="14"
+     id="mapbox-stretch"
+     style="fill:#0000ff;fill-rule:evenodd;stroke-width:0.972077" />
+</svg>

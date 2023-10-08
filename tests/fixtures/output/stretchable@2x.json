@@ -1,0 +1,194 @@
+{
+  "ae-national-3-affinity": {
+    "height": 50,
+    "pixelRatio": 2,
+    "width": 52,
+    "x": 0,
+    "y": 0,
+    "content": [
+      6,
+      14,
+      46,
+      36
+    ],
+    "stretchX": [
+      [
+        10,
+        14
+      ],
+      [
+        40,
+        44
+      ]
+    ]
+  },
+  "cn-nths-expy-2-affinity": {
+    "height": 46,
+    "pixelRatio": 2,
+    "width": 40,
+    "x": 52,
+    "y": 0,
+    "content": [
+      4,
+      10,
+      36,
+      36
+    ],
+    "stretchX": [
+      [
+        8,
+        32
+      ]
+    ],
+    "stretchY": [
+      [
+        10,
+        32
+      ]
+    ]
+  },
+  "cn-nths-expy-2-inkscape-plain": {
+    "height": 46,
+    "pixelRatio": 2,
+    "width": 40,
+    "x": 52,
+    "y": 46,
+    "stretchX": [
+      [
+        6,
+        34
+      ]
+    ],
+    "stretchY": [
+      [
+        10,
+        34
+      ]
+    ]
+  },
+  "shield-illustrator": {
+    "height": 36,
+    "pixelRatio": 2,
+    "width": 36,
+    "x": 0,
+    "y": 50,
+    "content": [
+      8,
+      16,
+      28,
+      28
+    ],
+    "stretchX": [
+      [
+        8,
+        28
+      ]
+    ],
+    "stretchY": [
+      [
+        16,
+        28
+      ]
+    ]
+  },
+  "shield-illustrator-rotated": {
+    "height": 36,
+    "pixelRatio": 2,
+    "width": 36,
+    "x": 0,
+    "y": 86,
+    "content": [
+      7.407,
+      11.612,
+      24.377,
+      28.582
+    ],
+    "stretchX": [
+      [
+        7.46,
+        19.056
+      ]
+    ],
+    "stretchY": [
+      [
+        21.162,
+        28.516
+      ]
+    ]
+  },
+  "shield-illustrator-rotated-reversed": {
+    "height": 36,
+    "pixelRatio": 2,
+    "width": 36,
+    "x": 36,
+    "y": 92,
+    "content": [
+      12.0,
+      16.0,
+      24.0,
+      24.0
+    ],
+    "stretchX": [
+      [
+        12.0,
+        24.0
+      ]
+    ],
+    "stretchY": [
+      [
+        16.0,
+        24.0
+      ]
+    ]
+  },
+  "shield-illustrator-rotated-translated": {
+    "height": 36,
+    "pixelRatio": 2,
+    "width": 36,
+    "x": 72,
+    "y": 92,
+    "content": [
+      8.485,
+      14.142,
+      22.627,
+      28.284
+    ],
+    "stretchX": [
+      [
+        8.485,
+        18.385
+      ]
+    ],
+    "stretchY": [
+      [
+        21.213,
+        28.284
+      ]
+    ]
+  },
+  "shield-rotated": {
+    "height": 36,
+    "pixelRatio": 2,
+    "width": 36,
+    "x": 92,
+    "y": 0,
+    "content": [
+      12,
+      20,
+      32,
+      32
+    ],
+    "stretchX": [
+      [
+        12,
+        32
+      ]
+    ],
+    "stretchY": [
+      [
+        20,
+        32
+      ]
+    ]
+  }
+}

@@ -2,13 +2,13 @@
 
 ## Development version
 
+- Support stretchable icons (see [#53](https://github.com/flother/spreet/issues/53))
 - Make the CLI an optional (but default) feature ([#62](https://github.com/flother/spreet/pull/62)). This speeds up the build when using Spreet as a Rust library (see [README](README.md#using-spreet-as-a-rust-library))
 - Fix bug that meant URLs in SVG `<image>` elements were resolved relative to the current working directory, not to the SVG itself (see [#60](https://github.com/flother/spreet/issues/60))
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.35
 - Update [clap](https://crates.io/crates/clap) dependency to v4.4
-- Update [Rayon](https://crates.io/crates/rayon) dependency to v1.8
-
-Because of the change to Rayon, Spreet's minimum Rust version is now 1.63.0 (released August 2022).
+- Remove [Rayon](https://crates.io/crates/rayon) dependency. This means the Spreet CLI no longer parses SVGs in parallel, but that was a fun-but-unnecessary optimisation in the first place that generally saved only a handful of milliseconds
+- **Deprecated**: `spreet::sprite::generate_pixmap_from_svg()` has been deprecated and will be removed in a future version. Use `spreet::sprite::Spreet::pixmap()` instead
 
 ## v0.8.0 (2023-06-15)
 
