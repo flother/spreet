@@ -65,7 +65,7 @@ jobs:
         name: Get version number
         run: |
           VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
