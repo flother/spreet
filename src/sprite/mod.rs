@@ -75,7 +75,7 @@ impl Sprite {
         // Next look for SVG elements with ids like `mapbox-stretch-x-1`. As soon as one is missing,
         // stop looking.
         for i in 1.. {
-            if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-x-{}", i).as_str()) {
+            if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-x-{i}").as_str()) {
                 values.push(rect);
             } else {
                 break;
@@ -111,7 +111,7 @@ impl Sprite {
         // Next look for SVG elements with ids like `mapbox-stretch-y-1`. As soon as one is missing,
         // stop looking.
         for i in 1.. {
-            if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-y-{}", i).as_str()) {
+            if let Some(rect) = self.get_node_bbox(format!("mapbox-stretch-y-{i}").as_str()) {
                 values.push(rect);
             } else {
                 break;
