@@ -437,16 +437,3 @@ pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(path: P1, base_path: P2) ->
         format!("{}", file_stem.to_string_lossy())
     }
 }
-
-/// Generate a bitmap image from an SVG image.
-///
-/// The bitmap is generated at the given pixel ratio. A ratio of 2 means the bitmap image will be
-/// scaled to be double the size of the SVG image.
-#[deprecated(since = "0.9.0", note = "use `Sprite::pixmap()`instead")]
-pub fn generate_pixmap_from_svg(svg: &Tree, pixel_ratio: u8) -> Option<Pixmap> {
-    Sprite {
-        tree: svg.clone(),
-        pixel_ratio,
-    }
-    .pixmap()
-}

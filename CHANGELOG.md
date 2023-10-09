@@ -3,6 +3,7 @@
 ## Development version
 
 - Update [resvg](https://crates.io/crates/resvg) dependency to [v0.36.0](https://github.com/RazrFalcon/resvg/blob/master/CHANGELOG.md#user-content-0360---2023-10-01)
+- Remove the deprecated function `spreet::sprite::generate_pixmap_from_svg()`
 
 ## v0.9.0 (2023-10-08)
 
