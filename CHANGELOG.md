@@ -2,7 +2,7 @@
 
 ## Development version
 
-_No changes yet._
+- Update [resvg](https://crates.io/crates/resvg) dependency to [v0.36.0](https://github.com/RazrFalcon/resvg/blob/master/CHANGELOG.md#user-content-0360---2023-10-01)
 
 ## v0.9.0 (2023-10-08)
 
