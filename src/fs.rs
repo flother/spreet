@@ -34,7 +34,7 @@ pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> Vec<Path
             let path_buf = entry.path();
 
             if recursive && path_buf.is_dir() {
-                Some(get_svg_input_paths(path_buf.as_path(), recursive))
+                Some(get_svg_input_paths(path_buf, recursive))
             } else if is_useful_input(&entry) {
                 Some(vec![path_buf])
             } else {
