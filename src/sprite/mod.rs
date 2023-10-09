@@ -349,7 +349,7 @@ impl Spritesheet {
                     index: sprite_index,
                 })
             }
-            Err(_) => None,
+            Err(()) => None,
         }
     }
 
