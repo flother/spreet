@@ -52,7 +52,7 @@ pub fn load_svg<P: AsRef<Path>>(path: P) -> Result<Tree, Error> {
     // correctly.
     let resources_dir = std::fs::canonicalize(&path)
         .ok()
-        .and_then(|p| p.parent().map(|p| p.to_path_buf()));
+        .and_then(|p| p.parent().map(Path::to_path_buf));
     let options = Options {
         resources_dir,
         ..Options::default()
