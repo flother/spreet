@@ -27,7 +27,12 @@ fn main() {
                     tree: svg,
                     pixel_ratio,
                 };
-                (sprite::sprite_name(svg_path, args.input.as_path()), sprite)
+                if let Ok(name) = sprite::sprite_name(svg_path, args.input.as_path()) {
+                    (name, sprite)
+                } else {
+                    eprintln!("Error: cannot make a valid sprite name from {svg_path:?}");
+                    std::process::exit(exitcode::DATAERR);
+                }
             } else {
                 eprintln!("{svg_path:?}: not a valid SVG image");
                 std::process::exit(exitcode::DATAERR);

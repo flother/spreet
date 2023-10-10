@@ -425,15 +425,27 @@ impl Spritesheet {
 ///
 /// The unique sprite name is the relative path from `path` to `base_path`
 /// without the file extension.
-pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(path: P1, base_path: P2) -> String {
-    let abs_path = path.as_ref().canonicalize().unwrap();
-    let abs_base_path = base_path.as_ref().canonicalize().unwrap();
-    let rel_path = abs_path.strip_prefix(abs_base_path).unwrap();
-    let file_stem = path.as_ref().file_stem().unwrap();
-
+///
+/// # Errors
+///
+/// This function will return an error if:
+///
+/// - `path` does not exist
+/// - `abs_path` does not exist
+/// - `abs_path` is not a ancestor of `path`
+pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(
+    path: P1,
+    base_path: P2,
+) -> Result<String, Error> {
+    let abs_path = path.as_ref().canonicalize()?;
+    let abs_base_path = base_path.as_ref().canonicalize()?;
+    let rel_path = abs_path.strip_prefix(abs_base_path)?;
+    let Some(file_stem) = path.as_ref().file_stem() else {
+        return Err(Error::IoError);
+    };
     if let Some(parent) = rel_path.parent() {
-        format!("{}", parent.join(file_stem).to_string_lossy())
+        Ok(format!("{}", parent.join(file_stem).to_string_lossy()))
     } else {
-        format!("{}", file_stem.to_string_lossy())
+        Ok(format!("{}", file_stem.to_string_lossy()))
     }
 }

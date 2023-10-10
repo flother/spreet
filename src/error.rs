@@ -1,7 +1,7 @@
 use std::fmt;
 
 /// Possible errors encountered during execution.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Error {
     IoError,
     PngError,
@@ -22,6 +22,12 @@ impl fmt::Display for Error {
 
 impl From<std::io::Error> for Error {
     fn from(_: std::io::Error) -> Self {
+        Error::IoError
+    }
+}
+
+impl From<std::path::StripPrefixError> for Error {
+    fn from(_: std::path::StripPrefixError) -> Self {
         Error::IoError
     }
 }

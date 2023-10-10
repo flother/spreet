@@ -2,6 +2,7 @@ use std::path::Path;
 
 use resvg::usvg::{Options, Rect, Tree, TreeParsing};
 
+use spreet::error::Error;
 use spreet::fs::load_svg;
 use spreet::sprite::{sprite_name, Sprite};
 
@@ -11,7 +12,8 @@ fn sprite_name_works_with_root_files() {
         sprite_name(
             Path::new("./tests/fixtures/svgs/recursive/bear.svg"),
             Path::new("./tests/fixtures/svgs/recursive")
-        ),
+        )
+        .unwrap(),
         "bear"
     );
 }
@@ -22,7 +24,8 @@ fn sprite_name_works_with_nested_files() {
         sprite_name(
             Path::new("./tests/fixtures/svgs/recursive/bear.svg"),
             Path::new("./tests/fixtures/svgs")
-        ),
+        )
+        .unwrap(),
         "recursive/bear"
     );
 }
@@ -33,8 +36,49 @@ fn sprite_name_works_with_deeply_nested_files() {
         sprite_name(
             Path::new("./tests/fixtures/svgs/recursive/bear.svg"),
             Path::new("./tests")
-        ),
+        )
+        .unwrap(),
         "fixtures/svgs/recursive/bear"
+    );
+}
+
+#[test]
+fn sprite_name_returns_error_for_non_existent_path() {
+    assert_eq!(
+        sprite_name(Path::new("./does_not_exist.svg"), Path::new("./"),).err(),
+        Some(Error::IoError)
+    );
+}
+
+#[test]
+fn sprite_name_returns_error_when_path_is_empty() {
+    assert_eq!(
+        sprite_name(Path::new(""), Path::new(""),).err(),
+        Some(Error::IoError)
+    );
+}
+
+#[test]
+fn sprite_name_returns_error_for_non_existent_base_path() {
+    assert_eq!(
+        sprite_name(
+            Path::new("./tests/fixtures/svgs/bicycle.svg"),
+            Path::new("./tests/fixtures/foo"),
+        )
+        .err(),
+        Some(Error::IoError)
+    );
+}
+
+#[test]
+fn sprite_name_returns_error_when_base_path_not_parent_of_path() {
+    assert_eq!(
+        sprite_name(
+            Path::new("./tests/fixtures/svgs/bicycle.svg"),
+            Path::new("./tests/fixtures/pngs/"),
+        )
+        .err(),
+        Some(Error::IoError)
     );
 }
 
