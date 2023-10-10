@@ -25,24 +25,33 @@ pub fn is_useful_input(entry: &DirEntry) -> bool {
 
 /// Returns a vector of file paths matching all SVGs within the given directory.
 ///
-/// It ignores hidden files (files whose names begin with `.`) but it does follow symlinks.
-pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> Vec<PathBuf> {
-    read_dir(path)
-        .unwrap()
-        .flatten()
+/// It ignores hidden files (files whose names begin with `.`) but it does follow symlinks. If
+/// `recursive` is `true` it will also return file paths in sub-directories.
+///
+/// # Errors
+///
+/// This function will return an error if Rust's underlying [`read_dir`] returns an error.
+pub fn get_svg_input_paths<P: AsRef<Path>>(
+    path: P,
+    recursive: bool,
+) -> Result<Vec<PathBuf>, Error> {
+    Ok(read_dir(path)?
         .filter_map(|entry| {
-            let path_buf = entry.path();
-
-            if recursive && path_buf.is_dir() {
-                Some(get_svg_input_paths(path_buf, recursive))
-            } else if is_useful_input(&entry) {
-                Some(vec![path_buf])
+            if let Ok(entry) = entry {
+                let path_buf = entry.path();
+                if recursive && path_buf.is_dir() {
+                    get_svg_input_paths(path_buf, true).ok()
+                } else if is_useful_input(&entry) {
+                    Some(vec![path_buf])
+                } else {
+                    None
+                }
             } else {
                 None
             }
         })
         .flatten()
-        .collect()
+        .collect())
 }
 
 /// Load an SVG image from a file path.

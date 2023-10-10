@@ -5,6 +5,7 @@
 - Update [resvg](https://crates.io/crates/resvg) dependency to [v0.36.0](https://github.com/RazrFalcon/resvg/blob/master/CHANGELOG.md#user-content-0360---2023-10-01)
 - Remove the deprecated function `spreet::sprite::generate_pixmap_from_svg()`
 - The `spreet::sprite::sprite_name` function now returns `Result<String, Error>` instead of `String`, and will no longer panic
+- The `spreet::fs::get_svg_input_paths` function now returns `Result<Vec<PathBuf>, Error>` instead of `Vec<PathBuf>`, and will no longer panic
 
 ## v0.9.0 (2023-10-08)
 

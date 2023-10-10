@@ -19,7 +19,11 @@ fn main() {
     // store them in a map. The keys are the SVG filenames without the `.svg` extension. The
     // bitmapped SVGs will be added to the spritesheet, and the keys will be used as the unique
     // sprite ids in the JSON index file.
-    let sprites = get_svg_input_paths(&args.input, args.recursive)
+    let Ok(input_paths) = get_svg_input_paths(&args.input, args.recursive) else {
+        eprintln!("Error: no valid SVGs found in {:?}", args.input);
+        std::process::exit(exitcode::NOINPUT);
+    };
+    let sprites = input_paths
         .iter()
         .map(|svg_path| {
             if let Ok(svg) = load_svg(svg_path) {
