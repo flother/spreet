@@ -19,7 +19,7 @@ fn is_svg_file(entry: &DirEntry) -> bool {
 }
 
 /// Returns `true` if `entry` is an SVG image and isn't hidden.
-pub fn is_useful_input(entry: &DirEntry) -> bool {
+fn is_useful_input(entry: &DirEntry) -> bool {
     !is_hidden(entry) && is_svg_file(entry)
 }
 
