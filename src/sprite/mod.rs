@@ -1,3 +1,4 @@
+use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, HashMap};
 use std::fs::File;
 use std::io::Write;
@@ -203,18 +204,21 @@ impl SpritesheetBuilder {
     // Remove any duplicate sprites from the spritesheet's sprites. This is used to let spritesheets
     // include only unique sprites, with multiple references to the same sprite in the index file.
     pub fn make_unique(&mut self) -> &mut Self {
-        match &self.sprites {
+        match self.sprites.take() {
             Some(sprites) => {
                 let mut unique_sprites = BTreeMap::new();
                 let mut references = MultiMap::new();
                 let mut names_for_sprites: BTreeMap<Vec<u8>, String> = BTreeMap::new();
                 for (name, sprite) in sprites {
                     let sprite_data = sprite.pixmap().unwrap().encode_png().unwrap();
-                    if let Some(existing_sprite_name) = names_for_sprites.get(&sprite_data) {
-                        references.insert(existing_sprite_name.clone(), name.clone());
-                    } else {
-                        names_for_sprites.insert(sprite_data, name.clone());
-                        unique_sprites.insert(name.clone(), sprite.clone());
+                    match names_for_sprites.entry(sprite_data) {
+                        Entry::Occupied(existing_sprite_name) => {
+                            references.insert(existing_sprite_name.get().clone(), name);
+                        }
+                        Entry::Vacant(entry) => {
+                            entry.insert(name.clone());
+                            unique_sprites.insert(name, sprite);
+                        }
                     }
                 }
                 self.sprites = Some(unique_sprites);
