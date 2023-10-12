@@ -25,6 +25,7 @@ png = "0.17"
 resvg = "0.36"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+thiserror = "1"
 
 [dev-dependencies]
 assert_cmd = "2.0"

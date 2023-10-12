@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 
 use clap::Parser;
-
 use spreet::fs::{get_svg_input_paths, load_svg};
 use spreet::sprite;
 

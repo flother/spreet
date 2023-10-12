@@ -12,7 +12,7 @@ use resvg::usvg::{NodeExt, Rect, Tree};
 use serde::Serialize;
 
 use self::serialize::{serialize_rect, serialize_stretch_x_area, serialize_stretch_y_area};
-use crate::error::Error;
+pub use crate::error::{Error, SpreetResult};
 
 mod serialize;
 
@@ -369,10 +369,9 @@ impl Spritesheet {
     /// The spritesheet will match an index that can be retrieved with [`Self::get_index`].
     ///
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
-    pub fn encode_png(&self) -> Result<Vec<u8>, Error> {
-        let spritesheet_png = self.sheet.encode_png()?;
+    pub fn encode_png(&self) -> SpreetResult<Vec<u8>> {
         Ok(optimize_from_memory(
-            spritesheet_png.as_slice(),
+            self.sheet.encode_png()?.as_slice(),
             &oxipng::Options::default(),
         )?)
     }
@@ -387,7 +386,7 @@ impl Spritesheet {
     ///
     /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
-    pub fn save_spritesheet<P: AsRef<Path>>(&self, path: P) -> Result<(), Error> {
+    pub fn save_spritesheet<P: AsRef<Path>>(&self, path: P) -> SpreetResult<()> {
         Ok(std::fs::write(path, self.encode_png()?)?)
     }
 
@@ -440,12 +439,15 @@ impl Spritesheet {
 pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(
     path: P1,
     base_path: P2,
-) -> Result<String, Error> {
+) -> SpreetResult<String> {
     let abs_path = path.as_ref().canonicalize()?;
     let abs_base_path = base_path.as_ref().canonicalize()?;
-    let rel_path = abs_path.strip_prefix(abs_base_path)?;
+    let Ok(rel_path) = abs_path.strip_prefix(abs_base_path) else {
+        return Err(Error::PathError(path.as_ref().to_path_buf()));
+    };
+
     let Some(file_stem) = path.as_ref().file_stem() else {
-        return Err(Error::IoError);
+        return Err(Error::PathError(path.as_ref().to_path_buf()));
     };
     if let Some(parent) = rel_path.parent() {
         Ok(format!("{}", parent.join(file_stem).to_string_lossy()))

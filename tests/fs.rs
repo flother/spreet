@@ -34,16 +34,16 @@ fn get_svg_input_paths_returns_recursive_results() {
 
 #[test]
 fn get_svg_input_paths_returns_error_when_path_does_not_exist() {
-    assert_eq!(
+    assert!(matches!(
         get_svg_input_paths(Path::new("fake"), false),
-        Err(Error::IoError),
-    );
+        Err(Error::IoError(_)),
+    ));
 }
 
 #[test]
 fn get_svg_input_paths_returns_error_when_path_is_file() {
-    assert_eq!(
+    assert!(matches!(
         get_svg_input_paths(Path::new("tests/fixtures/svgs/bicycle.svg"), false),
-        Err(Error::IoError),
-    );
+        Err(Error::IoError(_)),
+    ));
 }
