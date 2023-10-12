@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use assert_matches::assert_matches;
 use resvg::usvg::{Options, Rect, Tree, TreeParsing};
 use spreet::error::Error;
 use spreet::fs::load_svg;
@@ -43,40 +44,40 @@ fn sprite_name_works_with_deeply_nested_files() {
 
 #[test]
 fn sprite_name_returns_error_for_non_existent_path() {
-    assert!(matches!(
+    assert_matches!(
         sprite_name(Path::new("./does_not_exist.svg"), Path::new("./")),
         Err(Error::IoError(_))
-    ));
+    );
 }
 
 #[test]
 fn sprite_name_returns_error_when_path_is_empty() {
-    assert!(matches!(
+    assert_matches!(
         sprite_name(Path::new(""), Path::new("")),
         Err(Error::IoError(_))
-    ));
+    );
 }
 
 #[test]
 fn sprite_name_returns_error_for_non_existent_base_path() {
-    assert!(matches!(
+    assert_matches!(
         sprite_name(
             Path::new("./tests/fixtures/svgs/bicycle.svg"),
             Path::new("./tests/fixtures/foo"),
         ),
         Err(Error::IoError(_))
-    ));
+    );
 }
 
 #[test]
 fn sprite_name_returns_error_when_base_path_not_parent_of_path() {
-    assert!(matches!(
+    assert_matches!(
         sprite_name(
             Path::new("./tests/fixtures/svgs/bicycle.svg"),
             Path::new("./tests/fixtures/pngs/"),
         ),
         Err(Error::PathError(_))
-    ));
+    );
 }
 
 #[test]
