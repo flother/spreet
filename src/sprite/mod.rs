@@ -175,7 +175,7 @@ pub struct SpriteDescription {
 
 /// Builder pattern for `Spritesheet`: construct a `Spritesheet` object using calls to a builder
 /// helper.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Sprite>>,
     references: Option<MultiMap<String, String>>,
@@ -231,10 +231,10 @@ impl SpritesheetBuilder {
         self
     }
 
-    pub fn generate(&self) -> Option<Spritesheet> {
+    pub fn generate(self) -> Option<Spritesheet> {
         Spritesheet::new(
-            self.sprites.clone().unwrap_or_default(),
-            self.references.clone().unwrap_or_default(),
+            self.sprites.unwrap_or_default(),
+            self.references.unwrap_or_default(),
             self.pixel_ratio,
         )
     }
