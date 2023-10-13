@@ -41,3 +41,6 @@ codegen-units = 1
 [[bin]]
 name = "spreet"
 required-features = ["cli"]
+
+[patch.crates-io]
+crunch = { path = "../crunch-rs" }

@@ -293,7 +293,7 @@ impl Spritesheet {
             })
             .collect::<Vec<_>>();
 
-        let PackedItems { items, .. } = crunch::pack_into_po2(min_area * 10, items).ok()?;
+        let PackedItems { items, .. } = crunch::pack_into_po2(min_area * 10, items)?;
 
         // There might be some unused space in the packed items --- not all the pixels on
         // the right/bottom edges may have been used. Count the pixels in use so we can
