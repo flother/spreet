@@ -4,11 +4,11 @@ use std::path::PathBuf;
 use oxipng::PngError;
 use thiserror::Error;
 
-pub type SpreetResult<T> = Result<T, Error>;
+pub type SpreetResult<T> = Result<T, SpreetError>;
 
-/// Possible errors encountered during execution.
+/// Errors encountered during execution.
 #[derive(Debug, Error)]
-pub enum Error {
+pub enum SpreetError {
     #[error("i/o error: {0}")]
     IoError(#[from] io::Error),
     #[error("Incorrect path {}", .0.display())]

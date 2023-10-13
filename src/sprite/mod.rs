@@ -12,7 +12,7 @@ use resvg::usvg::{NodeExt, Rect, Tree};
 use serde::Serialize;
 
 use self::serialize::{serialize_rect, serialize_stretch_x_area, serialize_stretch_y_area};
-pub use crate::error::{Error, SpreetResult};
+pub use crate::error::{SpreetError, SpreetResult};
 
 mod serialize;
 
@@ -443,11 +443,11 @@ pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(
     let abs_path = path.as_ref().canonicalize()?;
     let abs_base_path = base_path.as_ref().canonicalize()?;
     let Ok(rel_path) = abs_path.strip_prefix(abs_base_path) else {
-        return Err(Error::PathError(path.as_ref().to_path_buf()));
+        return Err(SpreetError::PathError(path.as_ref().to_path_buf()));
     };
 
     let Some(file_stem) = path.as_ref().file_stem() else {
-        return Err(Error::PathError(path.as_ref().to_path_buf()));
+        return Err(SpreetError::PathError(path.as_ref().to_path_buf()));
     };
     if let Some(parent) = rel_path.parent() {
         Ok(format!("{}", parent.join(file_stem).to_string_lossy()))
