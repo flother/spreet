@@ -2,7 +2,7 @@ use resvg::usvg::Rect;
 use serde::ser::SerializeSeq;
 use serde::{Serialize, Serializer};
 
-/// Custom Serde field serialiser for [`Rect`].
+/// Custom Serde field serializer for [`Rect`].
 ///
 /// Serialises an [`f32`] with a zero fractional part as a [`u32`], and otherwise as an `f32`
 /// unchanged. Allows JSON outputted by Spreet to match the JavaScript style of intermingling
@@ -31,7 +31,7 @@ where
     }
 }
 
-/// Custom Serde field serialiser for a vector of [`Rect`]s.
+/// Custom Serde field serializer for a vector of [`Rect`]s.
 ///
 /// Serialises the left and right edges of each `Rect` as a [`u32`] if the value has no fractional
 /// part, or an unchanged [`f32`] otherwise. Allows JSON outputted by Spreet to match the JavaScript
@@ -60,7 +60,7 @@ where
     }
 }
 
-/// Custom Serde field serialiser for a vector of [`Rect`]s.
+/// Custom Serde field serializer for a vector of [`Rect`]s.
 ///
 /// Serialises the top and bottom edges of each `Rect` as a [`u32`] if the value has no fractional
 /// part, or an unchanged [`f32`] otherwise. Allows JSON outputted by Spreet to match the JavaScript

@@ -114,7 +114,7 @@ The main purpose of Spreet is to be command-line tool, but you can also use it a
 spreet = { version = "0.9.0", default-features = false }
 ```
 
-To learn how to build your spritesheets programatically, see the [Spreet crate docs on docs.rs](https://docs.rs/spreet) and have a [look at the spritesheet tests](https://github.com/flother/spreet/blob/master/tests/sprite.rs).
+To learn how to build your spritesheets programmatically, see the [Spreet crate docs on docs.rs](https://docs.rs/spreet) and have a [look at the spritesheet tests](https://github.com/flother/spreet/blob/master/tests/sprite.rs).
 
 ## Benchmarks
 
