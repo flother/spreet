@@ -288,6 +288,8 @@ dependencies = [
 [[package]]
 name = "crunch"
 version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0dc013e70da3bfe5b552de26a1f34ecf67d61ea811251d2bf75c1324a1ecb425"
 
 [[package]]
 name = "data-url"
