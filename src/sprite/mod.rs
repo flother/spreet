@@ -175,11 +175,11 @@ pub struct SpriteDescription {
 }
 
 impl SpriteDescription {
-    pub(crate) fn new(rect: &crunch::Rect, pixel_ratio: u8, sprite: &Sprite) -> Self {
+    pub(crate) fn new(rect: &crunch::Rect, sprite: &Sprite) -> Self {
         Self {
             height: rect.h as u32,
             width: rect.w as u32,
-            pixel_ratio,
+            pixel_ratio: sprite.pixel_ratio,
             x: rect.x as u32,
             y: rect.y as u32,
             content: sprite.content_area(),
@@ -325,7 +325,7 @@ impl Spritesheet {
             );
             index.insert(
                 data.name.to_string(),
-                SpriteDescription::new(&rect, data.sprite.pixel_ratio, &data.sprite),
+                SpriteDescription::new(&rect, &data.sprite),
             );
             // If multiple names are used for a unique sprite, insert an entry in the index
             // for each of the other names. This is to allow for multiple names to reference
@@ -335,7 +335,7 @@ impl Spritesheet {
                 for other_sprite_name in other_sprite_names {
                     index.insert(
                         other_sprite_name.to_string(),
-                        SpriteDescription::new(&rect, data.sprite.pixel_ratio, &data.sprite),
+                        SpriteDescription::new(&rect, &data.sprite),
                     );
                 }
             }
