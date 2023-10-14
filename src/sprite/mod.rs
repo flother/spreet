@@ -23,24 +23,45 @@ mod serialize;
 #[derive(Clone)]
 pub struct Sprite {
     /// Parsed source SVG image.
-    pub tree: Tree,
+    tree: Tree,
     /// Ratio determining the size the destination pixels compared to the source pixels. A ratio of
     /// 2 means the bitmap will be scaled to be twice the size of the SVG image.
-    pub pixel_ratio: u8,
+    pixel_ratio: u8,
+    /// Bitmap image generated from the SVG image.
+    pixmap: Pixmap,
 }
 
 impl Sprite {
+    pub fn new(tree: Tree, pixel_ratio: u8) -> Option<Self> {
+        let rtree = resvg::Tree::from_usvg(&tree);
+        let pixel_ratio_f32 = pixel_ratio.into();
+        let pixmap_size = rtree.size.to_int_size().scale_by(pixel_ratio_f32)?;
+        let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
+        let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
+        rtree.render(render_ts, &mut pixmap.as_mut());
+
+        Some(Self {
+            tree,
+            pixel_ratio,
+            pixmap,
+        })
+    }
+
+    /// Get the sprite's SVG tree.
+    pub fn tree(&self) -> &Tree {
+        &self.tree
+    }
+
+    /// Get the sprite's pixel ratio.
+    pub fn pixel_ratio(&self) -> u8 {
+        self.pixel_ratio
+    }
+
     /// Generate a bitmap image from the sprite's SVG tree.
     ///
     /// The bitmap is generated at the sprite's [pixel ratio](Self::pixel_ratio).
-    pub fn pixmap(&self) -> Option<Pixmap> {
-        let rtree = resvg::Tree::from_usvg(&self.tree);
-        let pixel_ratio = self.pixel_ratio.into();
-        let pixmap_size = rtree.size.to_int_size().scale_by(pixel_ratio)?;
-        let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
-        let render_ts = Transform::from_scale(pixel_ratio, pixel_ratio);
-        rtree.render(render_ts, &mut pixmap.as_mut());
-        Some(pixmap)
+    pub fn pixmap(&self) -> &Pixmap {
+        &self.pixmap
     }
 
     /// Metadata for a [stretchable icon].
@@ -219,7 +240,7 @@ impl SpritesheetBuilder {
                 let mut references = MultiMap::new();
                 let mut names_for_sprites: BTreeMap<Vec<u8>, String> = BTreeMap::new();
                 for (name, sprite) in sprites {
-                    let sprite_data = sprite.pixmap().unwrap().encode_png().unwrap();
+                    let sprite_data = sprite.pixmap().encode_png().unwrap();
                     match names_for_sprites.entry(sprite_data) {
                         Entry::Occupied(existing_sprite_name) => {
                             references.insert(existing_sprite_name.get().clone(), name);
@@ -257,7 +278,6 @@ pub struct Spritesheet {
 struct PixmapItem {
     name: String,
     sprite: Sprite,
-    pixmap: Pixmap,
 }
 
 impl Spritesheet {
@@ -271,14 +291,9 @@ impl Spritesheet {
         // The items are the rectangles that we want to pack into the smallest space possible. We
         // don't need to pass the pixels themselves, just the unique name for each sprite.
         for (name, sprite) in sprites {
-            let pixmap = sprite.pixmap()?;
             // Minimum area required for the spritesheet (i.e. 100% coverage).
-            min_area += (pixmap.width() * pixmap.height()) as usize;
-            data_items.push(PixmapItem {
-                name,
-                sprite,
-                pixmap,
-            });
+            min_area += (sprite.pixmap().width() * sprite.pixmap().height()) as usize;
+            data_items.push(PixmapItem { name, sprite });
         }
 
         let items = data_items
@@ -286,8 +301,8 @@ impl Spritesheet {
             .map(|data| {
                 Item::new(
                     data,
-                    data.pixmap.width() as usize,
-                    data.pixmap.height() as usize,
+                    data.sprite.pixmap.width() as usize,
+                    data.sprite.pixmap.height() as usize,
                     Rotation::None,
                 )
             })
@@ -318,7 +333,7 @@ impl Spritesheet {
             sheet.draw_pixmap(
                 rect.x as i32,
                 rect.y as i32,
-                data.pixmap.as_ref(),
+                data.sprite.pixmap.as_ref(),
                 &pixmap_paint,
                 pixmap_transform,
                 None,

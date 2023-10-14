@@ -26,7 +26,8 @@ fn main() {
         .iter()
         .map(|svg_path| {
             if let Ok(tree) = load_svg(svg_path) {
-                let sprite = sprite::Sprite { tree, pixel_ratio };
+                let sprite =
+                    sprite::Sprite::new(tree, pixel_ratio).expect("failed to load a sprite");
                 if let Ok(name) = sprite::sprite_name(svg_path, args.input.as_path()) {
                     (name, sprite)
                 } else {
