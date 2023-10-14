@@ -35,9 +35,10 @@ impl Sprite {
     /// The bitmap is generated at the sprite's [pixel ratio](Self::pixel_ratio).
     pub fn pixmap(&self) -> Option<Pixmap> {
         let rtree = resvg::Tree::from_usvg(&self.tree);
-        let pixmap_size = rtree.size.to_int_size().scale_by(self.pixel_ratio as f32)?;
+        let pixel_ratio = self.pixel_ratio.into();
+        let pixmap_size = rtree.size.to_int_size().scale_by(pixel_ratio)?;
         let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
-        let render_ts = Transform::from_scale(self.pixel_ratio.into(), self.pixel_ratio.into());
+        let render_ts = Transform::from_scale(pixel_ratio, pixel_ratio);
         rtree.render(render_ts, &mut pixmap.as_mut());
         Some(pixmap)
     }
