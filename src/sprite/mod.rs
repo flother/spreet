@@ -194,7 +194,6 @@ impl SpriteDescription {
 pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Sprite>>,
     references: Option<MultiMap<String, String>>,
-    pixel_ratio: u8,
 }
 
 impl SpritesheetBuilder {
@@ -202,17 +201,11 @@ impl SpritesheetBuilder {
         Self {
             sprites: None,
             references: None,
-            pixel_ratio: 1,
         }
     }
 
     pub fn sprites(&mut self, sprites: BTreeMap<String, Sprite>) -> &mut Self {
         self.sprites = Some(sprites);
-        self
-    }
-
-    pub fn pixel_ratio(&mut self, pixel_ratio: u8) -> &mut Self {
-        self.pixel_ratio = pixel_ratio;
         self
     }
 
@@ -250,7 +243,6 @@ impl SpritesheetBuilder {
         Spritesheet::new(
             self.sprites.unwrap_or_default(),
             self.references.unwrap_or_default(),
-            self.pixel_ratio,
         )
     }
 }
@@ -271,7 +263,6 @@ impl Spritesheet {
     pub fn new(
         sprites: BTreeMap<String, Sprite>,
         references: MultiMap<String, String>,
-        pixel_ratio: u8,
     ) -> Option<Self> {
         let mut data_items = Vec::new();
         let mut min_area: usize = 0;
@@ -333,7 +324,7 @@ impl Spritesheet {
             );
             index.insert(
                 data.name.to_string(),
-                SpriteDescription::new(&rect, pixel_ratio, &data.sprite),
+                SpriteDescription::new(&rect, data.sprite.pixel_ratio, &data.sprite),
             );
             // If multiple names are used for a unique sprite, insert an entry in the index
             // for each of the other names. This is to allow for multiple names to reference
@@ -343,7 +334,7 @@ impl Spritesheet {
                 for other_sprite_name in other_sprite_names {
                     index.insert(
                         other_sprite_name.to_string(),
-                        SpriteDescription::new(&rect, pixel_ratio, &data.sprite),
+                        SpriteDescription::new(&rect, data.sprite.pixel_ratio, &data.sprite),
                     );
                 }
             }

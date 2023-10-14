@@ -25,11 +25,8 @@ fn main() {
     let sprites = input_paths
         .iter()
         .map(|svg_path| {
-            if let Ok(svg) = load_svg(svg_path) {
-                let sprite = sprite::Sprite {
-                    tree: svg,
-                    pixel_ratio,
-                };
+            if let Ok(tree) = load_svg(svg_path) {
+                let sprite = sprite::Sprite { tree, pixel_ratio };
                 if let Ok(name) = sprite::sprite_name(svg_path, args.input.as_path()) {
                     (name, sprite)
                 } else {
@@ -49,9 +46,7 @@ fn main() {
     }
 
     let mut spritesheet_builder = sprite::Spritesheet::build();
-    spritesheet_builder
-        .sprites(sprites)
-        .pixel_ratio(pixel_ratio);
+    spritesheet_builder.sprites(sprites);
     if args.unique {
         spritesheet_builder.make_unique();
     };
