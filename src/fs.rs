@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 use resvg::usvg::{Options, Tree, TreeParsing};
 
-use crate::error::Error;
+use crate::error::SpreetResult;
 
 /// Returns `true` if `entry`'s file name starts with `.`, `false` otherwise.
 fn is_hidden(entry: &DirEntry) -> bool {
@@ -31,10 +31,7 @@ fn is_useful_input(entry: &DirEntry) -> bool {
 /// # Errors
 ///
 /// This function will return an error if Rust's underlying [`read_dir`] returns an error.
-pub fn get_svg_input_paths<P: AsRef<Path>>(
-    path: P,
-    recursive: bool,
-) -> Result<Vec<PathBuf>, Error> {
+pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> SpreetResult<Vec<PathBuf>> {
     Ok(read_dir(path)?
         .filter_map(|entry| {
             if let Ok(entry) = entry {
@@ -55,7 +52,7 @@ pub fn get_svg_input_paths<P: AsRef<Path>>(
 }
 
 /// Load an SVG image from a file path.
-pub fn load_svg<P: AsRef<Path>>(path: P) -> Result<Tree, Error> {
+pub fn load_svg<P: AsRef<Path>>(path: P) -> SpreetResult<Tree> {
     // The resources directory needs to be the same location as the SVG file itself, so that any
     // embedded resources (like PNGs in <image> elements) that use relative URLs can be resolved
     // correctly.

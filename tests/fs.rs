@@ -1,6 +1,7 @@
 use std::path::Path;
 
-use spreet::error::Error;
+use assert_matches::assert_matches;
+use spreet::error::SpreetError;
 use spreet::fs::get_svg_input_paths;
 
 #[test]
@@ -34,16 +35,16 @@ fn get_svg_input_paths_returns_recursive_results() {
 
 #[test]
 fn get_svg_input_paths_returns_error_when_path_does_not_exist() {
-    assert_eq!(
+    assert_matches!(
         get_svg_input_paths(Path::new("fake"), false),
-        Err(Error::IoError),
+        Err(SpreetError::IoError(_))
     );
 }
 
 #[test]
 fn get_svg_input_paths_returns_error_when_path_is_file() {
-    assert_eq!(
+    assert_matches!(
         get_svg_input_paths(Path::new("tests/fixtures/svgs/bicycle.svg"), false),
-        Err(Error::IoError),
+        Err(SpreetError::IoError(_))
     );
 }
