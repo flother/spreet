@@ -1,5 +1,5 @@
 use std::collections::btree_map::Entry;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -35,9 +35,10 @@ impl Sprite {
     /// The bitmap is generated at the sprite's [pixel ratio](Self::pixel_ratio).
     pub fn pixmap(&self) -> Option<Pixmap> {
         let rtree = resvg::Tree::from_usvg(&self.tree);
-        let pixmap_size = rtree.size.to_int_size().scale_by(self.pixel_ratio as f32)?;
+        let pixel_ratio = self.pixel_ratio.into();
+        let pixmap_size = rtree.size.to_int_size().scale_by(pixel_ratio)?;
         let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
-        let render_ts = Transform::from_scale(self.pixel_ratio.into(), self.pixel_ratio.into());
+        let render_ts = Transform::from_scale(pixel_ratio, pixel_ratio);
         rtree.render(render_ts, &mut pixmap.as_mut());
         Some(pixmap)
     }
@@ -174,11 +175,11 @@ pub struct SpriteDescription {
 }
 
 impl SpriteDescription {
-    pub(crate) fn new(rect: &crunch::Rect, pixel_ratio: u8, sprite: &Sprite) -> Self {
+    pub(crate) fn new(rect: &crunch::Rect, sprite: &Sprite) -> Self {
         Self {
             height: rect.h as u32,
             width: rect.w as u32,
-            pixel_ratio,
+            pixel_ratio: sprite.pixel_ratio,
             x: rect.x as u32,
             y: rect.y as u32,
             content: sprite.content_area(),
@@ -194,7 +195,6 @@ impl SpriteDescription {
 pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Sprite>>,
     references: Option<MultiMap<String, String>>,
-    pixel_ratio: u8,
 }
 
 impl SpritesheetBuilder {
@@ -202,17 +202,11 @@ impl SpritesheetBuilder {
         Self {
             sprites: None,
             references: None,
-            pixel_ratio: 1,
         }
     }
 
     pub fn sprites(&mut self, sprites: BTreeMap<String, Sprite>) -> &mut Self {
         self.sprites = Some(sprites);
-        self
-    }
-
-    pub fn pixel_ratio(&mut self, pixel_ratio: u8) -> &mut Self {
-        self.pixel_ratio = pixel_ratio;
         self
     }
 
@@ -250,7 +244,6 @@ impl SpritesheetBuilder {
         Spritesheet::new(
             self.sprites.unwrap_or_default(),
             self.references.unwrap_or_default(),
-            self.pixel_ratio,
         )
     }
 }
@@ -261,38 +254,44 @@ pub struct Spritesheet {
     index: BTreeMap<String, SpriteDescription>,
 }
 
+struct PixmapItem {
+    name: String,
+    sprite: Sprite,
+    pixmap: Pixmap,
+}
+
 impl Spritesheet {
     pub fn new(
         sprites: BTreeMap<String, Sprite>,
         references: MultiMap<String, String>,
-        pixel_ratio: u8,
     ) -> Option<Self> {
-        let pixmaps: HashMap<&String, Pixmap> = sprites
-            .iter()
-            .map(|(name, sprite)| (name, sprite.pixmap().unwrap()))
-            .collect();
+        let mut data_items = Vec::new();
+        let mut min_area: usize = 0;
+
         // The items are the rectangles that we want to pack into the smallest space possible. We
         // don't need to pass the pixels themselves, just the unique name for each sprite.
-        let items: Vec<Item<String>> = sprites
-            .keys()
-            .map(|name| {
-                let image = pixmaps.get(name).unwrap();
+        for (name, sprite) in sprites {
+            let pixmap = sprite.pixmap()?;
+            // Minimum area required for the spritesheet (i.e. 100% coverage).
+            min_area += (pixmap.width() * pixmap.height()) as usize;
+            data_items.push(PixmapItem {
+                name,
+                sprite,
+                pixmap,
+            });
+        }
+
+        let items = data_items
+            .iter()
+            .map(|data| {
                 Item::new(
-                    name.clone(),
-                    image.width() as usize,
-                    image.height() as usize,
+                    data,
+                    data.pixmap.width() as usize,
+                    data.pixmap.height() as usize,
                     Rotation::None,
                 )
             })
-            .collect();
-        // Minimum area required for the spritesheet (i.e. 100% coverage).
-        let min_area: usize = sprites
-            .keys()
-            .map(|name| {
-                let image = pixmaps.get(name).unwrap();
-                image.width() as usize * image.height() as usize
-            })
-            .sum();
+            .collect::<Vec<_>>();
 
         let PackedItems { items, .. } = crunch::pack_into_po2(min_area * 10, items).ok()?;
 
@@ -315,31 +314,28 @@ impl Spritesheet {
         let mut sheet = Pixmap::new(bin_width, bin_height)?;
         let pixmap_paint = PixmapPaint::default();
         let pixmap_transform = Transform::default();
-        for item in &items {
-            let sprite_name = &item.data;
-            let rect = item.rect;
-            let sprite = sprites.get(sprite_name)?;
+        for PackedItem { rect, data } in items {
             sheet.draw_pixmap(
                 rect.x as i32,
                 rect.y as i32,
-                pixmaps.get(sprite_name).unwrap().as_ref(),
+                data.pixmap.as_ref(),
                 &pixmap_paint,
                 pixmap_transform,
                 None,
             );
             index.insert(
-                sprite_name.clone(),
-                SpriteDescription::new(&rect, pixel_ratio, sprite),
+                data.name.to_string(),
+                SpriteDescription::new(&rect, &data.sprite),
             );
             // If multiple names are used for a unique sprite, insert an entry in the index
             // for each of the other names. This is to allow for multiple names to reference
             // the same SVG image without having to include it in the spritesheet multiple
             // times. The `--unique` // command-flag can be used to control this behaviour.
-            if let Some(other_sprite_names) = references.get_vec(sprite_name) {
+            if let Some(other_sprite_names) = references.get_vec(&data.name) {
                 for other_sprite_name in other_sprite_names {
                     index.insert(
-                        other_sprite_name.clone(),
-                        SpriteDescription::new(&rect, pixel_ratio, sprite),
+                        other_sprite_name.to_string(),
+                        SpriteDescription::new(&rect, &data.sprite),
                     );
                 }
             }
