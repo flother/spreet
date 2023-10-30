@@ -148,7 +148,7 @@ impl Sprite {
 /// Mapbox Style Specification [index file].
 ///
 /// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SpriteDescription {
     pub height: u32,
@@ -171,6 +171,21 @@ pub struct SpriteDescription {
         serialize_with = "serialize_stretch_y_area"
     )]
     pub stretch_y: Option<Vec<Rect>>,
+}
+
+impl SpriteDescription {
+    pub(crate) fn new(rect: &crunch::Rect, pixel_ratio: u8, sprite: &Sprite) -> Self {
+        Self {
+            height: rect.h as u32,
+            width: rect.w as u32,
+            pixel_ratio,
+            x: rect.x as u32,
+            y: rect.y as u32,
+            content: sprite.content_area(),
+            stretch_x: sprite.stretch_x_areas(),
+            stretch_y: sprite.stretch_y_areas(),
+        }
+    }
 }
 
 /// Builder pattern for `Spritesheet`: construct a `Spritesheet` object using calls to a builder
@@ -278,83 +293,59 @@ impl Spritesheet {
                 image.width() as usize * image.height() as usize
             })
             .sum();
-        match crunch::pack_into_po2(min_area * 10, items) {
-            Ok(PackedItems { items: packed, .. }) => {
-                // There might be some unused space in the packed items --- not all the pixels on
-                // the right/bottom edges may have been used. Count the pixels in use so we can
-                // strip off any empty edges in the final spritesheet. The won't strip any
-                // transparent pixels within a sprite, just unused pixels around the sprites.
-                let bin_width = packed
-                    .iter()
-                    .map(|PackedItem { rect, .. }| rect.right())
-                    .max()? as u32;
-                let bin_height = packed
-                    .iter()
-                    .map(|PackedItem { rect, .. }| rect.bottom())
-                    .max()? as u32;
-                // This is the meat of Spreet. Here we pack the sprite bitmaps into the spritesheet,
-                // using the rectangle locations from the previous step, and store those locations
-                // in the vector that will be output as the sprite index file.
-                let mut sprite_index = BTreeMap::new();
-                let mut spritesheet = Pixmap::new(bin_width, bin_height)?;
-                let pixmap_paint = PixmapPaint::default();
-                let pixmap_transform = Transform::default();
-                for PackedItem {
-                    rect,
-                    data: sprite_name,
-                } in &packed
-                {
-                    let sprite = sprites.get(sprite_name)?;
-                    spritesheet.draw_pixmap(
-                        rect.x as i32,
-                        rect.y as i32,
-                        pixmaps.get(sprite_name).unwrap().as_ref(),
-                        &pixmap_paint,
-                        pixmap_transform,
-                        None,
+
+        let PackedItems { items, .. } = crunch::pack_into_po2(min_area * 10, items).ok()?;
+
+        // There might be some unused space in the packed items --- not all the pixels on
+        // the right/bottom edges may have been used. Count the pixels in use so we can
+        // strip off any empty edges in the final spritesheet. The won't strip any
+        // transparent pixels within a sprite, just unused pixels around the sprites.
+        let bin_width = items
+            .iter()
+            .map(|PackedItem { rect, .. }| rect.right())
+            .max()? as u32;
+        let bin_height = items
+            .iter()
+            .map(|PackedItem { rect, .. }| rect.bottom())
+            .max()? as u32;
+        // This is the meat of Spreet. Here we pack the sprite bitmaps into the spritesheet,
+        // using the rectangle locations from the previous step, and store those locations
+        // in the vector that will be output as the sprite index file.
+        let mut index = BTreeMap::new();
+        let mut sheet = Pixmap::new(bin_width, bin_height)?;
+        let pixmap_paint = PixmapPaint::default();
+        let pixmap_transform = Transform::default();
+        for item in &items {
+            let sprite_name = &item.data;
+            let rect = item.rect;
+            let sprite = sprites.get(sprite_name)?;
+            sheet.draw_pixmap(
+                rect.x as i32,
+                rect.y as i32,
+                pixmaps.get(sprite_name).unwrap().as_ref(),
+                &pixmap_paint,
+                pixmap_transform,
+                None,
+            );
+            index.insert(
+                sprite_name.clone(),
+                SpriteDescription::new(&rect, pixel_ratio, sprite),
+            );
+            // If multiple names are used for a unique sprite, insert an entry in the index
+            // for each of the other names. This is to allow for multiple names to reference
+            // the same SVG image without having to include it in the spritesheet multiple
+            // times. The `--unique` // command-flag can be used to control this behaviour.
+            if let Some(other_sprite_names) = references.get_vec(sprite_name) {
+                for other_sprite_name in other_sprite_names {
+                    index.insert(
+                        other_sprite_name.clone(),
+                        SpriteDescription::new(&rect, pixel_ratio, sprite),
                     );
-                    sprite_index.insert(
-                        sprite_name.clone(),
-                        SpriteDescription {
-                            height: rect.h as u32,
-                            width: rect.w as u32,
-                            pixel_ratio,
-                            x: rect.x as u32,
-                            y: rect.y as u32,
-                            content: sprite.content_area(),
-                            stretch_x: sprite.stretch_x_areas(),
-                            stretch_y: sprite.stretch_y_areas(),
-                        },
-                    );
-                    // If multiple names are used for a unique sprite, insert an entry in the index
-                    // for each of the other names. This is to allow for multiple names to reference
-                    // the same SVG image without having to include it in the spritesheet multiple
-                    // times. The `--unique` // command-flag can be used to control this behaviour.
-                    if let Some(other_sprite_names) = references.get_vec(sprite_name) {
-                        for other_sprite_name in other_sprite_names {
-                            sprite_index.insert(
-                                other_sprite_name.clone(),
-                                SpriteDescription {
-                                    height: rect.h as u32,
-                                    width: rect.w as u32,
-                                    pixel_ratio,
-                                    x: rect.x as u32,
-                                    y: rect.y as u32,
-                                    content: sprite.content_area(),
-                                    stretch_x: sprite.stretch_x_areas(),
-                                    stretch_y: sprite.stretch_y_areas(),
-                                },
-                            );
-                        }
-                    }
                 }
-                Some(Spritesheet {
-                    sheet: spritesheet,
-                    index: sprite_index,
-                })
             }
-            Err(()) => None,
         }
+
+        Some(Spritesheet { sheet, index })
     }
 
     pub fn build() -> SpritesheetBuilder {
