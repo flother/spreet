@@ -60,7 +60,7 @@ where
     }
 }
 
-/// Custom Serde field serializer for a vector of [`Rect`]s.
+/// Custom Serde field serialiser for a vector of [`Rect`]s.
 ///
 /// Serialises the top and bottom edges of each `Rect` as a [`u32`] if the value has no fractional
 /// part, or an unchanged [`f32`] otherwise. Allows JSON outputted by Spreet to match the JavaScript
