@@ -84,10 +84,7 @@ fn sprite_name_returns_error_when_base_path_not_parent_of_path() {
 fn unstretchable_icon_has_no_metadata() {
     let path = Path::new("./tests/fixtures/svgs/bicycle.svg");
     let tree = load_svg(path).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 1,
-    };
+    let sprite = Sprite::new(tree, 1).unwrap();
 
     assert!(sprite.content_area().is_none());
     assert!(sprite.stretch_x_areas().is_none());
@@ -98,10 +95,7 @@ fn unstretchable_icon_has_no_metadata() {
 fn stretchable_icon_has_metadata() {
     let path = Path::new("./tests/fixtures/stretchable/cn-nths-expy-2-affinity.svg");
     let tree = load_svg(path).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 1,
-    };
+    let sprite = Sprite::new(tree, 1).unwrap();
 
     assert_eq!(
         sprite.content_area().unwrap(),
@@ -121,10 +115,7 @@ fn stretchable_icon_has_metadata() {
 fn stretchable_icons_can_use_stretch_shorthand() {
     let path = Path::new("./tests/fixtures/stretchable/cn-nths-expy-2-inkscape-plain.svg");
     let tree = load_svg(path).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 1,
-    };
+    let sprite = Sprite::new(tree, 1).unwrap();
 
     assert!(sprite.content_area().is_none());
     assert_eq!(
@@ -141,10 +132,7 @@ fn stretchable_icons_can_use_stretch_shorthand() {
 fn stretchable_icon_can_have_multiple_horizontal_stretch_zones() {
     let path = Path::new("./tests/fixtures/stretchable/ae-national-3-affinity.svg");
     let tree = load_svg(path).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 1,
-    };
+    let sprite = Sprite::new(tree, 1).unwrap();
 
     assert_eq!(
         sprite.stretch_x_areas().unwrap(),
@@ -159,10 +147,7 @@ fn stretchable_icon_can_have_multiple_horizontal_stretch_zones() {
 fn stretchable_icon_metadata_matches_pixel_ratio() {
     let path = Path::new("./tests/fixtures/stretchable/cn-nths-expy-2-affinity.svg");
     let tree = load_svg(path).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 2,
-    };
+    let sprite = Sprite::new(tree, 2).unwrap();
 
     assert_eq!(
         sprite.content_area().unwrap(),
@@ -182,10 +167,7 @@ fn stretchable_icon_metadata_matches_pixel_ratio() {
 fn stretchable_icon_with_empty_metadata_is_ignored() {
     let svg = "<svg xmlns='http://www.w3.org/2000/svg'><path id='mapbox-content'/></svg>";
     let tree = Tree::from_str(svg, &Options::default()).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 1,
-    };
+    let sprite = Sprite::new(tree, 1).unwrap();
 
     assert!(sprite.content_area().is_none());
 }
@@ -194,10 +176,7 @@ fn stretchable_icon_with_empty_metadata_is_ignored() {
 fn stretchable_icon_with_invalid_metadata_is_ignored() {
     let svg = "<svg xmlns='http://www.w3.org/2000/svg'><path id='mapbox-content' d='foo'/></svg>";
     let tree = Tree::from_str(svg, &Options::default()).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 1,
-    };
+    let sprite = Sprite::new(tree, 1).unwrap();
 
     assert!(sprite.content_area().is_none());
 }
@@ -210,10 +189,7 @@ fn stretchable_icon_with_metadata_in_hidden_element_is_ignored() {
     </svg>
     ";
     let tree = Tree::from_str(svg, &Options::default()).unwrap();
-    let sprite = Sprite {
-        tree,
-        pixel_ratio: 1,
-    };
+    let sprite = Sprite::new(tree, 1).unwrap();
 
     assert!(sprite.content_area().is_none());
 }
