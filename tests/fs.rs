@@ -1,8 +1,7 @@
 use std::path::Path;
 
 use assert_matches::assert_matches;
-use spreet::error::SpreetError;
-use spreet::fs::get_svg_input_paths;
+use spreet::{get_svg_input_paths, SpreetError};
 
 #[test]
 fn get_svg_input_paths_returns_non_recursive_results() {
