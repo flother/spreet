@@ -1,8 +1,7 @@
 use std::collections::BTreeMap;
 
 use clap::Parser;
-use spreet::fs::{get_svg_input_paths, load_svg};
-use spreet::sprite;
+use spreet::{get_svg_input_paths, load_svg, sprite_name, Sprite, Spritesheet};
 
 mod cli;
 
@@ -26,9 +25,8 @@ fn main() {
         .iter()
         .map(|svg_path| {
             if let Ok(tree) = load_svg(svg_path) {
-                let sprite =
-                    sprite::Sprite::new(tree, pixel_ratio).expect("failed to load a sprite");
-                if let Ok(name) = sprite::sprite_name(svg_path, args.input.as_path()) {
+                let sprite = Sprite::new(tree, pixel_ratio).expect("failed to load a sprite");
+                if let Ok(name) = sprite_name(svg_path, args.input.as_path()) {
                     (name, sprite)
                 } else {
                     eprintln!("Error: cannot make a valid sprite name from {svg_path:?}");
@@ -39,14 +37,14 @@ fn main() {
                 std::process::exit(exitcode::DATAERR);
             }
         })
-        .collect::<BTreeMap<String, sprite::Sprite>>();
+        .collect::<BTreeMap<String, Sprite>>();
 
     if sprites.is_empty() {
         eprintln!("Error: no valid SVGs found in {:?}", args.input);
         std::process::exit(exitcode::NOINPUT);
     }
 
-    let mut spritesheet_builder = sprite::Spritesheet::build();
+    let mut spritesheet_builder = Spritesheet::build();
     spritesheet_builder.sprites(sprites);
     if args.unique {
         spritesheet_builder.make_unique();
