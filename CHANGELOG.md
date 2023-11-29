@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## v0.10.0 (2023-11-29)
 
 - **Breaking change:** move all public identifiers to the root of the crate, e.g. `spreet::error::SpreetError` -> `spreet::SpreetError`, with the exception of `resvg`.
 - Update [oxipng](https://crates.io/crates/oxipng) dependency to [v9.0.0](https://github.com/shssoichiro/oxipng/blob/master/CHANGELOG.md#version-900). This improves compression of PNG spritesheets without visual changes, but the PNGs won't be byte-to-byte compatible with spritesheets output by earlier versions of Spreet
