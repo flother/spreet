@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet._
+
 ## v0.10.0 (2023-11-29)
 
 - **Breaking change:** move all public identifiers to the root of the crate, e.g. `spreet::error::SpreetError` -> `spreet::SpreetError`, with the exception of `resvg`.
