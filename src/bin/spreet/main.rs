@@ -25,7 +25,11 @@ fn main() {
         .iter()
         .map(|svg_path| {
             if let Ok(tree) = load_svg(svg_path) {
-                let sprite = Sprite::new(tree, pixel_ratio).expect("failed to load a sprite");
+                let sprite = if args.sdf {
+                    Sprite::new_sdf(tree, pixel_ratio).expect("failed to load an SDF sprite")
+                } else {
+                    Sprite::new(tree, pixel_ratio).expect("failed to load a sprite")
+                };
                 if let Ok(name) = sprite_name(svg_path, args.input.as_path()) {
                     (name, sprite)
                 } else {
@@ -48,6 +52,9 @@ fn main() {
     spritesheet_builder.sprites(sprites);
     if args.unique {
         spritesheet_builder.make_unique();
+    };
+    if args.sdf {
+        spritesheet_builder.make_sdf();
     };
 
     // Generate sprite sheet

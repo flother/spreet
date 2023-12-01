@@ -28,6 +28,9 @@ pub struct Cli {
     /// Remove whitespace from the JSON index file
     #[arg(short, long)]
     pub minify_index_file: bool,
+    /// Output a spritesheet using a signed distance field for each sprite
+    #[arg(long)]
+    pub sdf: bool,
 }
 
 /// Clap validator to ensure that a string is an existing directory.

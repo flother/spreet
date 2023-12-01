@@ -7,8 +7,9 @@ use std::path::Path;
 use crunch::{Item, PackedItem, PackedItems, Rotation};
 use multimap::MultiMap;
 use oxipng::optimize_from_memory;
-use resvg::tiny_skia::{Pixmap, PixmapPaint, Transform};
+use resvg::tiny_skia::{Color, Pixmap, PixmapPaint, Transform};
 use resvg::usvg::{NodeExt, Rect, Tree};
+use sdf_glyph_renderer::BitmapGlyph;
 use serde::Serialize;
 
 use self::serialize::{serialize_rect, serialize_stretch_x_area, serialize_stretch_y_area};
@@ -44,6 +45,93 @@ impl Sprite {
             tree,
             pixel_ratio,
             pixmap,
+        })
+    }
+
+    /// Create a sprite by rasterising an SVG, generating its signed distance field, and storing
+    /// that in the sprite's alpha channel.
+    ///
+    /// The method comes from Valve's original 2007 paper, [Improved alpha-tested magnification for
+    /// vector textures and special effects][1] and its general implementation is available in the
+    /// [sdf_glyph_renderer][2]. There's [further details in this blog post from demofox.org][3].
+    ///
+    /// There are SDF value [cut-offs and ranges][4] specific to Mapbox and MapLibre icons:
+    ///
+    /// > To render images with signed distance fields, we create a glyph texture that stores the
+    /// > distance to the next outline in every pixel. Inside of a glyph, the distance is negative;
+    /// > outside, it is positive. As an additional optimization, to fit into a one-byte unsigned
+    /// > integer, Mapbox shifts these ranges so that values between 192 and 255 represent “inside”
+    /// > a glyph and values from 0 to 191 represent "outside". This gives the appearance of a range
+    /// > of values from black (0) to white (255).
+    ///
+    /// JavaScript code for [handling the cut-off][5] is available in Elastic's fork of Fontnik.
+    ///
+    /// Note SDF icons are buffered by 3px on each side and so are 6px wider and 6px higher.
+    ///
+    /// [1]: https://dl.acm.org/doi/10.1145/1281500.1281665
+    /// [2]: https://crates.io/crates/sdf_glyph_renderer
+    /// [3]: https://blog.demofox.org/2014/06/30/distance-field-textures/
+    /// [4]: https://docs.mapbox.com/help/troubleshooting/using-recolorable-images-in-mapbox-maps/
+    /// [5]: https://github.com/elastic/fontnik/blob/fcaecc174d7561d9147499ba4f254dc7e1b0feea/lib/sdf.js#L225-L230
+    pub fn new_sdf(tree: Tree, pixel_ratio: u8) -> Option<Self> {
+        let svg_tree = resvg::Tree::from_usvg(&tree);
+        let pixel_ratio_f32 = pixel_ratio.into();
+        let unbuff_pixmap_size = svg_tree.size.to_int_size().scale_by(pixel_ratio_f32)?;
+        let mut unbuff_pixmap =
+            Pixmap::new(unbuff_pixmap_size.width(), unbuff_pixmap_size.height())?;
+        let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
+        svg_tree.render(render_ts, &mut unbuff_pixmap.as_mut());
+
+        // Buffer from https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9db1e77a753a68b02f74939a8/index.js#L144
+        let buffer = 3_i32;
+        let mut buff_pixmap = Pixmap::new(
+            unbuff_pixmap_size.width() + 2 * buffer as u32,
+            unbuff_pixmap_size.height() + 2 * buffer as u32,
+        )?;
+        buff_pixmap.draw_pixmap(
+            buffer,
+            buffer,
+            unbuff_pixmap.as_ref(),
+            &PixmapPaint::default(),
+            Transform::default(),
+            None,
+        );
+        let alpha = buff_pixmap
+            .pixels()
+            .iter()
+            .map(|pixel| pixel.alpha())
+            .collect::<Vec<u8>>();
+        let bitmap = BitmapGlyph::new(
+            alpha,
+            unbuff_pixmap_size.width() as usize,
+            unbuff_pixmap_size.height() as usize,
+            buffer as usize,
+        )
+        .ok()?;
+        let colors = bitmap
+            // Radius from https://github.com/elastic/fontnik/blob/fcaecc174d7561d9147499ba4f254dc7e1b0feea/lib/sdf.js#L186.
+            .render_sdf(8)
+            .into_iter()
+            .map(|sdf| {
+                // Cut-off from https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9db1e77a753a68b02f74939a8/index.js#L145
+                let cutoff = 0.25;
+                let shifted_sdf = sdf + cutoff;
+                // The `/ 2.0 + 0.5` bit below is to convert from a -1 to 1 range to a 0 to 1 range.
+                let alpha = (1.0 - shifted_sdf).clamp(-1.0, 1.0) / 2.0 + 0.5;
+                Color::from_rgba(0.0, 0.0, 0.0, alpha as f32)
+                    .unwrap()
+                    .premultiply()
+                    .to_color_u8()
+            })
+            .collect::<Vec<_>>();
+        for (i, pixel) in buff_pixmap.pixels_mut().iter_mut().enumerate() {
+            *pixel = colors[i];
+        }
+
+        Some(Self {
+            tree,
+            pixel_ratio,
+            pixmap: buff_pixmap,
         })
     }
 
@@ -193,10 +281,12 @@ pub struct SpriteDescription {
         serialize_with = "serialize_stretch_y_area"
     )]
     pub stretch_y: Option<Vec<Rect>>,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub sdf: bool,
 }
 
 impl SpriteDescription {
-    pub(crate) fn new(rect: &crunch::Rect, sprite: &Sprite) -> Self {
+    pub(crate) fn new(rect: &crunch::Rect, sprite: &Sprite, sdf: bool) -> Self {
         Self {
             height: rect.h as u32,
             width: rect.w as u32,
@@ -206,6 +296,7 @@ impl SpriteDescription {
             content: sprite.content_area(),
             stretch_x: sprite.stretch_x_areas(),
             stretch_y: sprite.stretch_y_areas(),
+            sdf,
         }
     }
 }
@@ -216,6 +307,7 @@ impl SpriteDescription {
 pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Sprite>>,
     references: Option<MultiMap<String, String>>,
+    sdf: bool,
 }
 
 impl SpritesheetBuilder {
@@ -223,6 +315,7 @@ impl SpritesheetBuilder {
         Self {
             sprites: None,
             references: None,
+            sdf: false,
         }
     }
 
@@ -261,10 +354,16 @@ impl SpritesheetBuilder {
         self
     }
 
+    pub fn make_sdf(&mut self) -> &mut Self {
+        self.sdf = true;
+        self
+    }
+
     pub fn generate(self) -> Option<Spritesheet> {
         Spritesheet::new(
             self.sprites.unwrap_or_default(),
             self.references.unwrap_or_default(),
+            self.sdf,
         )
     }
 }
@@ -284,6 +383,7 @@ impl Spritesheet {
     pub fn new(
         sprites: BTreeMap<String, Sprite>,
         references: MultiMap<String, String>,
+        sdf: bool,
     ) -> Option<Self> {
         let mut data_items = Vec::new();
         let mut min_area: usize = 0;
@@ -340,7 +440,7 @@ impl Spritesheet {
             );
             index.insert(
                 data.name.to_string(),
-                SpriteDescription::new(&rect, &data.sprite),
+                SpriteDescription::new(&rect, &data.sprite, sdf),
             );
             // If multiple names are used for a unique sprite, insert an entry in the index
             // for each of the other names. This is to allow for multiple names to reference
@@ -350,7 +450,7 @@ impl Spritesheet {
                 for other_sprite_name in other_sprite_names {
                     index.insert(
                         other_sprite_name.to_string(),
-                        SpriteDescription::new(&rect, &data.sprite),
+                        SpriteDescription::new(&rect, &data.sprite, sdf),
                     );
                 }
             }
