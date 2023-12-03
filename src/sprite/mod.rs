@@ -53,7 +53,8 @@ impl Sprite {
     ///
     /// The method comes from Valve's original 2007 paper, [Improved alpha-tested magnification for
     /// vector textures and special effects][1] and its general implementation is available in the
-    /// [sdf_glyph_renderer][2]. There's [further details in this blog post from demofox.org][3].
+    /// [sdf_glyph_renderer][2] crate. There are [further details in this blog post from
+    /// demofox.org][3].
     ///
     /// There are SDF value [cut-offs and ranges][4] specific to Mapbox and MapLibre icons:
     ///
@@ -66,7 +67,8 @@ impl Sprite {
     ///
     /// JavaScript code for [handling the cut-off][5] is available in Elastic's fork of Fontnik.
     ///
-    /// Note SDF icons are buffered by 3px on each side and so are 6px wider and 6px higher.
+    /// Note SDF icons are buffered by 3px on each side and so are 6px wider and 6px higher than the
+    /// original SVG image..
     ///
     /// [1]: https://dl.acm.org/doi/10.1145/1281500.1281665
     /// [2]: https://crates.io/crates/sdf_glyph_renderer
