@@ -2,7 +2,9 @@
 
 ## Development version
 
-_No changes yet._
+- Add support for SDF icons (aka [re-colourable images](https://docs.mapbox.com/help/troubleshooting/using-recolorable-images-in-mapbox-maps/)). See [#58](https://github.com/flother/spreet/issues/58)
+- **Breaking change**: due to the addition of SDF icons, both the `SpriteDescription` and `SpritesheetBuilder` structs have a new boolean field named `sdf`, while `SpriteDescription::new()` also takes a new `sdf` argument. Set these to `false` if you want to match the existing behaviour (i.e. no SDF icons). To create a spritesheet of SDF icons, call `SpritesheetBuilder::make_sdf()`.
+- Add a new constructor, `Sprite::new_sdf()`. This rasterises an SVG to a bitmap as usual, but generates a signed distance field for the image and stores that data in the bitmap's alpha channel
 
 ## v0.10.0 (2023-11-29)
 
