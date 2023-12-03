@@ -9,7 +9,7 @@ use multimap::MultiMap;
 use oxipng::optimize_from_memory;
 use resvg::tiny_skia::{Color, Pixmap, PixmapPaint, Transform};
 use resvg::usvg::{NodeExt, Rect, Tree};
-use sdf_glyph_renderer::BitmapGlyph;
+use sdf_glyph_renderer::{clamp_to_u8, BitmapGlyph};
 use serde::Serialize;
 
 use self::serialize::{serialize_rect, serialize_stretch_x_area, serialize_stretch_y_area};
@@ -108,17 +108,13 @@ impl Sprite {
             buffer as usize,
         )
         .ok()?;
-        let colors = bitmap
-            // Radius from https://github.com/elastic/fontnik/blob/fcaecc174d7561d9147499ba4f254dc7e1b0feea/lib/sdf.js#L186.
-            .render_sdf(8)
+        // Radius and cutoff are recommended to be 8 and 0.25 respectively. Taken from
+        // https://github.com/stadiamaps/sdf_font_tools/blob/97c5634b8e3515ac7761d0a4f67d12e7f688b042/pbf_font_tools/src/ft_generate.rs#L32-L34
+        let colors = clamp_to_u8(&bitmap.render_sdf(8), 0.25)
+            .ok()?
             .into_iter()
-            .map(|sdf| {
-                // Cut-off from https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9db1e77a753a68b02f74939a8/index.js#L145
-                let cutoff = 0.25;
-                let shifted_sdf = sdf + cutoff;
-                // The `/ 2.0 + 0.5` bit below is to convert from a -1 to 1 range to a 0 to 1 range.
-                let alpha = (1.0 - shifted_sdf).clamp(-1.0, 1.0) / 2.0 + 0.5;
-                Color::from_rgba(0.0, 0.0, 0.0, alpha as f32)
+            .map(|alpha| {
+                Color::from_rgba(0.0, 0.0, 0.0, alpha as f32 / 255.0)
                     .unwrap()
                     .premultiply()
                     .to_color_u8()
