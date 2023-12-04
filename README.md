@@ -102,6 +102,7 @@ Options:
       --unique             Store only unique images in the spritesheet, and map them to multiple names
       --recursive          Include images in sub-directories
   -m, --minify-index-file  Remove whitespace from the JSON index file
+      --sdf                Output a spritesheet using a signed distance field for each sprite
   -h, --help               Print help
   -V, --version            Print version
 ```
