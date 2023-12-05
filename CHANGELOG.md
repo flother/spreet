@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet._
+
 ## v0.11.0 (2023-12-05)
 
 - Add support for SDF icons (aka [re-colourable images](https://docs.mapbox.com/help/troubleshooting/using-recolorable-images-in-mapbox-maps/)). See [#58](https://github.com/flother/spreet/issues/58)
