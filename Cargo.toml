@@ -19,7 +19,7 @@ cli = ["dep:clap", "dep:exitcode"]
 clap = { version = "4.5", features = ["derive"], optional = true }
 crunch = "0.5.3"
 exitcode = { version = "1.1", optional = true }
-multimap = "0.9"
+multimap = "0.10"
 oxipng = { version = "9.0", features = ["parallel", "zopfli", "filetime"], default-features = false }
 png = "0.17"
 resvg = "0.37"
