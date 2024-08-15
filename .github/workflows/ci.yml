@@ -36,6 +36,15 @@ jobs:
           components: rustfmt
       - name: Run cargo fmt
         run: cargo fmt --all --check
+  msrv:
+    name: Check minimum supported Rust version is correct
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+      - run: cargo hack check --rust-version
   test:
     name: cargo test
     runs-on: ubuntu-latest
