@@ -2,7 +2,9 @@
 
 ## Development version
 
-_No changes yet._
+- Update [clap](https://crates.io/crates/clap) dependency to v4.5
+
+The minimum supported version of Rust is now 1.74.0 (released November 2023).
 
 ## v0.11.0 (2023-12-05)
 
