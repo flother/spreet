@@ -6,6 +6,7 @@
 - Update [multimap](https://crates.io/crates/multimap) dependency to v0.10
 - Update [oxipng](https://crates.io/crates/multimap) dependency to v9.1
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.43
+- Update [assert_fs](https://crates.io/crates/assert_fs) dev dependency to v1.1
 
 The minimum supported version of Rust is now 1.74.0 (released November 2023).
 
