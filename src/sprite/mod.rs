@@ -159,7 +159,7 @@ impl Sprite {
     /// symbol uses [`icon-text-fit`], the symbol's text will be fitted inside this content box.
     ///
     /// [stretchable icon]: https://github.com/mapbox/mapbox-gl-js/issues/8917
-    /// [`icon-text-fit`]: https://maplibre.org/maplibre-style-spec/layers/#layout-symbol-icon-text-fit
+    /// [`icon-text-fit`]: https://maplibre.org/maplibre-style-spec/layers/#icon-text-fit
     pub fn content_area(&self) -> Option<Rect> {
         self.get_node_bbox("mapbox-content")
     }
