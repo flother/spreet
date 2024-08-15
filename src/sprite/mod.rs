@@ -8,7 +8,7 @@ use crunch::{Item, PackedItem, PackedItems, Rotation};
 use multimap::MultiMap;
 use oxipng::optimize_from_memory;
 use resvg::tiny_skia::{Color, Pixmap, PixmapPaint, Transform};
-use resvg::usvg::{NodeExt, Rect, Tree};
+use resvg::usvg::{Rect, Tree};
 use sdf_glyph_renderer::{clamp_to_u8, BitmapGlyph};
 use serde::Serialize;
 
@@ -34,12 +34,18 @@ pub struct Sprite {
 
 impl Sprite {
     pub fn new(tree: Tree, pixel_ratio: u8) -> Option<Self> {
-        let rtree = resvg::Tree::from_usvg(&tree);
         let pixel_ratio_f32 = pixel_ratio.into();
-        let pixmap_size = rtree.size.to_int_size().scale_by(pixel_ratio_f32)?;
+        let pixmap_size = tree.size().to_int_size().scale_by(pixel_ratio_f32)?;
         let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
         let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
-        rtree.render(render_ts, &mut pixmap.as_mut());
+        resvg::render(&tree, render_ts, &mut pixmap.as_mut());
+        print!(
+            "Tree size: {:?}. Pixmap size: {}x{}. Pixel ratio: {}\n",
+            tree.size().to_int_size(),
+            pixmap_size.width(),
+            pixmap_size.height(),
+            pixel_ratio_f32,
+        );
 
         Some(Self {
             tree,
@@ -76,13 +82,12 @@ impl Sprite {
     /// [4]: https://docs.mapbox.com/help/troubleshooting/using-recolorable-images-in-mapbox-maps/
     /// [5]: https://github.com/elastic/fontnik/blob/fcaecc174d7561d9147499ba4f254dc7e1b0feea/lib/sdf.js#L225-L230
     pub fn new_sdf(tree: Tree, pixel_ratio: u8) -> Option<Self> {
-        let svg_tree = resvg::Tree::from_usvg(&tree);
         let pixel_ratio_f32 = pixel_ratio.into();
-        let unbuff_pixmap_size = svg_tree.size.to_int_size().scale_by(pixel_ratio_f32)?;
+        let unbuff_pixmap_size = tree.size().to_int_size().scale_by(pixel_ratio_f32)?;
         let mut unbuff_pixmap =
             Pixmap::new(unbuff_pixmap_size.width(), unbuff_pixmap_size.height())?;
         let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
-        svg_tree.render(render_ts, &mut unbuff_pixmap.as_mut());
+        resvg::render(&tree, render_ts, &mut unbuff_pixmap.as_mut());
 
         // Buffer from https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9db1e77a753a68b02f74939a8/index.js#L144
         let buffer = 3_i32;
@@ -239,16 +244,14 @@ impl Sprite {
     /// Find a node in the SVG tree with a given id, and return its bounding box with coordinates
     /// multiplied by the sprite's pixel ratio.
     fn get_node_bbox(&self, id: &str) -> Option<Rect> {
-        self.tree.node_by_id(id)?.calculate_bbox().map(|bbox| {
-            let ratio = self.pixel_ratio as f32;
-            Rect::from_ltrb(
-                bbox.left() * ratio,
-                bbox.top() * ratio,
-                bbox.right() * ratio,
-                bbox.bottom() * ratio,
-            )
-            .unwrap()
-        })
+        let bbox = self.tree.node_by_id(id)?.abs_bounding_box();
+        let ratio = self.pixel_ratio as f32;
+        Rect::from_ltrb(
+            bbox.left() * ratio,
+            bbox.top() * ratio,
+            bbox.right() * ratio,
+            bbox.bottom() * ratio,
+        )
     }
 }
 

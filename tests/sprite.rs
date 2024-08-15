@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use assert_matches::assert_matches;
-use resvg::usvg::{Options, Rect, Tree, TreeParsing};
+use resvg::usvg::{Options, Rect, Tree};
 use spreet::{load_svg, sprite_name, SpreetError, Sprite};
 
 #[test]
