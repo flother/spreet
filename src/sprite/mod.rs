@@ -39,14 +39,6 @@ impl Sprite {
         let mut pixmap = Pixmap::new(pixmap_size.width(), pixmap_size.height())?;
         let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
         resvg::render(&tree, render_ts, &mut pixmap.as_mut());
-        print!(
-            "Tree size: {:?}. Pixmap size: {}x{}. Pixel ratio: {}\n",
-            tree.size().to_int_size(),
-            pixmap_size.width(),
-            pixmap_size.height(),
-            pixel_ratio_f32,
-        );
-
         Some(Self {
             tree,
             pixel_ratio,
