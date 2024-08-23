@@ -533,15 +533,15 @@ impl Spritesheet {
 ///
 /// This function will return an error if:
 ///
-/// - `path` does not exist
-/// - `abs_path` does not exist
-/// - `abs_path` is not a ancestor of `path`
+/// - `abs_path` is not an ancestor of `path`
+/// - `path` is empty
+/// - getting the current directory fails
 pub fn sprite_name<P1: AsRef<Path>, P2: AsRef<Path>>(
     path: P1,
     base_path: P2,
 ) -> SpreetResult<String> {
-    let abs_path = path.as_ref().canonicalize()?;
-    let abs_base_path = base_path.as_ref().canonicalize()?;
+    let abs_path = std::path::absolute(path.as_ref())?;
+    let abs_base_path = std::path::absolute(base_path)?;
     let Ok(rel_path) = abs_path.strip_prefix(abs_base_path) else {
         return Err(SpreetError::PathError(path.as_ref().to_path_buf()));
     };

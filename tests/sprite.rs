@@ -41,10 +41,10 @@ fn sprite_name_works_with_deeply_nested_files() {
 }
 
 #[test]
-fn sprite_name_returns_error_for_non_existent_path() {
-    assert_matches!(
-        sprite_name(Path::new("./does_not_exist.svg"), Path::new("./")),
-        Err(SpreetError::IoError(_))
+fn sprite_name_returns_ok_for_non_existent_path() {
+    assert_eq!(
+        sprite_name(Path::new("./does_not_exist.svg"), Path::new("./")).unwrap(),
+        "does_not_exist"
     );
 }
 
@@ -63,7 +63,7 @@ fn sprite_name_returns_error_for_non_existent_base_path() {
             Path::new("./tests/fixtures/svgs/bicycle.svg"),
             Path::new("./tests/fixtures/foo"),
         ),
-        Err(SpreetError::IoError(_))
+        Err(SpreetError::PathError(_))
     );
 }
 

@@ -2,6 +2,9 @@
 
 ## Development version
 
+- Fix issue creating valid sprite names for symlinks (see [#81](https://github.com/flother/spreet/issues/81)). This has two side effects:
+  1. sprite names can now be generated for files that don't exist
+  2. `spreet::sprite_name()` now returns a `PathError` instead of an `IoError` when the `abs_path` argument is not an ancestor of the `path` argument.
 - Update [clap](https://crates.io/crates/clap) dependency to v4.5
 - Update [multimap](https://crates.io/crates/multimap) dependency to v0.10
 - Update [oxipng](https://crates.io/crates/multimap) dependency to v9.1
@@ -9,7 +12,7 @@
 - Update [assert_fs](https://crates.io/crates/assert_fs) dev dependency to v1.1
 - Update [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to v2
 
-The minimum supported version of Rust is now 1.74.0 (released November 2023).
+The minimum supported version of Rust is now 1.79.0 (released June 2024).
 
 ## v0.11.0 (2023-12-05)
 
