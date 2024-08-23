@@ -68,6 +68,11 @@ impl Sprite {
     /// Note SDF icons are buffered by 3px on each side and so are 6px wider and 6px higher than the
     /// original SVG image..
     ///
+    /// # Panics
+    ///
+    /// This function can panic if:
+    /// - The `Color::from_rgba` function fails to create a color.
+    ///
     /// [1]: https://dl.acm.org/doi/10.1145/1281500.1281665
     /// [2]: https://crates.io/crates/sdf_glyph_renderer
     /// [3]: https://blog.demofox.org/2014/06/30/distance-field-textures/
