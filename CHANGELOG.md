@@ -7,7 +7,7 @@
   2. `spreet::sprite_name()` now returns a `PathError` instead of an `IoError` when the `abs_path` argument is not an ancestor of the `path` argument.
 - Update [clap](https://crates.io/crates/clap) dependency to v4.5
 - Update [multimap](https://crates.io/crates/multimap) dependency to v0.10
-- Update [oxipng](https://crates.io/crates/multimap) dependency to v9.1
+- Update [oxipng](https://crates.io/crates/oxipng) dependency to v9.1
 - Update [resvg](https://crates.io/crates/resvg) dependency to v0.43
 - Update [assert_fs](https://crates.io/crates/assert_fs) dev dependency to v1.1
 - Update [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to v2
