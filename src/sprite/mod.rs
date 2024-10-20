@@ -352,6 +352,10 @@ impl SpritesheetBuilder {
         self
     }
 
+    /// Adds the metadata that all images are sdf sprites.
+    /// 
+    /// You have to ensure that the Sprites are created as a sdf file beforehand.
+    /// See [`Sprite::new_sdf`] for further context.
     pub fn make_sdf(&mut self) -> &mut Self {
         self.sdf = true;
         self
