@@ -3,7 +3,7 @@ on:
   release:
     types: [released]
 jobs:
-  publish:
+  publish-to-cargo:
     name: cargo publish
     runs-on: ubuntu-latest
     steps:
@@ -12,3 +12,23 @@ jobs:
       - run: cargo publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  publish-to-ghcr:
+    name: docker publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build . -t ghcr.io/flother/spreet:latest
+        env:
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/flother/spreet:latest
