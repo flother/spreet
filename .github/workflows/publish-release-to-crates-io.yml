@@ -2,6 +2,7 @@ name: Publish new release to crates.io
 on:
   release:
     types: [released]
+  workflow_dispatch:
 jobs:
   publish-to-cargo:
     name: cargo publish
@@ -27,8 +28,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build . -t ghcr.io/flother/spreet:latest
+          docker build . -t ghcr.io/harelm/spreet:latest
         env:
       - name: Push Docker image
         run: |
-          docker push ghcr.io/flother/spreet:latest
+          docker push ghcr.io/harelm/spreet:latest
