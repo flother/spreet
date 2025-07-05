@@ -29,7 +29,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build . -t ghcr.io/harelm/spreet:latest
-        env:
       - name: Push Docker image
         run: |
           docker push ghcr.io/harelm/spreet:latest
