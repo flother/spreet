@@ -31,8 +31,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build . -t ghcr.io/harelm/spreet:latest -t ghcr.io/harelm/spreet:${{ steps.get_version.outputs.VERSION }}
+          docker build . -t ghcr.io/flother/spreet:latest -t ghcr.io/flother/spreet:${{ steps.get_version.outputs.VERSION }}
       - name: Push Docker image
         run: |
-          docker push ghcr.io/harelm/spreet:latest
-          docker push ghcr.io/harelm/spreet:${{ steps.get_version.outputs.VERSION }}
+          docker push ghcr.io/flother/spreet:latest
+          docker push ghcr.io/flother/spreet:${{ steps.get_version.outputs.VERSION }}
