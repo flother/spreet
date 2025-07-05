@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4 
+      - name: Get package version
+        id: get_version
+        run: echo "VERSION=$(grep '^version' Cargo.toml | head -n 1 | cut -d '"' -f 2)" >> "$GITHUB_OUTPUT"
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -28,7 +31,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build . -t ghcr.io/harelm/spreet:latest
+          docker build . -t ghcr.io/harelm/spreet:latest -t ghcr.io/harelm/spreet:${{ steps.get_version.outputs.VERSION }}
       - name: Push Docker image
         run: |
           docker push ghcr.io/harelm/spreet:latest
+          docker push ghcr.io/harelm/spreet:${{ steps.get_version.outputs.VERSION }}
