@@ -8,4 +8,4 @@ FROM debian:latest
 WORKDIR /app
 # Copy the binary from the build stage
 COPY --from=build /app/target/release/spreet ./
-CMD ["./spreet"]
+ENTRYPOINT ["./spreet"]
