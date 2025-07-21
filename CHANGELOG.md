@@ -2,7 +2,7 @@
 
 ## Development version
 
-_No changes yet._
+- Add details to the release process docs
 
 ## v0.12.0 (2025-07-21)
 
