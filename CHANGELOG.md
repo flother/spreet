@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+_No changes yet._
+
 ## v0.12.0 (2025-07-21)
 
 - Add Dockerfile and publish image to GitHub Container Registry (see [#89](https://github.com/flother/spreet/pull/89))
