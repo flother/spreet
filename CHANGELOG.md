@@ -2,6 +2,7 @@
 
 ## Development version
 
+- Add Dockerfile and publish image to GitHub Container Registry (see [#89](https://github.com/flother/spreet/pull/89))
 - Fix issue creating valid sprite names for symlinks (see [#81](https://github.com/flother/spreet/issues/81)). This has two side effects:
   1. sprite names can now be generated for files that don't exist
   2. `spreet::sprite_name()` now returns a `PathError` instead of an `IoError` when the `abs_path` argument is not an ancestor of the `path` argument.
