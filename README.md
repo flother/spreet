@@ -47,12 +47,15 @@ cargo install spreet
 
 Pre-built binaries are provided for MacOS, Linux, and Windows. The MacOS and Linux binaries are built for both Intel and ARM CPUs. Visit the [releases](https://github.com/flother/spreet/releases) page to download the latest version of Spreet.
 
-## Use the docker image
+### Using via Docker
+
+If you have [Docker](https://www.docker.com/) installed, you can run Spreet without installing it locally. The Docker image is available from the GitHub Container Registry:
 
 ```
-docker run -v ${pwd}:/app ghcr.io/flother/spreet
+docker run -v $(pwd):/app -w /app ghcr.io/flother/spreet icons my_style
 ```
 
+This command mounts your current directory as `/app` inside the container and sets it as the working directory. Replace `icons` and `my_style` with your actual input directory and output filename.
 ### Build from source
 
 You'll need a recent version of the Rust toolchain (try [Rustup](https://rustup.rs/) if you don't have it already). With that, you can check out this repository:
