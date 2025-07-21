@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## v0.12.0 (2025-07-21)
 
 - Add Dockerfile and publish image to GitHub Container Registry (see [#89](https://github.com/flother/spreet/pull/89))
 - Fix issue creating valid sprite names for symlinks (see [#81](https://github.com/flother/spreet/issues/81)). This has two side effects:
