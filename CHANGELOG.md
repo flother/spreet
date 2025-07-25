@@ -1,8 +1,9 @@
 # Changelog
 
-## Development version
+## v0.12.1
 
 - Add details to the release process docs
+- Add Docker Buildx support to release workflow (#90)
 
 ## v0.12.0 (2025-07-21)
 
