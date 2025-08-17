@@ -51,11 +51,17 @@ Pre-built binaries are provided for MacOS, Linux, and Windows. The MacOS and Lin
 
 If you have [Docker](https://www.docker.com/) installed, you can run Spreet without installing it locally. The Docker image is available from the GitHub Container Registry:
 
-```
-docker run -v $(pwd):/app -w /app ghcr.io/flother/spreet icons my_style
+```term
+docker run \
+    -v $(pwd)/icons:/app/icons \
+    -v $(pwd):/app/output \
+    ghcr.io/flother/spreet \
+    icons \
+    output/my_style
 ```
 
-This command mounts your current directory as `/app` inside the container and sets it as the working directory. Replace `icons` and `my_style` with your actual input directory and output filename.
+This command mounts your local `icons` directory to `/app/icons` inside the container, and your current local directory to `/app/output` for writing the generated files. Replace `$(pwd)/icons` with your actual input directory, and `my_style` with your desired output filename. The spritesheet and index file will be created in your current directory.
+
 ### Build from source
 
 You'll need a recent version of the Rust toolchain (try [Rustup](https://rustup.rs/) if you don't have it already). With that, you can check out this repository:
