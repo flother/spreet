@@ -456,8 +456,8 @@ impl Spritesheet {
                 pixmap_transform,
                 None,
             );
-            // Create a rect for the JSON index that excludes spacing.
-            let unspaced_rect = crunch::Rect {
+            // Create a rect for the sprite that excludes any spacing.
+            let sprite_rect = crunch::Rect {
                 x: rect.x,
                 y: rect.y,
                 w: data.sprite.pixmap.width() as usize,
@@ -465,7 +465,7 @@ impl Spritesheet {
             };
             index.insert(
                 data.name.to_string(),
-                SpriteDescription::new(&unspaced_rect, &data.sprite, sdf),
+                SpriteDescription::new(&sprite_rect, &data.sprite, sdf),
             );
             // If multiple names are used for a unique sprite, insert an entry in the index
             // for each of the other names. This is to allow for multiple names to reference
@@ -475,7 +475,7 @@ impl Spritesheet {
                 for other_sprite_name in other_sprite_names {
                     index.insert(
                         other_sprite_name.to_string(),
-                        SpriteDescription::new(&unspaced_rect, &data.sprite, sdf),
+                        SpriteDescription::new(&sprite_rect, &data.sprite, sdf),
                     );
                 }
             }
