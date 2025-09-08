@@ -25,6 +25,9 @@ pub struct Cli {
     /// Include images in sub-directories
     #[arg(long)]
     pub recursive: bool,
+    /// Add pixel spacing between sprites
+    #[arg(long, default_value_t = 0, value_parser = is_non_negative)]
+    pub spacing: u8,
     /// Remove whitespace from the JSON index file
     #[arg(short, long)]
     pub minify_index_file: bool,
@@ -49,5 +52,15 @@ fn is_positive(s: &str) -> Result<u8, String> {
         .and_then(|result| match result {
             i if i > 0 => Ok(result),
             _ => Err(String::from("must be greater than one")),
+        })
+}
+
+/// Clap validator to ensure that an unsigned integer parsed from a string is non-negative.
+fn is_non_negative(s: &str) -> Result<u8, String> {
+    u8::from_str(s)
+        .map_err(|_| String::from("must be a non-negative number"))
+        .and_then(|result| {
+            // u8 is inherently non-negative, so we just need to validate parsing
+            Ok(result)
         })
 }
