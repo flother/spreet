@@ -4,10 +4,10 @@
 
 _No changes yet._
 
-## v0.12.1
+## v0.12.1 (2025-07-25)
 
 - Add details to the release process docs
-- Add Docker Buildx support to release workflow (#90)
+- Add Docker Buildx support to release workflow (see [#90](https://github.com/flother/spreet/pull/90))
 
 ## v0.12.0 (2025-07-21)
 
