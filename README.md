@@ -143,7 +143,7 @@ To compare the output from [spritezero](https://github.com/mapbox/spritezero-cli
 | osm-bright-gl-style      |           208,810 |       130,048 |   -38% |
 | openstreetmap-americana  |           577,548 |       389,640 |   -33% |
 | mapbox-gl-styles (basic) |           271,488 |       258,064 |    -5% |
-| mapbox-gl-whaam-style]   |            90,944 |        59,136 |   -35% |
+| mapbox-gl-whaam-style    |            90,944 |        59,136 |   -35% |
 
 ### Spritesheet file size (bytes)
 
