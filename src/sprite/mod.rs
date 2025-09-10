@@ -305,6 +305,7 @@ impl SpriteDescription {
 pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Sprite>>,
     references: Option<MultiMap<String, String>>,
+    spacing: u8,
     sdf: bool,
 }
 
@@ -313,12 +314,19 @@ impl SpritesheetBuilder {
         Self {
             sprites: None,
             references: None,
+            spacing: 0,
             sdf: false,
         }
     }
 
     pub fn sprites(&mut self, sprites: BTreeMap<String, Sprite>) -> &mut Self {
         self.sprites = Some(sprites);
+        self
+    }
+
+    /// Set the spacing (in pixels) to add to the right and bottom of each sprite.
+    pub fn spacing(&mut self, spacing: u8) -> &mut Self {
+        self.spacing = spacing;
         self
     }
 
@@ -365,6 +373,7 @@ impl SpritesheetBuilder {
         Spritesheet::new(
             self.sprites.unwrap_or_default(),
             self.references.unwrap_or_default(),
+            self.spacing,
             self.sdf,
         )
     }
@@ -385,6 +394,7 @@ impl Spritesheet {
     pub fn new(
         sprites: BTreeMap<String, Sprite>,
         references: MultiMap<String, String>,
+        spacing: u8,
         sdf: bool,
     ) -> Option<Self> {
         let mut data_items = Vec::new();
@@ -403,8 +413,8 @@ impl Spritesheet {
             .map(|data| {
                 Item::new(
                     data,
-                    data.sprite.pixmap.width() as usize,
-                    data.sprite.pixmap.height() as usize,
+                    data.sprite.pixmap.width() as usize + spacing as usize,
+                    data.sprite.pixmap.height() as usize + spacing as usize,
                     Rotation::None,
                 )
             })
@@ -424,11 +434,17 @@ impl Spritesheet {
             .iter()
             .map(|PackedItem { rect, .. }| rect.bottom())
             .max()? as u32;
+
+        // Final width and height of the spreadsheet will be trimmed of any spacing added to the
+        // right and bottom edges.
+        let final_width = bin_width.saturating_sub(spacing as u32);
+        let final_height = bin_height.saturating_sub(spacing as u32);
+
         // This is the meat of Spreet. Here we pack the sprite bitmaps into the spritesheet,
         // using the rectangle locations from the previous step, and store those locations
         // in the vector that will be output as the sprite index file.
         let mut index = BTreeMap::new();
-        let mut sheet = Pixmap::new(bin_width, bin_height)?;
+        let mut sheet = Pixmap::new(final_width, final_height)?;
         let pixmap_paint = PixmapPaint::default();
         let pixmap_transform = Transform::default();
         for PackedItem { rect, data } in items {
@@ -440,9 +456,16 @@ impl Spritesheet {
                 pixmap_transform,
                 None,
             );
+            // Create a rect for the sprite that excludes any spacing.
+            let sprite_rect = crunch::Rect {
+                x: rect.x,
+                y: rect.y,
+                w: data.sprite.pixmap.width() as usize,
+                h: data.sprite.pixmap.height() as usize,
+            };
             index.insert(
                 data.name.to_string(),
-                SpriteDescription::new(&rect, &data.sprite, sdf),
+                SpriteDescription::new(&sprite_rect, &data.sprite, sdf),
             );
             // If multiple names are used for a unique sprite, insert an entry in the index
             // for each of the other names. This is to allow for multiple names to reference
@@ -452,7 +475,7 @@ impl Spritesheet {
                 for other_sprite_name in other_sprite_names {
                     index.insert(
                         other_sprite_name.to_string(),
-                        SpriteDescription::new(&rect, &data.sprite, sdf),
+                        SpriteDescription::new(&sprite_rect, &data.sprite, sdf),
                     );
                 }
             }

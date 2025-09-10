@@ -50,6 +50,7 @@ fn main() {
 
     let mut spritesheet_builder = Spritesheet::build();
     spritesheet_builder.sprites(sprites);
+    spritesheet_builder.spacing(args.spacing);
     if args.unique {
         spritesheet_builder.make_unique();
     };

@@ -283,3 +283,105 @@ fn spreet_accepts_pngs_wrapped_in_svgs() {
     assert!(actual_spritesheet.eval(expected_spritesheet));
     assert!(actual_index.eval(expected_index));
 }
+
+#[test]
+fn spreet_accepts_zero_spacing() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("explicit_zero_spacing"))
+        .arg("--spacing")
+        .arg("0")
+        .assert()
+        .success();
+
+    Ok(())
+}
+
+#[test]
+fn spreet_rejects_negative_spacing() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("default"))
+        .arg("--spacing=-15")
+        .assert()
+        .failure()
+        .code(2)
+        .stderr("error: invalid value '-15' for '--spacing <SPACING>': must be a non-negative number\n\nFor more information, try '--help'.\n");
+
+    Ok(())
+}
+
+#[test]
+fn spreet_can_output_spritesheet_with_spacing() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("spacing"))
+        .arg("--spacing")
+        .arg("5")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/spacing@1x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("spacing.png"));
+    let expected_index = Path::new("tests/fixtures/output/spacing@1x.json");
+    let actual_index = predicate::path::eq_file(temp.join("spacing.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}
+
+#[test]
+fn spreet_can_output_unique_spritesheet_with_spacing() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("spacing_unique"))
+        .arg("--spacing")
+        .arg("2")
+        .arg("--unique")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/spacing_unique@1x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("spacing_unique.png"));
+    let expected_index = Path::new("tests/fixtures/output/spacing_unique@1x.json");
+    let actual_index = predicate::path::eq_file(temp.join("spacing_unique.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}
+
+#[test]
+fn spreet_can_output_retina_spritesheet_with_spacing() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/svgs")
+        .arg(temp.join("spacing@2x"))
+        .arg("--spacing")
+        .arg("2")
+        .arg("--retina")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/spacing@2x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("spacing@2x.png"));
+    let expected_index = Path::new("tests/fixtures/output/spacing@2x.json");
+    let actual_index = predicate::path::eq_file(temp.join("spacing@2x.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}

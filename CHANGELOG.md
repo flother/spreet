@@ -2,7 +2,7 @@
 
 ## Development version
 
-_No changes yet._
+- Add `--spacing` argument to apply padding between sprites (see [#76](https://github.com/flother/spreet/issues/76) and [#95](https://github.com/flother/spreet/pull/95))
 
 ## v0.12.1 (2025-07-25)
 
