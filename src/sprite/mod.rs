@@ -65,8 +65,10 @@ impl Sprite {
     ///
     /// JavaScript code for [handling the cut-off][5] is available in Elastic's fork of Fontnik.
     ///
-    /// Note SDF icons are buffered by 3px on each side and so are 6px wider and 6px higher than the
-    /// original SVG image..
+    /// Note SDF icons are buffered on each side by `3 * pixel_ratio` pixels. An icon with a ratio
+    /// of 1 is buffered by 3px per side, an icon with a ratio of 2 is buffered by 6px per side, and
+    /// so on. This makes SDF sprites wider and higher than the original SVG image by
+    /// `6 * pixel_ratio` pixels in total.
     ///
     /// # Panics
     ///
@@ -86,8 +88,12 @@ impl Sprite {
         let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
         resvg::render(&tree, render_ts, &mut unbuff_pixmap.as_mut());
 
-        // Buffer from https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9db1e77a753a68b02f74939a8/index.js#L144
-        let buffer = 3_i32;
+        // Scale the buffer by the pixel ratio so the SDF boundary scales with retina sprites. The
+        // Buffer was originally a fixed size of three pixels, as found in
+        // https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9/index.js#L144. But after
+        // https://github.com/flother/spreet/issues/86 it was deemed that it should be tied to the
+        // pixel ratio.
+        let buffer = 3_i32 * (pixel_ratio as i32);
         let mut buff_pixmap = Pixmap::new(
             unbuff_pixmap_size.width() + 2 * buffer as u32,
             unbuff_pixmap_size.height() + 2 * buffer as u32,
@@ -112,9 +118,12 @@ impl Sprite {
             buffer as usize,
         )
         .ok()?;
-        // Radius and cutoff are recommended to be 8 and 0.25 respectively. Taken from
+        // Radius and cutoff are recommended to be 8 and 0.25 respectively for a 1x ratio sprite.
         // https://github.com/stadiamaps/sdf_font_tools/blob/97c5634b8e3515ac7761d0a4f67d12e7f688b042/pbf_font_tools/src/ft_generate.rs#L32-L34
-        let colors = clamp_to_u8(&bitmap.render_sdf(8), 0.25)
+        // But the radius should scale with the pixel ratio, so that the signed-distance window
+        // remains consistent at higher ratios.
+        let sdf_radius = 8 * (pixel_ratio as usize);
+        let colors = clamp_to_u8(&bitmap.render_sdf(sdf_radius), 0.25)
             .ok()?
             .into_iter()
             .map(|alpha| {
