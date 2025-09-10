@@ -93,7 +93,7 @@ impl Sprite {
         // https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9/index.js#L144. But after
         // https://github.com/flother/spreet/issues/86 it was deemed that it should be tied to the
         // pixel ratio.
-        let buffer = 3_i32 * (pixel_ratio as i32);
+        let buffer = 3 * (pixel_ratio as i32);
         let mut buff_pixmap = Pixmap::new(
             unbuff_pixmap_size.width() + 2 * buffer as u32,
             unbuff_pixmap_size.height() + 2 * buffer as u32,
