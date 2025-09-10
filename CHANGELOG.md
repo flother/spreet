@@ -3,6 +3,7 @@
 ## Development version
 
 - Add `--spacing` argument to apply padding between sprites (see [#76](https://github.com/flother/spreet/issues/76) and [#95](https://github.com/flother/spreet/pull/95))
+- Scale SDF buffer and radius by pixel ratio (see [#96](https://github.com/flother/spreet/pull/96) and [#86](https://github.com/flother/spreet/issues/86))
 
 ## v0.12.1 (2025-07-25)
 
