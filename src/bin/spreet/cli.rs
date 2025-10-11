@@ -31,6 +31,9 @@ pub struct Cli {
     /// Remove whitespace from the JSON index file
     #[arg(short, long)]
     pub minify_index_file: bool,
+    #[arg(long)]
+    /// Output only x, y, width, and height to the JSON index file
+    pub simple_index_file: bool,
     /// Output a spritesheet using a signed distance field for each sprite
     #[arg(long)]
     pub sdf: bool,

@@ -118,6 +118,7 @@ Options:
       --recursive          Include images in sub-directories
       --spacing <SPACING>  Add pixel spacing between sprites [default: 0]
   -m, --minify-index-file  Remove whitespace from the JSON index file
+      --simple-index-file  Output only x, y, width, and height in the JSON index file
       --sdf                Output a spritesheet using a signed distance field for each sprite
   -h, --help               Print help
   -V, --version            Print version

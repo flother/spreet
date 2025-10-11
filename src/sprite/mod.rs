@@ -558,6 +558,46 @@ impl Spritesheet {
         write!(file, "{json_string}")?;
         Ok(())
     }
+
+    /// Saves the `sprite_index` to a local file named `file_name_prefix` + ".json".
+    ///
+    /// A simple index file is a JSON document containing a description of each sprite within a
+    /// spritesheet. It contains the width, height, X coordinate and Y coordinate of the sprite.
+    ///
+    /// The index file will match a spritesheet that can be saved with [`Self::save_spritesheet`].
+    pub fn save_index_simple(&self, file_name_prefix: &str, minify: bool) -> std::io::Result<()> {
+        #[derive(Serialize)]
+        struct SimpleSpriteDescription {
+            height: u32,
+            width: u32,
+            x: u32,
+            y: u32,
+        }
+
+        let index = self
+            .get_index()
+            .iter()
+            .map(|(name, sprite)| {
+                let sprite = SimpleSpriteDescription {
+                    x: sprite.x,
+                    y: sprite.y,
+                    width: sprite.width,
+                    height: sprite.height,
+                };
+
+                (name, sprite)
+            })
+            .collect::<BTreeMap<_, _>>();
+
+        let mut file = File::create(format!("{file_name_prefix}.json"))?;
+        let json_string = if minify {
+            serde_json::to_string(&index)?
+        } else {
+            serde_json::to_string_pretty(&index)?
+        };
+        write!(file, "{json_string}")?;
+        Ok(())
+    }
 }
 
 /// Returns the name (unique id within a spritesheet) taken from a file.

@@ -73,7 +73,12 @@ fn main() {
     };
 
     // Save the index file to a local JSON file with the same name as the spritesheet.
-    if let Err(e) = spritesheet.save_index(&file_prefix, args.minify_index_file) {
+    let res = if args.simple_index_file {
+        spritesheet.save_index_simple(&file_prefix, args.minify_index_file)
+    } else {
+        spritesheet.save_index(&file_prefix, args.minify_index_file)
+    };
+    if let Err(e) = res {
         eprintln!("Error: could not save sprite index to {file_prefix} ({e})");
         std::process::exit(exitcode::IOERR);
     };
