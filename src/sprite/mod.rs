@@ -2,6 +2,7 @@ use std::collections::btree_map::Entry;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
+use std::num::NonZero;
 use std::path::Path;
 
 use crunch::{Item, PackedItem, PackedItems, Rotation};
@@ -399,6 +400,12 @@ struct PixmapItem {
     sprite: Sprite,
 }
 
+/// Optimization level for PNG image output.
+pub enum Optlevel {
+    Oxipng { level: u8 },
+    Zopfli { iterations: NonZero<u8> },
+}
+
 impl Spritesheet {
     pub fn new(
         sprites: BTreeMap<String, Sprite>,
@@ -500,19 +507,54 @@ impl Spritesheet {
     /// Encode the spritesheet to the in-memory PNG image.
     ///
     /// The `spritesheet` `Pixmap` is converted to an in-memory PNG, optimised using the [`oxipng`]
-    /// library.
+    /// library with the default optimization level.
     ///
     /// The spritesheet will match an index that can be retrieved with [`Self::get_index`].
     ///
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
     pub fn encode_png(&self) -> SpreetResult<Vec<u8>> {
+        self.encode_png_at(Optlevel::default())
+    }
+
+    /// Encode the spritesheet to the in-memory PNG image with the specified optimization level.
+    ///
+    /// The `spritesheet` `Pixmap` is converted to an in-memory PNG, optimised using the [`oxipng`]
+    /// library.
+    ///
+    /// The spritesheet will match an index that can be retrieved with [`Self::get_index`].
+    ///
+    /// [`oxipng`]: https://github.com/shssoichiro/oxipng
+    pub fn encode_png_at(&self, optlevel: Optlevel) -> SpreetResult<Vec<u8>> {
+        let options = match optlevel {
+            Optlevel::Oxipng { level } => oxipng::Options::from_preset(level.min(6)),
+            Optlevel::Zopfli { iterations } => oxipng::Options {
+                deflate: oxipng::Deflaters::Zopfli { iterations },
+                ..oxipng::Options::max_compression()
+            },
+        };
+
         Ok(optimize_from_memory(
             self.sheet.encode_png()?.as_slice(),
-            &oxipng::Options::default(),
+            &options,
         )?)
     }
 
     /// Saves the spritesheet to a local file named `path`.
+    ///
+    /// A spritesheet, called an [image file] in the Mapbox Style Specification, is a PNG image
+    /// containing all the individual sprite images. The `spritesheet` `Pixmap` is converted to an
+    /// in-memory PNG, optimised using the [`oxipng`] library with the default optimization level,
+    /// and saved to a local file.
+    ///
+    /// The spritesheet will match an index file that can be saved with [`Self::save_index`].
+    ///
+    /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
+    /// [`oxipng`]: https://github.com/shssoichiro/oxipng
+    pub fn save_spritesheet<P: AsRef<Path>>(&self, path: P) -> SpreetResult<()> {
+        Ok(std::fs::write(path, self.encode_png()?)?)
+    }
+
+    /// Saves the spritesheet to a local file named `path` with the specified optimization level.
     ///
     /// A spritesheet, called an [image file] in the Mapbox Style Specification, is a PNG image
     /// containing all the individual sprite images. The `spritesheet` `Pixmap` is converted to an
@@ -522,8 +564,12 @@ impl Spritesheet {
     ///
     /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
-    pub fn save_spritesheet<P: AsRef<Path>>(&self, path: P) -> SpreetResult<()> {
-        Ok(std::fs::write(path, self.encode_png()?)?)
+    pub fn save_spritesheet_at<P: AsRef<Path>>(
+        &self,
+        path: P,
+        optlevel: Optlevel,
+    ) -> SpreetResult<()> {
+        Ok(std::fs::write(path, self.encode_png_at(optlevel)?)?)
     }
 
     /// Get the `sprite_index` that can be serialized to JSON.
@@ -557,6 +603,12 @@ impl Spritesheet {
         };
         write!(file, "{json_string}")?;
         Ok(())
+    }
+}
+
+impl Default for Optlevel {
+    fn default() -> Self {
+        Optlevel::Oxipng { level: 2 }
     }
 }
 
