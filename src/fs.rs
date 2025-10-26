@@ -1,6 +1,8 @@
 use std::fs::{read, read_dir, DirEntry};
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, OnceLock};
 
+use resvg::usvg::fontdb::Database;
 use resvg::usvg::{Options, Tree};
 
 use crate::error::SpreetResult;
@@ -53,6 +55,15 @@ pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> SpreetRe
 
 /// Load an SVG image from a file path.
 pub fn load_svg<P: AsRef<Path>>(path: P) -> SpreetResult<Tree> {
+    static FONTDB: OnceLock<Arc<Database>> = OnceLock::new();
+    let fontdb = FONTDB
+        .get_or_init(|| {
+            let mut db = Database::new();
+            db.load_system_fonts();
+            Arc::new(db)
+        })
+        .clone();
+
     // The resources directory needs to be the same location as the SVG file itself, so that any
     // embedded resources (like PNGs in <image> elements) that use relative URLs can be resolved
     // correctly.
@@ -61,6 +72,7 @@ pub fn load_svg<P: AsRef<Path>>(path: P) -> SpreetResult<Tree> {
         .and_then(|p| p.parent().map(Path::to_path_buf));
     let options = Options {
         resources_dir,
+        fontdb,
         ..Options::default()
     };
 
