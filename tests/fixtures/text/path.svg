@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="41" height="41">
+  <defs>
+    <path id="text-circle" d="M20,4 a16,16 0 1,1 -0.1,0"/>
+  </defs>
+  <circle cx="20" cy="20" r="18" fill="#ffbb96" stroke="#ff7c23" stroke-width="2"/>
+  <text font-size="6" font-family="'DejaVu Sans'" fill="#822d00">
+    <textPath xlink:href="#text-circle" startOffset="50%" text-anchor="middle">
+      Spreet
+      Spreet
+      Spreet
+      Spreet
+      Spreet
+    </textPath>
+  </text>
+</svg>
