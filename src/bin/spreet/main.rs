@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
+use std::num::NonZero;
 
 use clap::Parser;
-use spreet::{get_svg_input_paths, load_svg, sprite_name, Sprite, Spritesheet};
+use spreet::{get_svg_input_paths, load_svg, sprite_name, Optlevel, Sprite, Spritesheet};
 
 mod cli;
 
@@ -64,10 +65,19 @@ fn main() {
         std::process::exit(exitcode::DATAERR);
     };
 
+    let optlevel = match (args.oxipng, args.zopfli) {
+        (None, None) => Optlevel::default(),
+        (Some(level), None) => Optlevel::Oxipng { level },
+        (None, Some(iterations)) => Optlevel::Zopfli {
+            iterations: NonZero::new(iterations).unwrap(),
+        },
+        (Some(_), Some(_)) => unreachable!(),
+    };
+
     // Save the bitmapped spritesheet to a local PNG.
     let file_prefix = args.output;
     let spritesheet_path = format!("{file_prefix}.png");
-    if let Err(e) = spritesheet.save_spritesheet(&spritesheet_path) {
+    if let Err(e) = spritesheet.save_spritesheet_at(&spritesheet_path, optlevel) {
         eprintln!("Error: could not save spritesheet to {spritesheet_path} ({e})");
         std::process::exit(exitcode::IOERR);
     };
