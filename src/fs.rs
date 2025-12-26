@@ -1,9 +1,10 @@
+use std::borrow::Cow;
 use std::fs::{read, read_dir, DirEntry};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
 use resvg::usvg::fontdb::Database;
-use resvg::usvg::{Options, Tree};
+use resvg::usvg::{decompress_svgz, roxmltree, Error as UsvgError, Options, Tree};
 
 use crate::error::SpreetResult;
 
@@ -55,19 +56,37 @@ pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> SpreetRe
 
 /// Load an SVG image from a file path.
 pub fn load_svg<P: AsRef<Path>>(path: P) -> SpreetResult<Tree> {
-    static FONTDB: OnceLock<Arc<Database>> = OnceLock::new();
-    let fontdb = FONTDB
-        .get_or_init(|| {
-            let mut db = Database::new();
-            db.load_system_fonts();
-            Arc::new(db)
-        })
-        .clone();
+    static SYSTEM_FONTDB: OnceLock<Arc<Database>> = OnceLock::new();
+    static EMPTY_FONTDB: OnceLock<Arc<Database>> = OnceLock::new();
+
+    let path = path.as_ref();
+    let data = read(path)?;
+    let text = svg_data_to_text(&data)?;
+    let xml_opt = roxmltree::ParsingOptions {
+        allow_dtd: true,
+        ..Default::default()
+    };
+    let doc = roxmltree::Document::parse_with_options(&text, xml_opt).map_err(UsvgError::from)?;
+    // Font database initialisation can be expensive, so only load system fonts if an SVG includes a
+    // text element.
+    let fontdb = if svg_has_text_nodes(&doc) {
+        SYSTEM_FONTDB
+            .get_or_init(|| {
+                let mut db = Database::new();
+                db.load_system_fonts();
+                Arc::new(db)
+            })
+            .clone()
+    } else {
+        EMPTY_FONTDB
+            .get_or_init(|| Arc::new(Database::new()))
+            .clone()
+    };
 
     // The resources directory needs to be the same location as the SVG file itself, so that any
     // embedded resources (like PNGs in <image> elements) that use relative URLs can be resolved
     // correctly.
-    let resources_dir = std::fs::canonicalize(&path)
+    let resources_dir = std::fs::canonicalize(path)
         .ok()
         .and_then(|p| p.parent().map(Path::to_path_buf));
     let options = Options {
@@ -76,5 +95,22 @@ pub fn load_svg<P: AsRef<Path>>(path: P) -> SpreetResult<Tree> {
         ..Options::default()
     };
 
-    Ok(Tree::from_data(&read(path)?, &options)?)
+    Ok(Tree::from_xmltree(&doc, &options)?)
+}
+
+/// Returns `true` if the SVG document contains any `<text>` nodes, `false` otherwise.
+fn svg_has_text_nodes(doc: &roxmltree::Document) -> bool {
+    doc.descendants().any(|n| n.has_tag_name("text"))
+}
+
+/// Convert SVG data (which may be compressed as SVGZ) into a UTF-8 string.
+fn svg_data_to_text(data: &[u8]) -> Result<Cow<'_, str>, UsvgError> {
+    if data.starts_with(&[0x1f, 0x8b]) {
+        let data = decompress_svgz(data)?;
+        let text = String::from_utf8(data).map_err(|_| UsvgError::NotAnUtf8Str)?;
+        Ok(Cow::Owned(text))
+    } else {
+        let text = std::str::from_utf8(data).map_err(|_| UsvgError::NotAnUtf8Str)?;
+        Ok(Cow::Borrowed(text))
+    }
 }
