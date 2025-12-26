@@ -385,3 +385,26 @@ fn spreet_can_output_retina_spritesheet_with_spacing() -> Result<(), Box<dyn std
 
     Ok(())
 }
+
+#[test]
+fn spreet_can_output_sprites_with_text() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = assert_fs::TempDir::new().unwrap();
+
+    let mut cmd = Command::cargo_bin("spreet")?;
+    cmd.arg("tests/fixtures/text")
+        .arg(temp.join("text@3x"))
+        .arg("--ratio")
+        .arg("3")
+        .assert()
+        .success();
+
+    let expected_spritesheet = Path::new("tests/fixtures/output/text@3x.png");
+    let actual_spritesheet = predicate::path::eq_file(temp.join("text@3x.png"));
+    let expected_index = Path::new("tests/fixtures/output/text@3x.json");
+    let actual_index = predicate::path::eq_file(temp.join("text@3x.json"));
+
+    assert!(actual_spritesheet.eval(expected_spritesheet));
+    assert!(actual_index.eval(expected_index));
+
+    Ok(())
+}

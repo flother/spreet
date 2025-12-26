@@ -50,6 +50,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Install DejaVu fonts
+        run: |
+          apt update
+          apt install -y fonts-dejavu-core
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test

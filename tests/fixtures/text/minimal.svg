@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+  <rect width="32" height="32" fill="#000"/>
+  <text x="16" y="18" text-anchor="middle" font-size="10" font-family="'DejaVu Sans'" fill="#f00">
+    Spreet
+  </text>
+</svg>
