@@ -1,16 +1,15 @@
 #![cfg(feature = "cli")]
 
 use std::path::Path;
-use std::process::Command;
 
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
 
 #[test]
 fn spreet_can_run_successfully() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("can_run"))
         .arg("--ratio")
@@ -25,7 +24,7 @@ fn spreet_can_run_successfully() -> Result<(), Box<dyn std::error::Error>> {
 fn spreet_can_output_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("default"))
         .assert()
@@ -46,7 +45,7 @@ fn spreet_can_output_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
 fn spreet_can_output_unique_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("unique"))
         .arg("--unique")
@@ -68,7 +67,7 @@ fn spreet_can_output_unique_spritesheet() -> Result<(), Box<dyn std::error::Erro
 fn spreet_can_output_retina_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("default@2x"))
         .arg("--retina")
@@ -90,7 +89,7 @@ fn spreet_can_output_retina_spritesheet() -> Result<(), Box<dyn std::error::Erro
 fn spreet_can_output_recursive_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("recursive"))
         .arg("--recursive")
@@ -112,7 +111,7 @@ fn spreet_can_output_recursive_spritesheet() -> Result<(), Box<dyn std::error::E
 fn spreet_can_output_unique_retina_spritesheet() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("unique@2x"))
         .arg("--retina")
@@ -135,7 +134,7 @@ fn spreet_can_output_unique_retina_spritesheet() -> Result<(), Box<dyn std::erro
 fn spreet_can_output_minified_index_file() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("minify"))
         .arg("--minify-index-file")
@@ -158,7 +157,7 @@ fn spreet_can_output_minified_index_file_and_unique_spritesheet(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("minify_unique"))
         .arg("--minify-index-file")
@@ -181,7 +180,7 @@ fn spreet_can_output_minified_index_file_and_unique_spritesheet(
 fn spreet_can_output_stretchable_icons() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/stretchable")
         .arg(temp.join("stretchable@2x"))
         .arg("--retina")
@@ -203,7 +202,7 @@ fn spreet_can_output_stretchable_icons() -> Result<(), Box<dyn std::error::Error
 fn spreet_can_output_sdf_icons() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("sdf@2x"))
         .arg("--sdf")
@@ -225,7 +224,7 @@ fn spreet_can_output_sdf_icons() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn spreet_rejects_non_existent_input_directory() {
-    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("does_not_exist")
         .arg("default")
         .assert()
@@ -238,7 +237,7 @@ fn spreet_rejects_non_existent_input_directory() {
 fn spreet_rejects_zero_ratio() {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("default"))
         .arg("--ratio")
@@ -253,7 +252,7 @@ fn spreet_rejects_zero_ratio() {
 fn spreet_rejects_negative_ratio() {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("default"))
         .arg("--ratio")
@@ -268,7 +267,7 @@ fn spreet_rejects_negative_ratio() {
 fn spreet_accepts_pngs_wrapped_in_svgs() {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet").unwrap();
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/pngs")
         .arg(temp.join("pngs@2x"))
         .arg("--retina")
@@ -288,7 +287,7 @@ fn spreet_accepts_pngs_wrapped_in_svgs() {
 fn spreet_accepts_zero_spacing() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("explicit_zero_spacing"))
         .arg("--spacing")
@@ -303,7 +302,7 @@ fn spreet_accepts_zero_spacing() -> Result<(), Box<dyn std::error::Error>> {
 fn spreet_rejects_negative_spacing() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("default"))
         .arg("--spacing=-15")
@@ -319,7 +318,7 @@ fn spreet_rejects_negative_spacing() -> Result<(), Box<dyn std::error::Error>> {
 fn spreet_can_output_spritesheet_with_spacing() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("spacing"))
         .arg("--spacing")
@@ -342,7 +341,7 @@ fn spreet_can_output_spritesheet_with_spacing() -> Result<(), Box<dyn std::error
 fn spreet_can_output_unique_spritesheet_with_spacing() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("spacing_unique"))
         .arg("--spacing")
@@ -366,7 +365,7 @@ fn spreet_can_output_unique_spritesheet_with_spacing() -> Result<(), Box<dyn std
 fn spreet_can_output_retina_spritesheet_with_spacing() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/svgs")
         .arg(temp.join("spacing@2x"))
         .arg("--spacing")
@@ -390,7 +389,7 @@ fn spreet_can_output_retina_spritesheet_with_spacing() -> Result<(), Box<dyn std
 fn spreet_can_output_sprites_with_text() -> Result<(), Box<dyn std::error::Error>> {
     let temp = assert_fs::TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("spreet")?;
+    let mut cmd = cargo_bin_cmd!("spreet");
     cmd.arg("tests/fixtures/text")
         .arg(temp.join("text@3x"))
         .arg("--ratio")
