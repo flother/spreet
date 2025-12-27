@@ -29,7 +29,7 @@
 - Update [assert_fs](https://crates.io/crates/assert_fs) dev dependency to v1.1
 - Update [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to v2
 
-The minimum supported version of Rust is now 1.79.0 (released June 2024).
+The minimum supported version of Rust is now 1.85.1 (released March 2025).
 
 ## v0.11.0 (2023-12-05)
 
