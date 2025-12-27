@@ -39,23 +39,18 @@ fn is_useful_input(entry: &DirEntry) -> bool {
 ///
 /// This function will return an error if Rust's underlying [`read_dir`] returns an error.
 pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> SpreetResult<Vec<PathBuf>> {
-    Ok(read_dir(path)?
-        .filter_map(|entry| {
-            if let Ok(entry) = entry {
-                let path_buf = entry.path();
-                if recursive && path_buf.is_dir() {
-                    get_svg_input_paths(path_buf, true).ok()
-                } else if is_useful_input(&entry) {
-                    Some(vec![path_buf])
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        })
-        .flatten()
-        .collect())
+    let mut results = Vec::new();
+    for entry in read_dir(path)? {
+        let entry = entry?;
+        let path_buf = entry.path();
+        if recursive && path_buf.is_dir() {
+            let nested = get_svg_input_paths(path_buf, true)?;
+            results.extend(nested);
+        } else if is_useful_input(&entry) {
+            results.push(path_buf);
+        }
+    }
+    Ok(results)
 }
 
 /// Load an SVG image from a file path.
@@ -123,6 +118,8 @@ fn svg_data_to_text(data: &[u8]) -> Result<Cow<'_, str>, UsvgError> {
 mod tests {
     use super::*;
     use assert_fs::prelude::*;
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt;
 
     fn entry_for(temp: &assert_fs::TempDir, name: &str) -> DirEntry {
         std::fs::read_dir(temp.path())
@@ -162,5 +159,21 @@ mod tests {
         tmp_dir.child("icons.svg").create_dir_all().unwrap();
         let dir_entry = entry_for(&tmp_dir, "icons.svg");
         assert!(!is_svg_file(&dir_entry));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn get_svg_input_paths_returns_error_on_unreadable_directory() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        let restricted = tmp_dir.child("no-access");
+        restricted.create_dir_all().unwrap();
+        std::fs::set_permissions(restricted.path(), std::fs::Permissions::from_mode(0o000))
+            .unwrap();
+
+        let result = get_svg_input_paths(tmp_dir.path(), true);
+
+        std::fs::set_permissions(restricted.path(), std::fs::Permissions::from_mode(0o700))
+            .unwrap();
+        assert!(result.is_err());
     }
 }
