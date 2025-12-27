@@ -7,6 +7,8 @@
 - Update Oxipng dependency from v9 to v10 (see [#106])
 - Update thiserror dependency from v1 to v2 (see [#106])
 
+The minimum supported version of Rust is now 1.85.1 (released March 2025).
+
 [#102]: https://github.com/flother/spreet/pull/102
 [#106]: https://github.com/flother/spreet/pull/106
 [#107]: https://github.com/flother/spreet/pull/107
@@ -34,7 +36,7 @@
 - Update [assert_fs](https://crates.io/crates/assert_fs) dev dependency to v1.1
 - Update [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to v2
 
-The minimum supported version of Rust is now 1.85.1 (released March 2025).
+The minimum supported version of Rust is now 1.79.0 (released June 2024).
 
 ## v0.11.0 (2023-12-05)
 
