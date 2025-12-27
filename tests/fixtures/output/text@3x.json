@@ -1,0 +1,16 @@
+{
+  "minimal": {
+    "height": 96,
+    "pixelRatio": 3,
+    "width": 96,
+    "x": 123,
+    "y": 0
+  },
+  "path": {
+    "height": 123,
+    "pixelRatio": 3,
+    "width": 123,
+    "x": 0,
+    "y": 0
+  }
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Text in SVG `<text>` elements now rendered in PNG sprites (see [#102](https://github.com/flother/spreet/issues/102))
+
 ## v0.13.1 (2025-12-24)
 
 - Add `--spacing` argument to apply padding between sprites (see [#76](https://github.com/flother/spreet/issues/76) and [#95](https://github.com/flother/spreet/pull/95))
