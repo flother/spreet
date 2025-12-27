@@ -2,9 +2,12 @@
 
 ## Unreleased
 
-- Text in SVG `<text>` elements now rendered in PNG sprites (see [#102](https://github.com/flother/spreet/issues/102))
-- Update Oxipng dependency from v9 to v10
-- Update thiserror dependency from v1 to v2
+- Text in SVG `<text>` elements now rendered in PNG sprites (see [#102])
+- Update Oxipng dependency from v9 to v10 (see [#106])
+- Update thiserror dependency from v1 to v2 (see [#106])
+
+[#102]: https://github.com/flother/spreet/pull/102
+[#106]: https://github.com/flother/spreet/pull/106
 
 ## v0.13.1 (2025-12-24)
 
