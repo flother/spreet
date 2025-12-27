@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Text in SVG `<text>` elements now rendered in PNG sprites (see [#102])
+- Support loading SVG files compressed with gzip (`*.svgz`)
 - Update Oxipng dependency from v9 to v10 (see [#106])
 - Update thiserror dependency from v1 to v2 (see [#106])
 
