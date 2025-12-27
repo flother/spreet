@@ -16,9 +16,13 @@ fn is_hidden(entry: &DirEntry) -> bool {
         .map_or(false, |s| s.starts_with('.'))
 }
 
-/// Returns `true` if `entry` is a file with the extension `.svg`, `false` otherwise.
+/// Returns `true` if `entry` is a file with the extension `.svg` or `.svgz`, `false` otherwise.
 fn is_svg_file(entry: &DirEntry) -> bool {
-    entry.path().is_file() && entry.path().extension().map_or(false, |s| s == "svg")
+    entry.path().is_file()
+        && entry
+            .path()
+            .extension()
+            .map_or(false, |s| s == "svg" || s == "svgz")
 }
 
 /// Returns `true` if `entry` is an SVG image and isn't hidden.
@@ -26,7 +30,7 @@ fn is_useful_input(entry: &DirEntry) -> bool {
     !is_hidden(entry) && is_svg_file(entry)
 }
 
-/// Returns a vector of file paths matching all SVGs within the given directory.
+/// Returns a vector of file paths matching all SVG and SVGZ files within the given directory.
 ///
 /// It ignores hidden files (files whose names begin with `.`) but it does follow symlinks. If
 /// `recursive` is `true` it will also return file paths in sub-directories.
@@ -112,5 +116,51 @@ fn svg_data_to_text(data: &[u8]) -> Result<Cow<'_, str>, UsvgError> {
     } else {
         let text = std::str::from_utf8(data).map_err(|_| UsvgError::NotAnUtf8Str)?;
         Ok(Cow::Borrowed(text))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::prelude::*;
+
+    fn entry_for(temp: &assert_fs::TempDir, name: &str) -> DirEntry {
+        std::fs::read_dir(temp.path())
+            .unwrap()
+            .map(|entry| entry.unwrap())
+            .find(|entry| entry.file_name().to_str() == Some(name))
+            .unwrap()
+    }
+
+    #[test]
+    fn is_svg_file_accepts_svg() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        tmp_dir.child("icon.svg").touch().unwrap();
+        let svg_entry = entry_for(&tmp_dir, "icon.svg");
+        assert!(is_svg_file(&svg_entry));
+    }
+
+    #[test]
+    fn is_svg_file_accepts_svgz() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        tmp_dir.child("icon.svgz").touch().unwrap();
+        let svgz_entry = entry_for(&tmp_dir, "icon.svgz");
+        assert!(is_svg_file(&svgz_entry));
+    }
+
+    #[test]
+    fn is_svg_file_rejects_other_extensions() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        tmp_dir.child("icon.png").touch().unwrap();
+        let png_entry = entry_for(&tmp_dir, "icon.png");
+        assert!(!is_svg_file(&png_entry));
+    }
+
+    #[test]
+    fn is_svg_file_rejects_directories() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        tmp_dir.child("icons.svg").create_dir_all().unwrap();
+        let dir_entry = entry_for(&tmp_dir, "icons.svg");
+        assert!(!is_svg_file(&dir_entry));
     }
 }

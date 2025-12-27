@@ -1,6 +1,6 @@
 # Spreet: create spritesheets from SVGs
 
-Spreet is a command-line tool that creates a [spritesheet](https://en.wikipedia.org/wiki/Spritesheet) (aka texture atlas) from a directory of SVG images. You'll need this when you create [MapLibre](https://maplibre.org/) or [Mapbox](https://docs.mapbox.com/) vector web maps, where cartographic stylesheets require that [icons be loaded from a spritesheet](https://maplibre.org/maplibre-gl-js-docs/style-spec/sprite/).
+Spreet is a command-line tool that creates a [spritesheet](https://en.wikipedia.org/wiki/Spritesheet) (aka texture atlas) from a directory of SVG and SVGZ images. You'll need this when you create [MapLibre](https://maplibre.org/) or [Mapbox](https://docs.mapbox.com/) vector web maps, where cartographic stylesheets require that [icons be loaded from a spritesheet](https://maplibre.org/maplibre-gl-js-docs/style-spec/sprite/).
 
 Compared to other tools for creating spritesheets from SVGs, Spreet:
 
