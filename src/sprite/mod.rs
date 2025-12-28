@@ -311,6 +311,7 @@ impl SpriteDescription {
 /// Builder pattern for `Spritesheet`: construct a `Spritesheet` object using calls to a builder
 /// helper.
 #[derive(Default, Clone)]
+#[must_use = "builder does nothing unless you call .generate()"]
 pub struct SpritesheetBuilder {
     sprites: Option<BTreeMap<String, Sprite>>,
     references: Option<MultiMap<String, String>>,
@@ -328,20 +329,20 @@ impl SpritesheetBuilder {
         }
     }
 
-    pub fn sprites(&mut self, sprites: BTreeMap<String, Sprite>) -> &mut Self {
+    pub fn sprites(mut self, sprites: BTreeMap<String, Sprite>) -> Self {
         self.sprites = Some(sprites);
         self
     }
 
     /// Set the spacing (in pixels) to add to the right and bottom of each sprite.
-    pub fn spacing(&mut self, spacing: u8) -> &mut Self {
+    pub fn spacing(mut self, spacing: u8) -> Self {
         self.spacing = spacing;
         self
     }
 
     // Remove any duplicate sprites from the spritesheet's sprites. This is used to let spritesheets
     // include only unique sprites, with multiple references to the same sprite in the index file.
-    pub fn make_unique(&mut self) -> &mut Self {
+    pub fn make_unique(mut self) -> Self {
         match self.sprites.take() {
             Some(sprites) => {
                 let mut unique_sprites = BTreeMap::new();
@@ -373,7 +374,7 @@ impl SpritesheetBuilder {
     ///
     /// You have to ensure that the sprites are created as an SDF file beforehand. See
     /// [`Sprite::new_sdf`] for further context.
-    pub fn make_sdf(&mut self) -> &mut Self {
+    pub fn make_sdf(mut self) -> Self {
         self.sdf = true;
         self
     }

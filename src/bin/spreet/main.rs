@@ -48,15 +48,13 @@ fn main() {
         std::process::exit(exitcode::NOINPUT);
     }
 
-    let mut spritesheet_builder = Spritesheet::build();
-    spritesheet_builder.sprites(sprites);
-    spritesheet_builder.spacing(args.spacing);
+    let mut spritesheet_builder = Spritesheet::build().sprites(sprites).spacing(args.spacing);
     if args.unique {
-        spritesheet_builder.make_unique();
-    };
+        spritesheet_builder = spritesheet_builder.make_unique();
+    }
     if args.sdf {
-        spritesheet_builder.make_sdf();
-    };
+        spritesheet_builder = spritesheet_builder.make_sdf();
+    }
 
     // Generate sprite sheet
     let Some(spritesheet) = spritesheet_builder.generate() else {
