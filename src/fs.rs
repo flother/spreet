@@ -13,7 +13,7 @@ fn is_hidden(entry: &DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
-        .map_or(false, |s| s.starts_with('.'))
+        .is_some_and(|s| s.starts_with('.'))
 }
 
 /// Returns `true` if `entry` is a file with the extension `.svg` or `.svgz`, `false` otherwise.
@@ -22,7 +22,7 @@ fn is_svg_file(entry: &DirEntry) -> bool {
         && entry
             .path()
             .extension()
-            .map_or(false, |s| s == "svg" || s == "svgz")
+            .is_some_and(|s| s == "svg" || s == "svgz")
 }
 
 /// Returns `true` if `entry` is an SVG image and isn't hidden.

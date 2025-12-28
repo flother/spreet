@@ -57,10 +57,5 @@ fn is_positive(s: &str) -> Result<u8, String> {
 
 /// Clap validator to ensure that an unsigned integer parsed from a string is non-negative.
 fn is_non_negative(s: &str) -> Result<u8, String> {
-    u8::from_str(s)
-        .map_err(|_| String::from("must be a non-negative number"))
-        .and_then(|result| {
-            // u8 is inherently non-negative, so we just need to validate parsing
-            Ok(result)
-        })
+    u8::from_str(s).map_err(|_| String::from("must be a non-negative number"))
 }
