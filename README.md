@@ -112,15 +112,17 @@ Arguments:
   <OUTPUT>  Name of the file in which to save the spritesheet
 
 Options:
-  -r, --ratio <RATIO>      Set the output pixel ratio [default: 1]
-      --retina             Set the pixel ratio to 2 (equivalent to `--ratio=2`)
-      --unique             Store only unique images in the spritesheet, and map them to multiple names
-      --recursive          Include images in sub-directories
-      --spacing <SPACING>  Add pixel spacing between sprites [default: 0]
-  -m, --minify-index-file  Remove whitespace from the JSON index file
-      --sdf                Output a spritesheet using a signed distance field for each sprite
-  -h, --help               Print help
-  -V, --version            Print version
+  -r, --ratio <RATIO>        Set the output pixel ratio [default: 1]
+      --retina               Set the pixel ratio to 2 (equivalent to `--ratio=2`)
+      --unique               Store only unique images in the spritesheet, and map them to multiple names
+      --recursive            Include images in sub-directories
+      --spacing <SPACING>    Add pixel spacing between sprites [default: 0]
+      --oxipng <LEVEL>       Specify the PNG optimization level (0–6, default: 2)
+      --zopfli <ITERATIONS>  Optimize the output PNG with zopfli (1–255, very slow)
+  -m, --minify-index-file    Remove whitespace from the JSON index file
+      --sdf                  Output a spritesheet using a signed distance field for each sprite
+  -h, --help                 Print help
+  -V, --version              Print version
 ```
 
 ## Using Spreet as a Rust library

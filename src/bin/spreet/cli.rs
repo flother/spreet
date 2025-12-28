@@ -28,6 +28,12 @@ pub struct Cli {
     /// Add pixel spacing between sprites
     #[arg(long, default_value_t = 0, value_parser = is_non_negative)]
     pub spacing: u8,
+    /// Specify the PNG optimization level (0–6, default: 2)
+    #[arg(long, group = "optlevel", value_name = "LEVEL", value_parser = is_max_6)]
+    pub oxipng: Option<u8>,
+    /// Optimize the output PNG with zopfli (1–255, very slow)
+    #[arg(long, group = "optlevel", value_name = "ITERATIONS", value_parser = is_positive)]
+    pub zopfli: Option<u8>,
     /// Remove whitespace from the JSON index file
     #[arg(short, long)]
     pub minify_index_file: bool,
@@ -58,4 +64,14 @@ fn is_positive(s: &str) -> Result<u8, String> {
 /// Clap validator to ensure that an unsigned integer parsed from a string is non-negative.
 fn is_non_negative(s: &str) -> Result<u8, String> {
     u8::from_str(s).map_err(|_| String::from("must be a non-negative number"))
+}
+
+/// Clap validator to ensure that an unsigned integer parsed from a string is no more than 6.
+fn is_max_6(s: &str) -> Result<u8, String> {
+    u8::from_str(s)
+        .map_err(|e| e.to_string())
+        .and_then(|result| match result {
+            i if i <= 6 => Ok(result),
+            _ => Err(String::from("must be a number no more than 6")),
+        })
 }
