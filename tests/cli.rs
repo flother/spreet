@@ -245,7 +245,7 @@ fn spreet_rejects_zero_ratio() {
         .assert()
         .failure()
         .code(2)
-        .stderr("error: invalid value '0' for '--ratio <RATIO>': must be greater than one\n\nFor more information, try '--help'.\n");
+        .stderr("error: invalid value '0' for '--ratio <RATIO>': must be greater than zero\n\nFor more information, try '--help'.\n");
 }
 
 #[test]
