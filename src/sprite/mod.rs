@@ -238,7 +238,7 @@ impl Sprite {
             }
         }
         if values.is_empty() {
-            // If there are no SVG elements with `mapbox-stretch-x` ids, check for an element with
+            // If there are no SVG elements with `mapbox-stretch-y` ids, check for an element with
             // the id `mapbox-stretch`. That's a shorthand for stretch-x and stretch-y. If that
             // exists, use its vertical coordinates.
             self.get_node_bbox("mapbox-stretch").map(|rect| vec![rect])
