@@ -4,6 +4,7 @@
 
 - Text in SVG `<text>` elements now rendered in PNG sprites (see [#102])
 - Support loading SVG files compressed with gzip (`*.svgz`; see [#107])
+- PNG encoding now always uses the "None" filter, instead of trialling multiple filters, to speed up encoding (see [#110])
 - Propagate errors in `get_svg_input_paths` (see [#108])
 - Use consuming builder pattern for `SpritesheetBuilder` (see [#109])
 - Update Oxipng dependency from v9 to v10 (see [#106])
@@ -16,6 +17,7 @@ The minimum supported version of Rust is now 1.85.1 (released March 2025).
 [#107]: https://github.com/flother/spreet/pull/107
 [#108]: https://github.com/flother/spreet/pull/108
 [#109]: https://github.com/flother/spreet/pull/109
+[#110]: https://github.com/flother/spreet/pull/110
 
 ## v0.13.1 (2025-12-24)
 

@@ -6,6 +6,7 @@ use std::path::Path;
 
 use crunch::{Item, PackedItem, PackedItems, Rotation};
 use multimap::MultiMap;
+use oxipng::indexset;
 use oxipng::optimize_from_memory;
 use resvg::tiny_skia::{Color, Pixmap, PixmapPaint, Transform};
 use resvg::usvg::{Rect, Tree};
@@ -509,7 +510,10 @@ impl Spritesheet {
     pub fn encode_png(&self) -> SpreetResult<Vec<u8>> {
         Ok(optimize_from_memory(
             self.sheet.encode_png()?.as_slice(),
-            &oxipng::Options::default(),
+            &oxipng::Options {
+                filters: indexset! {oxipng::FilterStrategy::Basic(oxipng::RowFilter::None)},
+                ..oxipng::Options::default()
+            },
         )?)
     }
 
