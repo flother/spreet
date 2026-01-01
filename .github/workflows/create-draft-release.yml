@@ -67,7 +67,7 @@ jobs:
           VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: ./bin
       - name: Create draft release
