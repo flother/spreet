@@ -89,12 +89,18 @@ impl Sprite {
         let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
         resvg::render(&tree, render_ts, &mut unbuff_pixmap.as_mut());
 
-        // Scale the buffer by the pixel ratio so the SDF boundary scales with retina sprites. The
-        // Buffer was originally a fixed size of three pixels, as found in
-        // https://github.com/elastic/spritezero/blob/3b89dc0fef2acbf9/index.js#L144. But after
-        // https://github.com/flother/spreet/issues/86 it was deemed that it should be tied to the
-        // pixel ratio.
-        let buffer = 3 * (pixel_ratio as i32);
+        // Radius and cutoff are recommended to be 8 and 0.25 respectively for a 1x ratio sprite.
+        // https://github.com/stadiamaps/sdf_font_tools/blob/97c5634b8e3515ac7761d0a4f67d12e7f688b042/pbf_font_tools/src/ft_generate.rs#L32-L34
+        // But the radius should scale with the pixel ratio, so that the signed-distance window
+        // remains consistent at higher ratios.
+        let sdf_radius = 8 * (pixel_ratio as usize);
+        let sdf_cutoff = 0.25;
+
+        // The sprite needs to include enough transparent pixels around the icon to preserve the
+        // useful SDF range. A buffer smaller than this clips the halo gradient at the sprite
+        // boundary, which can lead to visual artefacts when the sprite's rendered at a larger size
+        // than the original SVG.
+        let buffer = ((1.0 - sdf_cutoff) * sdf_radius as f64).ceil() as i32;
         let mut buff_pixmap = Pixmap::new(
             unbuff_pixmap_size.width() + 2 * buffer as u32,
             unbuff_pixmap_size.height() + 2 * buffer as u32,
@@ -119,12 +125,7 @@ impl Sprite {
             buffer as usize,
         )
         .ok()?;
-        // Radius and cutoff are recommended to be 8 and 0.25 respectively for a 1x ratio sprite.
-        // https://github.com/stadiamaps/sdf_font_tools/blob/97c5634b8e3515ac7761d0a4f67d12e7f688b042/pbf_font_tools/src/ft_generate.rs#L32-L34
-        // But the radius should scale with the pixel ratio, so that the signed-distance window
-        // remains consistent at higher ratios.
-        let sdf_radius = 8 * (pixel_ratio as usize);
-        let colors = clamp_to_u8(&bitmap.render_sdf(sdf_radius), 0.25)
+        let colors = clamp_to_u8(&bitmap.render_sdf(sdf_radius), sdf_cutoff)
             .ok()?
             .into_iter()
             .map(|alpha| {
