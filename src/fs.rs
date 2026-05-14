@@ -69,17 +69,13 @@ pub fn load_svg<P: AsRef<Path>>(path: P) -> SpreetResult<Tree> {
     // Font database initialisation can be expensive, so only load system fonts if an SVG includes a
     // text element.
     let fontdb = if svg_has_text_nodes(&doc) {
-        SYSTEM_FONTDB
-            .get_or_init(|| {
-                let mut db = Database::new();
-                db.load_system_fonts();
-                Arc::new(db)
-            })
-            .clone()
+        Arc::clone(SYSTEM_FONTDB.get_or_init(|| {
+            let mut db = Database::new();
+            db.load_system_fonts();
+            Arc::new(db)
+        }))
     } else {
-        EMPTY_FONTDB
-            .get_or_init(|| Arc::new(Database::new()))
-            .clone()
+        Arc::clone(EMPTY_FONTDB.get_or_init(|| Arc::new(Database::new())))
     };
 
     // The resources directory needs to be the same location as the SVG file itself, so that any
