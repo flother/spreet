@@ -49,7 +49,7 @@ jobs:
           tar czvf ../../../${{ matrix.package }} spreet
           cd -
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.package }}
           path: ${{ matrix.package }}
