@@ -13,7 +13,7 @@
 - Update resvg dependency from v0.43 to v0.49 (see [#120])
 - Update png dependency from v0.17 to v0.18 (see [#120])
 
-The minimum supported version of Rust is now 1.85.1 (released March 2025).
+The minimum supported version of Rust is now 1.88.0 (released June 2025).
 
 [#102]: https://github.com/flother/spreet/pull/102
 [#106]: https://github.com/flother/spreet/pull/106
