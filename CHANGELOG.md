@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+_No notable changes yet._
+
 ## v0.14.0 (2026-10-25)
 
 - Derive SDF sprite buffer size from the SDF radius and cutoff, so the transparent padding around each icon is always large enough to preserve the full useful SDF range (see [#119])
