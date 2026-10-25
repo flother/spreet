@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Derive SDF sprite buffer size from the SDF radius and cutoff, so the transparent padding around each icon is always large enough to preserve the full useful SDF range (see [#119])
 - Text in SVG `<text>` elements now rendered in PNG sprites (see [#102])
 - Support loading SVG files compressed with gzip (`*.svgz`; see [#107])
 - PNG encoding now always uses the "None" filter, instead of trialling multiple filters, to speed up encoding (see [#110])
@@ -9,6 +10,8 @@
 - Use consuming builder pattern for `SpritesheetBuilder` (see [#109])
 - Update Oxipng dependency from v9 to v10 (see [#106])
 - Update thiserror dependency from v1 to v2 (see [#106])
+- Update resvg dependency from v0.43 to v0.49 (see [#120])
+- Update png dependency from v0.17 to v0.18 (see [#120])
 
 The minimum supported version of Rust is now 1.85.1 (released March 2025).
 
@@ -18,6 +21,8 @@ The minimum supported version of Rust is now 1.85.1 (released March 2025).
 [#108]: https://github.com/flother/spreet/pull/108
 [#109]: https://github.com/flother/spreet/pull/109
 [#110]: https://github.com/flother/spreet/pull/110
+[#119]: https://github.com/flother/spreet/pull/119
+[#120]: https://github.com/flother/spreet/pull/120
 
 ## v0.13.1 (2025-12-24)
 
