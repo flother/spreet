@@ -79,7 +79,7 @@ impl Sprite {
     /// [1]: https://dl.acm.org/doi/10.1145/1281500.1281665
     /// [2]: https://crates.io/crates/sdf_glyph_renderer
     /// [3]: https://blog.demofox.org/2014/06/30/distance-field-textures/
-    /// [4]: https://docs.mapbox.com/help/troubleshooting/using-recolorable-images-in-mapbox-maps/
+    /// [4]: https://docs.mapbox.com/help/dive-deeper/using-recolorable-images-in-mapbox-maps/
     /// [5]: https://github.com/elastic/fontnik/blob/fcaecc174d7561d9147499ba4f254dc7e1b0feea/lib/sdf.js#L225-L230
     pub fn new_sdf(tree: Tree, pixel_ratio: u8) -> Option<Self> {
         let pixel_ratio_f32 = pixel_ratio.into();
@@ -266,7 +266,7 @@ impl Sprite {
 /// A description of a sprite image within a spritesheet. Used for the JSON output required by a
 /// Mapbox Style Specification [index file].
 ///
-/// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
+/// [index file]: https://docs.mapbox.com/style-spec/reference/sprite/#index-file
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SpriteDescription {
@@ -526,7 +526,7 @@ impl Spritesheet {
     ///
     /// The spritesheet will match an index file that can be saved with [`Self::save_index`].
     ///
-    /// [image file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#image-file
+    /// [image file]: https://docs.mapbox.com/style-spec/reference/sprite/#image-file
     /// [`oxipng`]: https://github.com/shssoichiro/oxipng
     pub fn save_spritesheet<P: AsRef<Path>>(&self, path: P) -> SpreetResult<()> {
         Ok(std::fs::write(path, self.encode_png()?)?)
@@ -540,7 +540,7 @@ impl Spritesheet {
     ///
     /// The index file will match a spritesheet that can be saved with [`Self::save_spritesheet`].
     ///
-    /// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
+    /// [index file]: https://docs.mapbox.com/style-spec/reference/sprite/#index-file
     pub fn get_index(&self) -> &BTreeMap<String, SpriteDescription> {
         &self.index
     }
@@ -553,7 +553,7 @@ impl Spritesheet {
     ///
     /// The index file will match a spritesheet that can be saved with [`Self::save_spritesheet`].
     ///
-    /// [index file]: https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file
+    /// [index file]: https://docs.mapbox.com/style-spec/reference/sprite/#index-file
     pub fn save_index(&self, file_name_prefix: &str, minify: bool) -> std::io::Result<()> {
         let mut file = File::create(format!("{file_name_prefix}.json"))?;
         let json_string = if minify {

@@ -83,7 +83,7 @@ Let's say you have a directory of SVGs named `icons` and you want to create a sp
 
     spreet icons my_style
 
-Spreet will also create an [index file](https://docs.mapbox.com/mapbox-gl-js/style-spec/sprite/#index-file) named `my_style.json` that contains a description of the dimensions and location of each image contained in the spritesheet.
+Spreet will also create an [index file](https://docs.mapbox.com/style-spec/reference/sprite/#index-file) named `my_style.json` that contains a description of the dimensions and location of each image contained in the spritesheet.
 
 If you want to create a "retina" version of the spritesheet named `my_style@2x.png`, use the `--retina` option:
 
