@@ -2,6 +2,8 @@ name: Publish new release to crates.io
 on:
   release:
     types: [released]
+permissions:
+  contents: read
 jobs:
   publish-to-cargo:
     name: cargo publish
@@ -17,6 +19,9 @@ jobs:
 
   publish-to-ghcr:
     name: docker publish
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1

@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
+permissions:
+  contents: read
 jobs:
   build:
     name: Build release binaries
@@ -58,6 +60,8 @@ jobs:
   publish:
     name: Publish draft release
     needs: [build]
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
