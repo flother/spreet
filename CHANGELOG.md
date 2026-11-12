@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-_No notable changes yet._
+- Deduplicating sprites with `--unique` now compares pixel data directly, instead of encoding every sprite PNG (see [#122])
+
+[#122]: https://github.com/flother/spreet/pull/122
 
 ## v0.14.0 (2026-10-25)
 
