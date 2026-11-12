@@ -1,8 +1,9 @@
+use std::collections::BTreeMap;
 use std::path::Path;
 
 use assert_matches::assert_matches;
 use resvg::usvg::{Options, Rect, Tree};
-use spreet::{load_svg, sprite_name, SpreetError, Sprite};
+use spreet::{load_svg, sprite_name, SpreetError, Sprite, Spritesheet};
 
 #[test]
 fn sprite_name_works_with_root_files() {
@@ -190,4 +191,34 @@ fn stretchable_icon_with_metadata_in_hidden_element_is_ignored() {
     let sprite = Sprite::new(tree, 1).unwrap();
 
     assert!(sprite.content_area().is_none());
+}
+
+#[test]
+fn unique_sprite_matching_works() {
+    let red = "
+        <svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'>
+            <rect width='4' height='4' fill='#f00'/>
+        </svg>
+    ";
+    let blue = "
+        <svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'>
+            <rect width='4' height='4' fill='#00f'/>
+        </svg>
+    ";
+    let mut sprites = BTreeMap::new();
+    for (name, svg) in [("a", red), ("b", red), ("c", blue)] {
+        let tree = Tree::from_str(svg, &Options::default()).unwrap();
+        sprites.insert(name.to_string(), Sprite::new(tree, 1).unwrap());
+    }
+
+    let spritesheet = Spritesheet::build()
+        .sprites(sprites)
+        .make_unique()
+        .generate()
+        .unwrap();
+    let index = spritesheet.get_index();
+
+    assert_eq!(index.len(), 3);
+    assert_eq!((index["a"].x, index["a"].y), (index["b"].x, index["b"].y));
+    assert_ne!((index["a"].x, index["a"].y), (index["c"].x, index["c"].y));
 }

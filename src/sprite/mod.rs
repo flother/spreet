@@ -349,9 +349,12 @@ impl SpritesheetBuilder {
             Some(sprites) => {
                 let mut unique_sprites = BTreeMap::new();
                 let mut references = MultiMap::new();
-                let mut names_for_sprites: BTreeMap<Vec<u8>, String> = BTreeMap::new();
+                // Two sprites are the same image when their dimensions and premultiplied pixel
+                // buffers match.
+                let mut names_for_sprites: BTreeMap<(u32, u32, Vec<u8>), String> = BTreeMap::new();
                 for (name, sprite) in sprites {
-                    let sprite_data = sprite.pixmap().encode_png().unwrap();
+                    let pixmap = sprite.pixmap();
+                    let sprite_data = (pixmap.width(), pixmap.height(), pixmap.data().to_vec());
                     match names_for_sprites.entry(sprite_data) {
                         Entry::Occupied(existing_sprite_name) => {
                             references.insert(existing_sprite_name.get().clone(), name);
