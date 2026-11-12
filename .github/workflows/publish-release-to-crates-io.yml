@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo publish
         env:
@@ -18,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - name: Get package version
         id: get_version
         run: echo "VERSION=$(grep '^version = "' Cargo.toml | head -n 1 | cut -d '"' -f 2)" >> "$GITHUB_OUTPUT"
