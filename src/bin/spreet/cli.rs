@@ -34,6 +34,13 @@ pub struct Cli {
     /// Output a spritesheet using a signed distance field for each sprite
     #[arg(long)]
     pub sdf: bool,
+    /// Treat the input directory as paired PNG icons (xxx.png / xxx@2x.png): build a 1x spritesheet
+    /// from the regular images, a 2x spritesheet from the retina images, and write
+    /// `<OUTPUT>.png/.json` plus `<OUTPUT>@2x.png/.json`. Per-icon `pixelRatio` is 2 for `@2x`
+    /// files (with 1x images falling back to 2x, and vice versa, mirroring Mapbox's
+    /// `build-sprite.js`), and per-icon `sdf` is true when the source path contains `sdf`.
+    #[arg(long, conflicts_with_all = ["retina", "sdf", "ratio"])]
+    pub png_pair: bool,
 }
 
 /// Clap validator to ensure that a string is an existing directory.

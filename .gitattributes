@@ -1,0 +1,12 @@
+# Normalize line endings: LF in the repository and in working-tree checkouts, so the
+# byte-comparison tests against tests/fixtures/output/*.json pass on Windows hosts too.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending converted.
+*.png binary
+*.svg binary
+*.svgz binary
+*.ico binary
+*.jpg binary
+*.woff binary
+*.woff2 binary

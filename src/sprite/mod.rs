@@ -2,6 +2,7 @@ use std::collections::btree_map::Entry;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
+use std::io;
 use std::path::Path;
 
 use crunch::{Item, PackedItem, PackedItems, Rotation};
@@ -20,17 +21,22 @@ mod serialize;
 
 /// A single icon within a spritesheet.
 ///
-/// A sprite is a rectangular icon stored as an SVG image and converted to a bitmap. The bitmap is
-/// saved to a spritesheet.
+/// A sprite is a rectangular icon stored as an SVG image (rasterised to a bitmap) or a PNG image
+/// (decoded as-is). The bitmap is saved to a spritesheet.
 #[derive(Clone)]
 pub struct Sprite {
-    /// Parsed source SVG image.
-    tree: Tree,
+    /// Parsed source SVG image, if the sprite was created from an SVG. It is `None` for sprites
+    /// created from PNG images, which carry no SVG metadata (content/stretch areas).
+    tree: Option<Tree>,
     /// Ratio determining the size the destination pixels compared to the source pixels. A ratio of
     /// 2 means the bitmap will be scaled to be twice the size of the SVG image.
     pixel_ratio: u8,
     /// Bitmap image generated from the SVG image.
     pixmap: Pixmap,
+    /// Whether this sprite is a signed distance field. Sprites created via
+    /// [`Sprite::new_sdf`] are SDF sprites; sprites created from PNG files are SDF if the
+    /// source file path contains the string `sdf`.
+    sdf: bool,
 }
 
 impl Sprite {
@@ -41,9 +47,40 @@ impl Sprite {
         let render_ts = Transform::from_scale(pixel_ratio_f32, pixel_ratio_f32);
         resvg::render(&tree, render_ts, &mut pixmap.as_mut());
         Some(Self {
-            tree,
+            tree: Some(tree),
             pixel_ratio,
             pixmap,
+            sdf: false,
+        })
+    }
+
+    /// Create a sprite from a PNG image, decoding it into the sprite's bitmap as-is (no scaling is
+    /// applied --- the PNG is already at its final pixel ratio).
+    ///
+    /// The PNG is premultiplied into the internal bitmap representation. Gray/grayscale-alpha/
+    /// RGB/palette/16-bit PNGs are normalized to 8-bit RGBA by the decoder first.
+    ///
+    /// PNG sprites carry no SVG tree, so they never expose content or stretch areas. The sprite is
+    /// flagged as SDF if the source file path contains the string `sdf` at a position greater than
+    /// zero, mirroring the per-file SDF detection used by Mapbox's `build-sprite.js`.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the file can't be read, or if the PNG can't be decoded,
+    /// or if the decoded dimensions overflow the bitmap representation.
+    pub fn from_png<P: AsRef<Path>>(path: P, pixel_ratio: u8) -> SpreetResult<Self> {
+        let path = path.as_ref();
+        let png_bytes = std::fs::read(path)?;
+        let pixmap = png_bytes_to_pixmap(&png_bytes)?;
+        let path_str = path.to_string_lossy();
+        // Mirrors build-sprite.js: `i.indexOf('sdf') > 0` --- the string `sdf` anywhere in the
+        // full input path (after position zero) marks the sprite as SDF.
+        let sdf = path_str.find("sdf").is_some_and(|i| i > 0);
+        Ok(Self {
+            tree: None,
+            pixel_ratio,
+            pixmap,
+            sdf,
         })
     }
 
@@ -140,20 +177,27 @@ impl Sprite {
         }
 
         Some(Self {
-            tree,
+            tree: Some(tree),
             pixel_ratio,
             pixmap: buff_pixmap,
+            sdf: true,
         })
     }
 
-    /// Get the sprite's SVG tree.
-    pub fn tree(&self) -> &Tree {
-        &self.tree
+    /// Get the sprite's SVG tree, if the sprite was created from an SVG image. It is `None` for
+    /// sprites created from PNG images.
+    pub fn tree(&self) -> Option<&Tree> {
+        self.tree.as_ref()
     }
 
     /// Get the sprite's pixel ratio.
     pub fn pixel_ratio(&self) -> u8 {
         self.pixel_ratio
+    }
+
+    /// Returns `true` if this sprite is a signed distance field, `false` otherwise.
+    pub fn is_sdf(&self) -> bool {
+        self.sdf
     }
 
     /// Generate a bitmap image from the sprite's SVG tree.
@@ -252,7 +296,7 @@ impl Sprite {
     /// Find a node in the SVG tree with a given id, and return its bounding box with coordinates
     /// multiplied by the sprite's pixel ratio.
     fn get_node_bbox(&self, id: &str) -> Option<Rect> {
-        let bbox = self.tree.node_by_id(id)?.abs_bounding_box();
+        let bbox = self.tree.as_ref()?.node_by_id(id)?.abs_bounding_box();
         let ratio = self.pixel_ratio as f32;
         Rect::from_ltrb(
             bbox.left() * ratio,
@@ -261,6 +305,83 @@ impl Sprite {
             bbox.bottom() * ratio,
         )
     }
+}
+
+/// Decode PNG bytes into a [`Pixmap`], premultiplying the straight-alpha pixels that PNG stores.
+///
+/// The decoder normalizes palette, grayscale, and 16-bit PNGs into 8-bit RGBA first, so all
+/// Mapbox/MapLibre-compatible icon PNGs (whatever their source color type) are supported.
+///
+/// # Errors
+///
+/// This function will return an error if the PNG is malformed or if it uses a color type that the
+/// normalization didn't resolve (which shouldn't happen for `EXPAND`).
+fn png_bytes_to_pixmap(png_bytes: &[u8]) -> SpreetResult<Pixmap> {
+    let mut decoder = png::Decoder::new(io::Cursor::new(png_bytes));
+    decoder.set_transformations(png::Transformations::EXPAND | png::Transformations::STRIP_16);
+    let mut reader = decoder.read_info()?;
+    let Some(buffer_size) = reader.output_buffer_size() else {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "PNG transformation output size is unknown",
+        )
+        .into());
+    };
+    let mut buf = vec![0; buffer_size];
+    let info = reader.next_frame(&mut buf)?;
+    let (width, height) = (info.width, info.height);
+
+    let mut rgba = Vec::with_capacity((width * height * 4) as usize);
+    match info.color_type {
+        png::ColorType::Rgba => {
+            for px in buf.chunks_exact(4) {
+                push_premultiplied(&mut rgba, px[0], px[1], px[2], px[3]);
+            }
+        }
+        png::ColorType::Rgb => {
+            for px in buf.chunks_exact(3) {
+                push_premultiplied(&mut rgba, px[0], px[1], px[2], 255);
+            }
+        }
+        png::ColorType::Grayscale => {
+            for v in &buf {
+                push_premultiplied(&mut rgba, *v, *v, *v, 255);
+            }
+        }
+        png::ColorType::GrayscaleAlpha => {
+            for px in buf.chunks_exact(2) {
+                push_premultiplied(&mut rgba, px[0], px[0], px[0], px[1]);
+            }
+        }
+        // `EXPAND` resolves indexed color into RGB(A); reaching this arm means the transformation
+        // settings changed upstream.
+        png::ColorType::Indexed => {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "unexpected indexed PNG after EXPAND transformation",
+            )
+            .into());
+        }
+    }
+
+    let Some(size) = resvg::tiny_skia::IntSize::from_wh(width, height) else {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("invalid PNG dimensions {width}x{height}"),
+        )
+        .into());
+    };
+    Pixmap::from_vec(rgba, size).ok_or(SpreetError::PathError(
+        std::path::PathBuf::from(format!("invalid PNG dimensions {width}x{height}")),
+    ))
+}
+
+/// Push a single premultiplied RGBA8 pixel (PNG stores straight alpha; tiny-skia expects
+/// premultiplied).
+fn push_premultiplied(out: &mut Vec<u8>, r: u8, g: u8, b: u8, a: u8) {
+    let a16 = a as u16;
+    let prem = |c: u8| ((c as u16 * a16 + 127) / 255) as u8;
+    out.extend_from_slice(&[prem(r), prem(g), prem(b), a]);
 }
 
 /// A description of a sprite image within a spritesheet. Used for the JSON output required by a
@@ -305,7 +426,9 @@ impl SpriteDescription {
             content: sprite.content_area(),
             stretch_x: sprite.stretch_x_areas(),
             stretch_y: sprite.stretch_y_areas(),
-            sdf,
+            // A sprite is SDF when it was created as one (per-sprite, e.g. PNG sprites whose
+            // source path contains `sdf`) or when the spritesheet-level flag is set.
+            sdf: sprite.sdf || sdf,
         }
     }
 }

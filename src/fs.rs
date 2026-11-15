@@ -25,9 +25,24 @@ fn is_svg_file(entry: &DirEntry) -> bool {
             .is_some_and(|s| s == "svg" || s == "svgz")
 }
 
+/// Returns `true` if `entry` is a file with the extension `.png`, `false` otherwise. The
+/// extension comparison is case-sensitive, mirroring Mapbox's `build-sprite.js`.
+fn is_png_file(entry: &DirEntry) -> bool {
+    entry.path().is_file()
+        && entry
+            .path()
+            .extension()
+            .is_some_and(|s| s == "png")
+}
+
 /// Returns `true` if `entry` is an SVG image and isn't hidden.
 fn is_useful_input(entry: &DirEntry) -> bool {
     !is_hidden(entry) && is_svg_file(entry)
+}
+
+/// Returns `true` if `entry` is a PNG image and isn't hidden.
+fn is_useful_png_input(entry: &DirEntry) -> bool {
+    !is_hidden(entry) && is_png_file(entry)
 }
 
 /// Returns a vector of file paths matching all SVG and SVGZ files within the given directory.
@@ -47,6 +62,29 @@ pub fn get_svg_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> SpreetRe
             let nested = get_svg_input_paths(path_buf, true)?;
             results.extend(nested);
         } else if is_useful_input(&entry) {
+            results.push(path_buf);
+        }
+    }
+    Ok(results)
+}
+
+/// Returns a vector of file paths matching all PNG files within the given directory.
+///
+/// It ignores hidden files (files whose names begin with `.`) but it does follow symlinks. If
+/// `recursive` is `true` it will also return file paths in sub-directories.
+///
+/// # Errors
+///
+/// This function will return an error if Rust's underlying [`read_dir`] returns an error.
+pub fn get_png_input_paths<P: AsRef<Path>>(path: P, recursive: bool) -> SpreetResult<Vec<PathBuf>> {
+    let mut results = Vec::new();
+    for entry in read_dir(path)? {
+        let entry = entry?;
+        let path_buf = entry.path();
+        if recursive && path_buf.is_dir() {
+            let nested = get_png_input_paths(path_buf, true)?;
+            results.extend(nested);
+        } else if is_useful_png_input(&entry) {
             results.push(path_buf);
         }
     }
@@ -155,6 +193,44 @@ mod tests {
         tmp_dir.child("icons.svg").create_dir_all().unwrap();
         let dir_entry = entry_for(&tmp_dir, "icons.svg");
         assert!(!is_svg_file(&dir_entry));
+    }
+
+    #[test]
+    fn is_png_file_accepts_png() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        tmp_dir.child("icon.png").touch().unwrap();
+        let png_entry = entry_for(&tmp_dir, "icon.png");
+        assert!(is_png_file(&png_entry));
+    }
+
+    #[test]
+    fn is_png_file_rejects_other_extensions() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        tmp_dir.child("icon.svg").touch().unwrap();
+        tmp_dir.child("icon.PNG").touch().unwrap();
+        let svg_entry = entry_for(&tmp_dir, "icon.svg");
+        let uppercase_entry = entry_for(&tmp_dir, "icon.PNG");
+        assert!(!is_png_file(&svg_entry));
+        // Extension comparison is case-sensitive, mirroring Mapbox's build-sprite.js.
+        assert!(!is_png_file(&uppercase_entry));
+    }
+
+    #[test]
+    fn get_png_input_paths_returns_only_pngs() {
+        let tmp_dir = assert_fs::TempDir::new().unwrap();
+        tmp_dir.child("a.png").touch().unwrap();
+        tmp_dir.child("b.svg").touch().unwrap();
+        tmp_dir.child("c@2x.png").touch().unwrap();
+        tmp_dir.child(".hidden.png").touch().unwrap();
+        tmp_dir.child("upper.PNG").touch().unwrap();
+
+        let paths = get_png_input_paths(tmp_dir.path(), false).unwrap();
+        let names: Vec<String> = paths
+            .iter()
+            .map(|p| p.file_name().unwrap().to_string_lossy().into_owned())
+            .collect();
+
+        assert_eq!(names, vec!["a.png", "c@2x.png"]);
     }
 
     #[cfg(unix)]

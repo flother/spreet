@@ -15,6 +15,8 @@ pub enum SpreetError {
     PathError(PathBuf),
     #[error("PNG encoding error: {0}")]
     PngError(#[from] png::EncodingError),
+    #[error("PNG decoding error: {0}")]
+    PngDecodingError(#[from] png::DecodingError),
     #[error("Oxipng error: {0}")]
     OxiPngError(#[from] PngError),
     #[error("SVG error: {0}")]
